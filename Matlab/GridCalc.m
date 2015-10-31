@@ -1,4 +1,4 @@
-clc; clear all; 
+clc; clear variables; 
 close all;
 
 %% All possible input values
@@ -11,8 +11,8 @@ GutterBaselineRatios = [1 2 3 4];  % Assumption: gutter is proportional to basel
 %% Selected inputs
 MaxCanvasWidth = 1200;
 Ratio = Ratios.('R_16x9');
-Baseline = 11;
-GutterBaselineRatio = 3;
+Baseline = 12;
+GutterBaselineRatio = 1;
 
 
 %% Determine gutter width and number of theoretical micro-blocks
@@ -28,7 +28,7 @@ uBlockColumns = floor( (MaxCanvasWidth + Gutter) / (uBlockWidth + Gutter) );
 GridWidth = (uBlockWidth + Gutter) * uBlockColumns - Gutter;
 
 %% Plotting grids
-PlotGrid(Baseline, MaxCanvasWidth, GridWidth, uBlockWidth, uBlockHeight, Gutter, Ratio, 'on');
+PlotGrid(Baseline, MaxCanvasWidth, Gutter, Ratio, 'on');
 
 % saveas(gcf, 'TestGrid', 'png');
 
