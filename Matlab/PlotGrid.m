@@ -136,8 +136,10 @@ for r=0:MacroRowsNum-1
     for c=0:MacroColsNum-1
     x_pos = CanvasMargin + c*(uBlockW*(r+1)+GutterW);
     y_pos = sum(uBlockH*(0:r)) + GutterH*r;
+    if (MacroColsNum*(uBlockW*(r+1)+GutterW)-GutterW == GridW) % if columns fit grid evently
+        colors = [0 1 0]; else colors = [0 .6 0]; end
     rectangle('Position',  [x_pos, y_pos, uBlockW*(r+1), uBlockH*(r+1) ], ...
-              'FaceColor', [0 1 0], ...
+              'FaceColor', colors, ...  % if good then yellow,
               'LineStyle','none',  ...
               'Clipping', 'on'     ...
               );
@@ -150,7 +152,7 @@ end
 % plot horizontal grid lines, multiples baseline height
 x = [zeros(1, numel(GridBaseY)); CanvasW*ones(1, numel(GridBaseY))];
 y = [GridBaseY; GridBaseY];
-line(x, y, 'Color', [.5 0 0 .4], 'LineWidth', .5);
+line(x, y, 'Color', [.8 0 0 .5], 'LineWidth', .5);
 
 % Baseline tick and label
 if uBlockH ~= Baseline
