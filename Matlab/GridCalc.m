@@ -12,7 +12,7 @@ GutterBaselineRatios = [1 2 3 4];  % Assumption: gutter is proportional to basel
 MaxCanvasWidth = 1200;
 Ratio = Ratios.('R_16x9');
 Baseline = 12;
-GutterBaselineRatio = 1;
+GutterBaselineRatio = 3;
 
 
 %% Determine gutter width and number of theoretical micro-blocks

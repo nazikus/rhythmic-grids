@@ -64,8 +64,8 @@ FileName = sprintf('Canvas %dx%d;  Grid %dx%d;  %sBlock %dx%d (%d:%d); Cols=%d; 
                      CanvasW, CanvasH, GridW, GridH, char(956), uBlockW, uBlockH, Ratio.W, Ratio.H, ColumnsNum,GutterW);
 
 GridTitle  = sprintf( ...
-    'Baseline %d | Gutter %d | CanvasW %d | ARatio %d:%d  \\Rightarrow  GridW %d | %sBlock %dx%d | Margins 2x%d11', ...
-    Baseline, GutterW, CanvasW, Ratio.W, Ratio.H, GridW, char(956), uBlockW, uBlockH, CanvasMargin ...
+    'Baseline %d | Gutter %d | CanvasW %d | ARatio %d:%d  \\Rightarrow  %sBlock %dx%d | GridW %d | Margins 2x%d', ...
+    Baseline, GutterW, CanvasW, Ratio.W, Ratio.H, char(956), uBlockW, uBlockH, GridW, CanvasMargin ...
 );
                  
                  
@@ -83,42 +83,41 @@ fig_h.Resize        = 'off';
 fig_h.GraphicsSmoothing = 'off';
 
 % INITIALIZE AXIS
-ax_h = axes();
+ax = axes();
 hold on; pan yon;
-PlotTitle = ax_h.Title;
-PlotTitle.FontWeight = 'normal';
-PlotTitle.FontSize   = 14;
-PlotTitle.String     = GridTitle;
+ax.Title.String     = GridTitle;
+ax.Title.FontSize   = 14;
+ax.Title.FontWeight = 'normal';
 
-ax_h.Units      = 'pixels';
-ax_h.Position   = [figMargin(1) -(CanvasH-figH+figMargin(2)) CanvasW CanvasH];
-ax_h.XLim       = [0 CanvasW];
-ax_h.YLim       = [0 CanvasH];
-ax_h.Layer      = 'top'; 
-ax_h.TickDir    = 'out';
-ax_h.FontSize   = 9;
-ax_h.TickLength = [0.005 0];
-ax_h.GridAlpha  = 0.3;
-ax_h.GridColor  = [.5 0 0];
+ax.Units      = 'pixels';
+ax.Position   = [figMargin(1) -(CanvasH-figH+figMargin(2)) CanvasW CanvasH];
+ax.XLim       = [0 CanvasW];
+ax.YLim       = [0 CanvasH];
+ax.Layer      = 'top'; 
+ax.TickDir    = 'out';
+ax.FontSize   = 9;
+ax.TickLength = [0.005 0];
+ax.GridAlpha  = 0.3;
+ax.GridColor  = [.5 0 0];
 
 % Y AXIS
-ax_h.YGrid      = 'on';
-ax_h.YDir       = 'reverse';
-ax_h.YTickLabel = GridLabelsY;
-ax_h.YTick      = [GridBaseY];
-ax_h.YColor     = [0 0 .6];
-ax_h.YLabel.FontSize = 14;
-ax_h.YLabel.Color    = [0 0 0];
-% ax_h.YLabel.Position = [-60 CanvasH/3.5];  % resets auto-panning property
-ax_h.YLabel.String   = sprintf('%d px | %d x block types', CanvasH, MacroRowsNum);
+ax.YLabel.String   = sprintf('%d px | %d x block types', CanvasH, MacroRowsNum);
+ax.YLabel.Position = [-60 CanvasH/2];  % disables pan-tracing property
+ax.YLabel.FontSize = 14;
+ax.YLabel.Color    = [0 0 0];
+ax.YTickLabel = GridLabelsY;
+ax.YTick      = [GridBaseY];
+ax.YColor     = [0 0 .6];
+ax.YGrid      = 'on';
+ax.YDir       = 'reverse';
 
 % X AXIS
-ax_h.XGrid      = 'on';
-ax_h.XAxisLocation = 'top';
-ax_h.XTickLabelRotation = 60*(GutterW<28);
-ax_h.XTick      = [GridLinesX];
-ax_h.XColor     = [0 0 .6];
-ax_h.XLabel.String   = ' ';  % hack, just to position up figure title higher
+ax.XLabel.String = ' ';  % hack, just to position figure title up higher
+ax.XTickLabelRotation = 60*(GutterW<28);
+ax.XTick      = [GridLinesX];
+ax.XColor     = [0 0 .6];
+ax.XGrid      = 'on';
+ax.XAxisLocation = 'top';
 
 %% PLOT BLOCKS, GUIDES AND MARGINS
 
@@ -129,19 +128,18 @@ rectangle('Position' , [CanvasMargin+GridW 0 CanvasMargin GridH], ...
           'FaceColor', [.97 .92 .92], 'LineStyle', 'none');
 
 % plot all blocks
-% TODO centering off-blocks
 % TODO block text labels
 % TODO remove suprlus YLabels
 % TODO fix ticks lengths
 for r=0:MacroRowsNum-1
 
-    MacroColsNum = floor( (GridW+GutterW) / (uBlockW*(r+1)+GutterW) ) + 0*logical(r);
+    MacroColsNum = floor( (GridW+GutterW) / (uBlockW*(r+1)+GutterW) ) + 1*logical(r);
     for c=0:MacroColsNum-1
     x_pos = CanvasMargin + c*(uBlockW*(r+1)+GutterW);
     y_pos = sum(uBlockH*(0:r)) + GutterH*r;
     rectangle('Position',  [x_pos, y_pos, uBlockW*(r+1), uBlockH*(r+1) ], ...
               'FaceColor', [0 1 0], ...
-              'LineStyle', 'none',  ...
+              'LineStyle','none',  ...
               'Clipping', 'on'     ...
               );
     end;
