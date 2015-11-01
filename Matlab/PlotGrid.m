@@ -6,7 +6,7 @@ function fig_h = PlotGrid(Baseline, CanvasW, GutterW, Ratio, visible)
 %         - aspect ratio structure: width, height, ration (eg 16, 9, 1.777)
 % visible 'on' (default) |'off' - set plot figure visibility 'on' or 'off'
 
-elast = @(x) x(1:end-1);  % 'excep last' lambda-f for the n-1 elements of a vector
+elast = @(x) x(1:end-1);  % 'except last' lambda-f for the n-1 elements of a vector
 if ~exist('visible', 'var'); visible = 'on'; end;
 
 %% DETERMINE VARIOUS DIMENSIONS, SIZES & MARGINS
@@ -25,8 +25,8 @@ uBlockH = lcm(Baseline, Ratio.H);
 uBlockW = uBlockH * Ratio.R;
 
 % maximum number of columns and rows proportional to uBlock
-ColumnsNum   = floor( (CanvasW + GutterW) / ( uBlockW + GutterW) );
-MacroRowsNum = floor( CanvasW/uBlockW) ;  % each subsequent row height is x2 of preceding
+ColumnsNum   = floor( (CanvasW + GutterW) / (uBlockW + GutterW) );
+MacroRowsNum = floor( CanvasW/uBlockW ) ;  % each subsequent row height is x2 of preceding
 RowsNum = sum(1:MacroRowsNum); % total uBlock rows
 
 % actual grid width & height containing max possible uBlock widths
@@ -51,8 +51,11 @@ GridLinesY = sort([ TightUBlocksY+GutterH*(repelem(1:MacroRowsNum, 1:MacroRowsNu
 
 % Y tick lables per uBlock height considerring gutter height
 % GridLabelsY(1:numel(GridLinesY)) = cellfun(@(x) num2str(x), num2cell(GridLinesY), 'UniformOutput', false);
-RowsIndx = sort([cumsum(1:14)+[1:14], cumsum(1:14)+[1:14]-1]);
-GridLabelsY(RowsIndx) = cellfun(@(x) num2str(x), num2cell(GridLinesY(RowsIndx)), 'UniformOutput', false);
+RowsIndx = sort([cumsum(1:MacroRowsNum)+[1:MacroRowsNum], ...
+                 cumsum(1:MacroRowsNum)+[1:MacroRowsNum]-1]);
+GridLabelsY(RowsIndx(1:end-1)) = cellfun(@(x) num2str(x), ...
+                                         num2cell(GridLinesY(RowsIndx(1:end-1))), ...
+                                         'UniformOutput', false);
 
 % disp('GridLinesX:'), disp(GridLinesX); disp('GridLinesY:'), disp(GridLinesY);
 
@@ -98,7 +101,7 @@ ax.GridColor  = [0 0 0];
 
 % Y AXIS
 ax.YLabel.String   = sprintf('%d px | %d x block types', CanvasH, MacroRowsNum);
-ax.YLabel.Position = [-60 CanvasH/2];  % disables pan-tracing property
+ax.YLabel.Position = [-60 200];  % disables pan-tracing property
 ax.YLabel.FontSize = 14;
 ax.YLabel.Color    = [0 0 0];
 ax.YTickLabel = GridLabelsY;
@@ -131,13 +134,22 @@ rectangle('Position' , [CanvasMargin+GridW 0 CanvasMargin GridH], ...
 for r=0:MacroRowsNum-1
 
     MacroColsNum = floor( (GridW+GutterW) / (uBlockW*(r+1)+GutterW) ) + 0*logical(r);
-    for c=0:MacroColsNum-1
-    x_pos = CanvasMargin + c*(uBlockW*(r+1)+GutterW);
-    y_pos = sum(uBlockH*(0:r)) + GutterH*r;
-    if (MacroColsNum*(uBlockW*(r+1)+GutterW)-GutterW == GridW) % if columns fit grid evently
+
+    blockW = uBlockW*(r+1);
+    blockH = uBlockH*(r+1);
+    
+    fit = MacroColsNum*(uBlockW*(r+1)+GutterW)-GutterW == GridW;
+    if fit % if columns fit grid evently
         colors = [0 1 0]; else colors = [0 .6 0]; end
-    rectangle('Position',  [x_pos, y_pos, uBlockW*(r+1), uBlockH*(r+1) ], ...
-              'FaceColor', colors, ...  % if good then yellow,
+    %if blockW > ceil(GridW/2) && ~fit; continue; end
+
+    for c=0:MacroColsNum-1
+    
+    x_pos = CanvasMargin + c*(blockW+GutterW);
+    y_pos = sum(uBlockH*(0:r)) + GutterH*r;
+    
+    rectangle('Position',  [x_pos, y_pos, blockW, blockH ], ...
+              'FaceColor', colors, ...
               'LineStyle','none',  ...
               'Clipping', 'on'     ...
               );
@@ -145,7 +157,7 @@ for r=0:MacroRowsNum-1
     % bock size, ublock ratio, columns
     text(CanvasMargin+4, y_pos+7, ...
          sprintf('%d: (%d x %d) X %d', r+1, uBlockW*(r+1), uBlockH*(r+1), MacroColsNum), ...
-         'FontWeight', 'Bold');
+         'FontWeight', 'Bold', 'Color', [0 0 0], 'Clipping', 'on');
 end 
 
 % plot horizontal grid lines, multiples baseline height
