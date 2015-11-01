@@ -1,14 +1,15 @@
-function fig_h = PlotGrid(Baseline, CanvasW, GutterW, Ratio, visible)
+function fig_h = PlotGrid(CanvasW, Baseline, Ratio, GutterW, Opts)
 % Baseline [px] - Baseline height
 % CanvasW  [px] - Canvas width (input from user)
 % GutterV  [px] - vertical gutter width between columns
-% Ratio   struct({'W': Width; 'H': Height; 'R': Width/Height}) 
+% Ratio   struct 'W': Width; 'H': Height; 'R': Width/Height
 %         - aspect ratio structure: width, height, ration (eg 16, 9, 1.777)
-% visible 'on' (default) |'off' - set plot figure visibility 'on' or 'off'
+% Options struct OutputDir: 'path';
+%                Formats  : {'fig', 'png', 'svg', 'pdf', 'eps'};
+%                Mode     : 'show' or 'save'
 
 elast = @(x) x(1:end-1);  % 'except last' lambda-f for the n-1 elements of a vector
-if ~exist('visible', 'var'); visible = 'on'; end;
-
+if ~exist('Opts', 'var'); Opts = struct('OutputDir', '.\', 'Formats', {}, 'Mode', 'show'); end
 %% DETERMINE VARIOUS DIMENSIONS, SIZES & MARGINS
 
 % current screen (display) size
@@ -38,8 +39,10 @@ CanvasH = GridH + 0;
 CanvasMargin = floor( (CanvasW - GridW)/2 );
 
 % X coordinates of all vertical gridlines considerring canvas margins
-GridLinesX = [0, CanvasMargin + [0 elast(cumsum(reshape( ...
-              [uBlockW;GutterW]*ones(1,ColumnsNum), [1 ColumnsNum*2] )))], CanvasW];
+GridLinesX = unique( ...
+             [0, CanvasMargin + [0 elast(cumsum(reshape( ...
+              [uBlockW;GutterW]*ones(1,ColumnsNum), [1 ColumnsNum*2] )))], CanvasW] ...
+              );
 
 % Y coordinates of baseline gridlines
 GridBaseY = [Baseline:Baseline:GridH];
@@ -59,21 +62,27 @@ GridLabelsY(RowsIndx(1:end-1)) = cellfun(@(x) num2str(x), ...
 
 % disp('GridLinesX:'), disp(GridLinesX); disp('GridLinesY:'), disp(GridLinesY);
 
-%% INITIALIZING FIGURE
-FileName = sprintf( ...
-    'Canvas %dx%d;  Grid %dx%d;  %sBlock %dx%d (%d:%d); Cols=%d; Rows=%d; GutterW=%d;', ...
-    CanvasW, CanvasH, GridW, GridH, char(956), uBlockW, uBlockH, Ratio.W, Ratio.H, ColumnsNum, MacroRowsNum, GutterW);
+FileName = sprintf('Width%d_Base%d_Ratio%dx%d_Gut%d', ...
+                   CanvasW, Baseline, Ratio.W, Ratio.H, GutterW);
 
 GridTitle  = sprintf( ...
-    'Baseline %d | Gutter %d | CanvasW %d | ARatio %d:%d  \\Rightarrow  %sBlock %dx%d | GridW %d | Margins 2x%d', ...
-    Baseline, GutterW, CanvasW, Ratio.W, Ratio.H, char(956), uBlockW, uBlockH, GridW, CanvasMargin );
+    'CanvasW %d | Baseline %d | ARatio %d:%d | Gutter %d | \\Rightarrow  %sBlock %dx%d | Cols %d | GridW %d | Margins 2x%d', ...
+    CanvasW, Baseline, Ratio.W, Ratio.H, GutterW, char(956), uBlockW, uBlockH, ColumnsNum, GridW, CanvasMargin );
                  
+%% INITIALIZING FIGURE
+
 % AUXILIARY MARGINS BETWEEN FIGURE AND CAVNAS/PLOT (optional, matlab specific)
 figMargin = [110 170 40]; % [left/right; top; bottom]
 figW = CanvasW + figMargin(1)*2;
-figH = min([ScreenH-50, CanvasH + figMargin(2)+figMargin(3)]);
+figH = min([ScreenH-50, CanvasH + figMargin(2)+figMargin(3)]); 
 
-fig_h = figure('Menubar', 'figure', 'Visible', visible);
+if strcmp(Opts.Mode, 'save')
+%     figH = CanvasH + figMargin(2)+figMargin(3); 
+%     FileName = [FileName '_full'];
+end
+
+visibility = {'off', 'on'};
+fig_h = figure('Menubar', 'figure', 'Visible', visibility{strcmp(Opts.Mode, 'show')+1});
 fig_h.Name          = FileName;
 fig_h.OuterPosition = [(ScreenW-figW)/2, ScreenH-figH, figW, figH];
 fig_h.NumberTitle   = 'off';
@@ -112,7 +121,7 @@ ax.YDir       = 'reverse';
 
 % X AXIS
 XTickRotation = 60*(GutterW<28|uBlockW<28);
-ax.XLabel.String = ' ';  % hack, just to position figure title up higher
+ax.XLabel.String = ' ';  % hack, just to position figure title a bit up higher
 ax.XTickLabelRotation = XTickRotation;
 ax.XTick      = [GridLinesX];
 ax.XColor     = [0 0 .6];
@@ -177,5 +186,37 @@ text(CanvasW, -23, num2str(CanvasW), 'FontSize', 9, 'Color', [0 0 .6], 'Rotation
 % plottools
 hold off;
 
+%% SAVING FIGURE TO FILE(S)
+
+out = Opts.OutputDir;
+if strcmp(Opts.Mode, 'save')
+    if ~exist(out, 'dir'); 
+        mkdir(out); 
+    end
+    for i=1:numel(Opts.Formats)
+        ext = Opts.Formats{i};
+        if ~exist([out ext '\'], 'dir'); mkdir([out ext '\']); end
+        if strcmp(ext, 'fig')
+            savefig(fig_h, [out 'fig\' FileName], 'compact'); 
+        else
+            hgexport(fig_h, [out ext '\' FileName], hgexport('factorystyle'), 'Format', ext);
+        end
+    end
+
+% export_fig function - does not work
+%     addpath('d:\Dropbox\Backup\Matlab\utility\export_fig\');
+%     export_fig([OutputDir FileName '_fige' '.png'], '-native', '-nocrop'); 
+    
+% print to file - does not work
+%     rez = 300; %resolution (dpi) of final graphic
+%     figpos = getpixelposition(fig_h);
+%     resolution = get(0,'ScreenPixelsPerInch');
+%     set(fig_h, 'paperunits', 'inches', 'papersize', figpos(3:4)/resolution,...
+%             'paperposition', [0 0 figpos(3:4)/resolution]);
+%     print(fig_h, fullfile(OutputDir, [FileName '_dpi']),'-dpng',['-r',num2str(rez)],'-opengl');
+    
+%     fig_h.Visible = 'on';
+    close(fig_h);    
 end
 
+end

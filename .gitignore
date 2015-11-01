@@ -1,5 +1,7 @@
 [Tt]est
+*.fig
 *.png
+*.svg
 *.pdf
 *.jpg
 *.zip
