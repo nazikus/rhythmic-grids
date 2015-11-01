@@ -45,8 +45,8 @@ GridLinesX = [0, CanvasMargin + [0 elast(cumsum(reshape( ...
 % Y coordinates of baseline gridlines
 GridBaseY = [Baseline:Baseline:GridH];
 
-% Y coordinates of all horizontal uBlock gridlines (no vertical canvas margins)
-TightUBlocksY = cumsum(uBlockH*ones(1,RowsNum));
+% Y coordinates of all horizontal uBlock gridlines
+TightUBlocksY = cumsum(uBlockH*ones(1,RowsNum));  % no vertical canvas margins
 GridLinesY = sort([ Baseline, ...
                     TightUBlocksY+GutterH*(repelem(1:MacroRowsNum, 1:MacroRowsNum)-1), ...
                     arrayfun(@(i)  TightUBlocksY(sum(1:i))+i*GutterH, 1:MacroRowsNum-1) ]);
@@ -128,12 +128,11 @@ rectangle('Position' , [CanvasMargin+GridW 0 CanvasMargin GridH], ...
           'FaceColor', [.97 .92 .92], 'LineStyle', 'none');
 
 % plot all blocks
-% TODO block text labels
 % TODO remove suprlus YLabels
 % TODO fix ticks lengths
 for r=0:MacroRowsNum-1
 
-    MacroColsNum = floor( (GridW+GutterW) / (uBlockW*(r+1)+GutterW) ) + 1*logical(r);
+    MacroColsNum = floor( (GridW+GutterW) / (uBlockW*(r+1)+GutterW) ) + 0*logical(r);
     for c=0:MacroColsNum-1
     x_pos = CanvasMargin + c*(uBlockW*(r+1)+GutterW);
     y_pos = sum(uBlockH*(0:r)) + GutterH*r;
@@ -142,8 +141,11 @@ for r=0:MacroRowsNum-1
               'LineStyle','none',  ...
               'Clipping', 'on'     ...
               );
-    end;
-end;    
+    if ~c
+        text(x_pos+5, y_pos+8, sprintf('%dx%d', uBlockW*(r+1), uBlockH*(r+1)));
+    end
+    end
+end 
 
 % plot horizontal guide lines, multiples of uBlock height
 % -1 to remove first baseline guide (useless to show it)
