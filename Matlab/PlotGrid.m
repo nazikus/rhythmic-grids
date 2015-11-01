@@ -127,9 +127,7 @@ rectangle('Position' , [CanvasMargin+GridW 0 CanvasMargin GridH], ...
 
      
 % plot all blocks
-% TODO fix ticks lengths
-% TODO block color for even blocks
-% filter big blocks
+% TODO filter big blocks
 for r=0:MacroRowsNum-1
 
     MacroColsNum = floor( (GridW+GutterW) / (uBlockW*(r+1)+GutterW) ) + 0*logical(r);
@@ -144,8 +142,9 @@ for r=0:MacroRowsNum-1
               'Clipping', 'on'     ...
               );
     end
+    % bock size, ublock ratio, columns
     text(CanvasMargin+4, y_pos+7, ...
-         sprintf('%d x %d', uBlockW*(r+1), uBlockH*(r+1)), ...
+         sprintf('%d: (%d x %d) X %d', r+1, uBlockW*(r+1), uBlockH*(r+1), MacroColsNum), ...
          'FontWeight', 'Bold');
 end 
 
