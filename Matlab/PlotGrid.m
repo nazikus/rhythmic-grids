@@ -25,15 +25,14 @@ uBlockH = lcm(Baseline, Ratio.H);
 uBlockW = uBlockH * Ratio.R;
 
 % maximum number of columns and rows proportional to uBlock
-ColumnsNum = floor( (CanvasW + GutterW) / ( uBlockW + GutterW) );
-MacroRowsNum = ColumnsNum;  % each subsequent row height is x2 of preceding
+ColumnsNum   = floor( (CanvasW + GutterW) / ( uBlockW + GutterW) );
+MacroRowsNum = floor( CanvasW/uBlockW) ;  % each subsequent row height is x2 of preceding
 RowsNum = sum(1:MacroRowsNum); % total uBlock rows
 
-% actual grid width containing max possible uBlock widths
+% actual grid width & height containing max possible uBlock widths
 GridW = (uBlockW + GutterW) * ColumnsNum - GutterW;
-% actual grid height containing all possible block-size combinations
 GridH = sum(uBlockH*(1:MacroRowsNum)) + GutterH*(MacroRowsNum-1);  
-% canvas height = grid height + optional vertical margings (not tested)
+% canvas height = grid height + optional vertical margings
 CanvasH = GridH + 0;  
 % horizontal (left or right) margins between canvas and actual grid
 CanvasMargin = floor( (CanvasW - GridW)/2 );
@@ -47,27 +46,24 @@ GridBaseY = [Baseline:Baseline:GridH];
 
 % Y coordinates of all horizontal uBlock gridlines
 TightUBlocksY = cumsum(uBlockH*ones(1,RowsNum));  % no vertical canvas margins
-GridLinesY = sort([ Baseline, ...
-                    TightUBlocksY+GutterH*(repelem(1:MacroRowsNum, 1:MacroRowsNum)-1), ...
+GridLinesY = sort([ TightUBlocksY+GutterH*(repelem(1:MacroRowsNum, 1:MacroRowsNum)-1), ...
                     arrayfun(@(i)  TightUBlocksY(sum(1:i))+i*GutterH, 1:MacroRowsNum-1) ]);
 
-% Y ticks lables per uBlock height considerring horizontal gutters
-GridLabelsY(GridLinesY/Baseline) = cellfun(@(x) num2str(x), ...
-                                                num2cell(GridLinesY), ...
-                                                'UniformOutput', false);
-LabelsYCount = numel(GridLinesY);
+% Y tick lables per uBlock height considerring gutter height
+% GridLabelsY(1:numel(GridLinesY)) = cellfun(@(x) num2str(x), num2cell(GridLinesY), 'UniformOutput', false);
+RowsIndx = sort([cumsum(1:14)+[1:14], cumsum(1:14)+[1:14]-1]);
+GridLabelsY(RowsIndx) = cellfun(@(x) num2str(x), num2cell(GridLinesY(RowsIndx)), 'UniformOutput', false);
 
 % disp('GridLinesX:'), disp(GridLinesX); disp('GridLinesY:'), disp(GridLinesY);
 
 %% INITIALIZING FIGURE
-FileName = sprintf('Canvas %dx%d;  Grid %dx%d;  %sBlock %dx%d (%d:%d); Cols=%d; GutterW=%d;', ...
-                     CanvasW, CanvasH, GridW, GridH, char(956), uBlockW, uBlockH, Ratio.W, Ratio.H, ColumnsNum,GutterW);
+FileName = sprintf( ...
+    'Canvas %dx%d;  Grid %dx%d;  %sBlock %dx%d (%d:%d); Cols=%d; Rows=%d; GutterW=%d;', ...
+    CanvasW, CanvasH, GridW, GridH, char(956), uBlockW, uBlockH, Ratio.W, Ratio.H, ColumnsNum, MacroRowsNum, GutterW);
 
 GridTitle  = sprintf( ...
     'Baseline %d | Gutter %d | CanvasW %d | ARatio %d:%d  \\Rightarrow  %sBlock %dx%d | GridW %d | Margins 2x%d', ...
-    Baseline, GutterW, CanvasW, Ratio.W, Ratio.H, char(956), uBlockW, uBlockH, GridW, CanvasMargin ...
-);
-                 
+    Baseline, GutterW, CanvasW, Ratio.W, Ratio.H, char(956), uBlockW, uBlockH, GridW, CanvasMargin );
                  
 % AUXILIARY MARGINS BETWEEN FIGURE AND CAVNAS/PLOT (optional, matlab specific)
 figMargin = [110 170 40]; % [left/right; top; bottom]
@@ -96,9 +92,9 @@ ax.YLim       = [0 CanvasH];
 ax.Layer      = 'top'; 
 ax.TickDir    = 'out';
 ax.FontSize   = 9;
-ax.TickLength = [0.005 0];
-ax.GridAlpha  = 0.3;
-ax.GridColor  = [.5 0 0];
+ax.TickLength = [10/CanvasH 0];  % magical ratio :)
+ax.GridAlpha  = 0.5;
+ax.GridColor  = [0 0 0];
 
 % Y AXIS
 ax.YLabel.String   = sprintf('%d px | %d x block types', CanvasH, MacroRowsNum);
@@ -106,18 +102,20 @@ ax.YLabel.Position = [-60 CanvasH/2];  % disables pan-tracing property
 ax.YLabel.FontSize = 14;
 ax.YLabel.Color    = [0 0 0];
 ax.YTickLabel = GridLabelsY;
-ax.YTick      = [GridBaseY];
+ax.YTick      = [GridLinesY];
 ax.YColor     = [0 0 .6];
 ax.YGrid      = 'on';
 ax.YDir       = 'reverse';
 
 % X AXIS
+XTickRotation = 60*(GutterW<28|uBlockW<28);
 ax.XLabel.String = ' ';  % hack, just to position figure title up higher
-ax.XTickLabelRotation = 60*(GutterW<28);
+ax.XTickLabelRotation = XTickRotation;
 ax.XTick      = [GridLinesX];
 ax.XColor     = [0 0 .6];
 ax.XGrid      = 'on';
 ax.XAxisLocation = 'top';
+ax.XTickLabel(numel(ax.XTickLabel)) = {''};   % remove last X tick label
 
 %% PLOT BLOCKS, GUIDES AND MARGINS
 
@@ -127,9 +125,11 @@ rectangle('Position' , [0 0 CanvasMargin GridH], ...
 rectangle('Position' , [CanvasMargin+GridW 0 CanvasMargin GridH], ...
           'FaceColor', [.97 .92 .92], 'LineStyle', 'none');
 
+     
 % plot all blocks
-% TODO remove suprlus YLabels
 % TODO fix ticks lengths
+% TODO block color for even blocks
+% filter big blocks
 for r=0:MacroRowsNum-1
 
     MacroColsNum = floor( (GridW+GutterW) / (uBlockW*(r+1)+GutterW) ) + 0*logical(r);
@@ -141,17 +141,25 @@ for r=0:MacroRowsNum-1
               'LineStyle','none',  ...
               'Clipping', 'on'     ...
               );
-    if ~c
-        text(x_pos+5, y_pos+8, sprintf('%dx%d', uBlockW*(r+1), uBlockH*(r+1)));
     end
-    end
+    text(CanvasMargin+4, y_pos+7, ...
+         sprintf('%d x %d', uBlockW*(r+1), uBlockH*(r+1)), ...
+         'FontWeight', 'Bold');
 end 
 
-% plot horizontal guide lines, multiples of uBlock height
-% -1 to remove first baseline guide (useless to show it)
-x = [zeros(1, LabelsYCount-1); CanvasW*ones(1, LabelsYCount-1)];
-y = [GridLinesY(2:end); GridLinesY(2:end)];
-line(x, y, 'Color', [0 0 0], 'LineWidth', .5);
+% plot horizontal grid lines, multiples baseline height
+x = [zeros(1, numel(GridBaseY)); CanvasW*ones(1, numel(GridBaseY))];
+y = [GridBaseY; GridBaseY];
+line(x, y, 'Color', [.5 0 0 .4], 'LineWidth', .5);
+
+% Baseline tick and label
+if uBlockH ~= Baseline
+    line([0; -10], [Baseline; Baseline], 'LineWidth', .5, 'Clipping', 'off');
+    text(-30,Baseline-3, num2str(Baseline), 'FontSize', 9, 'Color', [0 0 .6]);
+end
+
+% last X tick label
+text(CanvasW, -23, num2str(CanvasW), 'FontSize', 9, 'Color', [0 0 .6], 'Rotation', XTickRotation);
 
 % plottools
 hold off;
