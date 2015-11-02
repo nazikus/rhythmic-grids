@@ -73,18 +73,21 @@ GridTitle  = sprintf( ...
 %% INITIALIZING FIGURE
 
 ModeShow = strcmp(Opts.Mode, 'show');
+ModeSave = strcmp(Opts.Mode, 'save');
+ModeSaveTop = strcmp(Opts.Mode, 'savetop');
 visibility = {'off', 'on'};
 menubar = {'none', 'figure'};
 k = [2.2 3.6]/3432 * CanvasH;  % empirical coeffs, 3432 reference canvas height
-FontRatios = [k(1) k(2); 10 10];
-fR = FontRatios(ModeShow+1, :);
+FontRatios = [10 10; k(1) k(2)];
+fR = FontRatios(ModeSave+1, :);
+
 
 % auxiliary margins between figure and canvas/plot (optional, matlab specific)
 figMargin = [110 170 40]; % [left/right; top; bottom]
 figW = CanvasW + figMargin(1)*2;
 figH = min([ScreenH-50, CanvasH + figMargin(2)+figMargin(3)]); 
 
-if strcmp(Opts.Mode, 'save')
+if ModeSave
     figH = CanvasH + figMargin(2)+figMargin(3); 
     FileName = [FileName '_full'];
 end
@@ -105,9 +108,7 @@ TPos = ax.Title.Position;
 ax.Title.String     = GridTitle;
 ax.Title.FontSize   = fR(2)*1.4;
 ax.Title.FontWeight = 'normal';
-if ~ModeShow
-    ax.Title.Position   = [TPos(1)+600 TPos(2)-60 TPos(3)];
-end
+ax.Title.Position   = [TPos(1)+600 TPos(2)-60 TPos(3)];
 
 ax.Units      = 'pixels';
 ax.Position   = [figMargin(1) -(CanvasH-figH+figMargin(2)) CanvasW CanvasH];
@@ -174,7 +175,12 @@ for r=0:MacroRowsNum-1
               'Clipping', 'on'     ...
               );
     end
-        
+    
+    % annotations arrows for fitting gap
+%     if ~fit % && x_pos+blockW < CanvasMargin+GridW
+%         line([x_pos+blockW; CanvasMargin+GridW; 
+%     end
+
     % bock size, ublock ratio, columns
     text(CanvasMargin+4, y_pos+7, ...
          sprintf('%d: (%d x %d) X %d', r+1, uBlockW*(r+1), uBlockH*(r+1), MacroColsNum), ...
@@ -199,6 +205,7 @@ text(CanvasW, -23, num2str(CanvasW), 'FontSize', fR(1)*.9, 'Color', [0 0 .6], 'R
 % plottools
 hold off;
 
+
 %% SAVING FIGURE TO FILE(S)
 
 %TODO fix fig invisibility
@@ -207,7 +214,7 @@ hold off;
 out = Opts.OutputDir;
 addpath(genpath('d:\Dropbox\Backup\Matlab\utility\'));
 
-if strcmp(Opts.Mode, 'save')
+if ~ModeShow
     if ~exist(out, 'dir'); 
         mkdir(out); 
     end
@@ -220,9 +227,11 @@ if strcmp(Opts.Mode, 'save')
             savefig(fig_h, [out 'fig\' FileName], 'compact'); 
             fprintf('%ds\n', round(toc));
         else
-            fprintf('Saving image: %s ... ', ext); tic;
-            hgexport(fig_h, [out ext '\' FileName], hgexport('factorystyle'), 'Format', ext);
-            fprintf('%ds\n', round(toc));
+            if ModeSaveTop
+                fprintf('Saving image: %s ... ', ext); tic;
+                hgexport(fig_h, [out ext '\' FileName], hgexport('factorystyle'), 'Format', ext);
+                fprintf('%ds\n', round(toc));
+            else
 
             % print to file - font size and line width deviates
             figpos = getpixelposition(fig_h);
@@ -239,6 +248,7 @@ if strcmp(Opts.Mode, 'save')
 
                 fprintf('%ds\n', round(toc));
             end
+            end
         end
     end
 
@@ -246,5 +256,5 @@ if strcmp(Opts.Mode, 'save')
 %     fig_h.Visible = 'on';
     close(fig_h);    
 end
-if ~ModeShow; system(fullfile(out, [FileName '_dpi' num2str(dpi) '.' ext])); end
+if ModeSave; system(fullfile(out, [FileName '_dpi' num2str(dpi) '.' ext])); end
 end

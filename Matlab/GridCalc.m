@@ -3,9 +3,9 @@ close all;
 
 %% All possible input values
 % SaveOptions.OutputDir = '..\Grids\';
+Options.Mode      = 'show';    % 'show' or 'save' or 'savetop'
+Options.Formats   = {'png'}; %{'png', 'tiff', 'svg', 'pdf', 'eps'}; % fig
 Options.OutputDir = 'd:\Dropbox\Photos\Grids\';
-Options.Formats   = {'png', 'pdf'}; %{'png', 'tiff', 'svg', 'pdf', 'eps'}; % fig
-Options.Mode      = 'save';    % 'show' or 'save'
 
 MaxWidths = [640 960 1150 1440 1680];
 Baselines = 8:12;
