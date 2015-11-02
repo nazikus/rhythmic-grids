@@ -177,9 +177,14 @@ for r=0:MacroRowsNum-1
     end
     
     % annotations arrows for fitting gap
-%     if ~fit % && x_pos+blockW < CanvasMargin+GridW
-%         line([x_pos+blockW; CanvasMargin+GridW; 
-%     end
+    if ~fit % && x_pos+blockW < CanvasMargin+GridW
+        line([x_pos+blockW+2; CanvasMargin+GridW-3], [y_pos+blockH/2; y_pos+blockH/2], ...
+             'LineWidth', 2, 'Marker', 'd', 'MarkerSize', 5, 'MarkerFaceColor', [0 0 1]); 
+        gap = (CanvasMargin+GridW - (x_pos+blockW));
+        t=text(CanvasMargin+GridW, y_pos+blockH/2-10, sprintf('%dpx', gap));
+        t.Position = [t.Position(1)-t.Extent(3)-5 t.Position(2) 0];  % Align right precisely
+        clear t;
+    end
 
     % bock size, ublock ratio, columns
     text(CanvasMargin+4, y_pos+7, ...
