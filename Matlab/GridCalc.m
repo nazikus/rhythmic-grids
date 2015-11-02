@@ -4,8 +4,8 @@ close all;
 %% All possible input values
 % SaveOptions.OutputDir = '..\Grids\';
 Options.OutputDir = 'd:\Dropbox\Photos\Grids\';
-Options.Formats   = {'png', 'svg'}; % fig, png, svg, pdf, eps
-Options.Mode      = 'show';    % 'show' or 'save'
+Options.Formats   = {'png', 'pdf'}; %{'png', 'tiff', 'svg', 'pdf', 'eps'}; % fig
+Options.Mode      = 'save';    % 'show' or 'save'
 
 MaxWidths = [640 960 1150 1440 1680];
 Baselines = 8:12;
@@ -16,8 +16,8 @@ GutterBaselineRatios = [1 2 3 4];  % Assumption: gutter is proportional to basel
 
 %% Single input
 MaxCanvasWidth = 1200;
-Baseline = 8;
-Ratio = Ratios.('R_3x2');
+Baseline = 12;
+Ratio = Ratios.('R_16x9');
 GutterBaselineRatio = 3;
 
 
@@ -42,7 +42,7 @@ for width = MaxWidths
 for r = 1:numel(ratios)
 for baseline = Baselines
 for gutter = [GutterBaselineRatios*baseline]
-    fprintf('Printing width %dpx, baseline %dpx, gutter %dpx, ratio %dx%d...\n', width, baseline, gutter, Ratios.(ratios{r}).W, Ratios.(ratios{r}).H);
+    fprintf('\nPrinting width %dpx, baseline %dpx, gutter %dpx, ratio %dx%d...\n', width, baseline, gutter, Ratios.(ratios{r}).W, Ratios.(ratios{r}).H);
     PlotGrid(width, baseline, Ratios.(ratios{r}), gutter, 'save');
 end
 end   

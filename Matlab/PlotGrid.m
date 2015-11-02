@@ -10,6 +10,7 @@ function fig_h = PlotGrid(CanvasW, Baseline, Ratio, GutterW, Opts)
 
 elast = @(x) x(1:end-1);  % 'except last' lambda-f for the n-1 elements of a vector
 if ~exist('Opts', 'var'); Opts = struct('OutputDir', '.\', 'Formats', {}, 'Mode', 'show'); end
+
 %% DETERMINE VARIOUS DIMENSIONS, SIZES & MARGINS
 
 % current screen (display) size
@@ -71,31 +72,42 @@ GridTitle  = sprintf( ...
                  
 %% INITIALIZING FIGURE
 
-% AUXILIARY MARGINS BETWEEN FIGURE AND CAVNAS/PLOT (optional, matlab specific)
+ModeShow = strcmp(Opts.Mode, 'show');
+visibility = {'off', 'on'};
+menubar = {'none', 'figure'};
+k = [2.2 3.6]/3432 * CanvasH;  % empirical coeffs, 3432 reference canvas height
+FontRatios = [k(1) k(2); 10 10];
+fR = FontRatios(ModeShow+1, :);
+
+% auxiliary margins between figure and canvas/plot (optional, matlab specific)
 figMargin = [110 170 40]; % [left/right; top; bottom]
 figW = CanvasW + figMargin(1)*2;
 figH = min([ScreenH-50, CanvasH + figMargin(2)+figMargin(3)]); 
 
 if strcmp(Opts.Mode, 'save')
-%     figH = CanvasH + figMargin(2)+figMargin(3); 
-%     FileName = [FileName '_full'];
+    figH = CanvasH + figMargin(2)+figMargin(3); 
+    FileName = [FileName '_full'];
 end
 
-visibility = {'off', 'on'};
-fig_h = figure('Menubar', 'figure', 'Visible', visibility{strcmp(Opts.Mode, 'show')+1});
+fig_h = figure('Menubar', menubar{ModeShow+1}, ...
+               'Visible', visibility{ModeShow+1});
 fig_h.Name          = FileName;
 fig_h.OuterPosition = [(ScreenW-figW)/2, ScreenH-figH, figW, figH];
 fig_h.NumberTitle   = 'off';
 fig_h.DockControls  = 'off';
-fig_h.Resize        = 'off';
 fig_h.GraphicsSmoothing = 'off';
+% fig_h.Resize        = 'off';
 
 % INITIALIZE AXIS
 ax = axes();
 hold on; pan yon;
+TPos = ax.Title.Position;
 ax.Title.String     = GridTitle;
-ax.Title.FontSize   = 14;
+ax.Title.FontSize   = fR(2)*1.4;
 ax.Title.FontWeight = 'normal';
+if ~ModeShow
+    ax.Title.Position   = [TPos(1)+600 TPos(2)-60 TPos(3)];
+end
 
 ax.Units      = 'pixels';
 ax.Position   = [figMargin(1) -(CanvasH-figH+figMargin(2)) CanvasW CanvasH];
@@ -103,15 +115,15 @@ ax.XLim       = [0 CanvasW];
 ax.YLim       = [0 CanvasH];
 ax.Layer      = 'top'; 
 ax.TickDir    = 'out';
-ax.FontSize   = 9;
+ax.FontSize   = fR(1)*.9;
 ax.TickLength = [10/CanvasH 0];  % magical ratio :)
-ax.GridAlpha  = 0.5;
+ax.GridAlpha  = 0.2;
 ax.GridColor  = [0 0 0];
 
 % Y AXIS
 ax.YLabel.String   = sprintf('%d px | %d x block types', CanvasH, MacroRowsNum);
 ax.YLabel.Position = [-60 200];  % disables pan-tracing property
-ax.YLabel.FontSize = 14;
+ax.YLabel.FontSize = fR(2)*1.4;
 ax.YLabel.Color    = [0 0 0];
 ax.YTickLabel = GridLabelsY;
 ax.YTick      = [GridLinesY];
@@ -121,7 +133,6 @@ ax.YDir       = 'reverse';
 
 % X AXIS
 XTickRotation = 60*(GutterW<28|uBlockW<28);
-ax.XLabel.String = ' ';  % hack, just to position figure title a bit up higher
 ax.XTickLabelRotation = XTickRotation;
 ax.XTick      = [GridLinesX];
 ax.XColor     = [0 0 .6];
@@ -163,32 +174,39 @@ for r=0:MacroRowsNum-1
               'Clipping', 'on'     ...
               );
     end
+        
     % bock size, ublock ratio, columns
     text(CanvasMargin+4, y_pos+7, ...
          sprintf('%d: (%d x %d) X %d', r+1, uBlockW*(r+1), uBlockH*(r+1), MacroColsNum), ...
-         'FontWeight', 'Bold', 'Color', [0 0 0], 'Clipping', 'on');
+         'FontSize', fR(2)*1, 'FontWeight', 'Bold', ...
+         'Color', [0 0 0], 'Clipping', 'on');
 end 
 
 % plot horizontal grid lines, multiples baseline height
 x = [zeros(1, numel(GridBaseY)); CanvasW*ones(1, numel(GridBaseY))];
 y = [GridBaseY; GridBaseY];
-line(x, y, 'Color', [.8 0 0 .5], 'LineWidth', .5);
+line(x, y, 'Color', [.8 0 0 .3], 'LineWidth', .5);
 
 % Baseline tick and label
 if uBlockH ~= Baseline
     line([0; -10], [Baseline; Baseline], 'LineWidth', .5, 'Clipping', 'off');
-    text(-30,Baseline-3, num2str(Baseline), 'FontSize', 9, 'Color', [0 0 .6]);
+    text(-30,Baseline-3, num2str(Baseline), 'FontSize', fR(1)*.9, 'Color', [0 0 .6]);
 end
 
 % last X tick label
-text(CanvasW, -23, num2str(CanvasW), 'FontSize', 9, 'Color', [0 0 .6], 'Rotation', XTickRotation);
+text(CanvasW, -23, num2str(CanvasW), 'FontSize', fR(1)*.9, 'Color', [0 0 .6], 'Rotation', XTickRotation); %9
 
 % plottools
 hold off;
 
 %% SAVING FIGURE TO FILE(S)
 
+%TODO fix fig invisibility
+%TODO fix fullscale printing
+
 out = Opts.OutputDir;
+addpath(genpath('d:\Dropbox\Backup\Matlab\utility\'));
+
 if strcmp(Opts.Mode, 'save')
     if ~exist(out, 'dir'); 
         mkdir(out); 
@@ -196,27 +214,37 @@ if strcmp(Opts.Mode, 'save')
     for i=1:numel(Opts.Formats)
         ext = Opts.Formats{i};
         if ~exist([out ext '\'], 'dir'); mkdir([out ext '\']); end
+
         if strcmp(ext, 'fig')
+            fprintf('Saving image: %s ... ', ext); tic;
             savefig(fig_h, [out 'fig\' FileName], 'compact'); 
+            fprintf('%ds\n', round(toc));
         else
+            fprintf('Saving image: %s ... ', ext); tic;
             hgexport(fig_h, [out ext '\' FileName], hgexport('factorystyle'), 'Format', ext);
+            fprintf('%ds\n', round(toc));
+
+            % print to file - font size and line width deviates
+            figpos = getpixelposition(fig_h);
+            ScrnPPI = get(0,'ScreenPixelsPerInch');  % 96ppi
+            set(fig_h, 'paperunits', 'inches', 'papersize', figpos(3:4)/ScrnPPI,...
+                    'paperposition', [0 0 figpos(3:4)/ScrnPPI]);
+            for dpi = [ScrnPPI]
+                fprintf('Printing image: %s %d dpi ... ', upper(ext), dpi); tic;
+                print(fig_h, fullfile(out,  [ext '\dpi' num2str(dpi) '_' FileName]), ...
+                      ['-d' ext], ['-r', num2str(dpi)], '-painters');
+
+                % export_fig function - crashing when rendering full grid in -opengl mode (45Mpx image)
+%                 export_fig([out FileName '_fige' '.' ext], ['-d' ext], ['-r' num2str(600)], '-painters'); 
+
+                fprintf('%ds\n', round(toc));
+            end
         end
     end
 
-% export_fig function - does not work
-%     addpath('d:\Dropbox\Backup\Matlab\utility\export_fig\');
-%     export_fig([OutputDir FileName '_fige' '.png'], '-native', '-nocrop'); 
-    
-% print to file - does not work
-%     rez = 300; %resolution (dpi) of final graphic
-%     figpos = getpixelposition(fig_h);
-%     resolution = get(0,'ScreenPixelsPerInch');
-%     set(fig_h, 'paperunits', 'inches', 'papersize', figpos(3:4)/resolution,...
-%             'paperposition', [0 0 figpos(3:4)/resolution]);
-%     print(fig_h, fullfile(OutputDir, [FileName '_dpi']),'-dpng',['-r',num2str(rez)],'-opengl');
-    
+
 %     fig_h.Visible = 'on';
     close(fig_h);    
 end
-
+if ~ModeShow; system(fullfile(out, [FileName '_dpi' num2str(dpi) '.' ext])); end
 end
