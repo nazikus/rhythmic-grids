@@ -1,4 +1,4 @@
-function fig_h = PlotGrid(CanvasW, Baseline, Ratio, GutterW, Opts)
+function fig_h = PlotGrid(CanvasW, Ratio, Baseline, GutterW, Opts)
 % Baseline [px] - Baseline height
 % CanvasW  [px] - Canvas width (input from user)
 % GutterV  [px] - vertical gutter width between columns
@@ -63,12 +63,14 @@ GridLabelsY(RowsIndx(1:end-1)) = cellfun(@(x) num2str(x), ...
 
 % disp('GridLinesX:'), disp(GridLinesX); disp('GridLinesY:'), disp(GridLinesY);
 
-FileName = sprintf('Width%d_Base%d_Ratio%dx%d_Gut%d', ...
-                   CanvasW, Baseline, Ratio.W, Ratio.H, GutterW);
+FileName = sprintf('Width%d_Ratio%dx%d_Base%d_Gut%d', ...
+                   CanvasW, Ratio.W, Ratio.H, Baseline, GutterW);
 
 GridTitle  = sprintf( ...
-    'CanvasW %d | Baseline %d | ARatio %d:%d | Gutter %d | \\Rightarrow  %sBlock %dx%d | Cols %d | GridW %d | Margins 2x%d', ...
-    CanvasW, Baseline, Ratio.W, Ratio.H, GutterW, char(956), uBlockW, uBlockH, ColumnsNum, GridW, CanvasMargin );
+    ['     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Gutter %d\n' ...
+     'Output: %sBlock %dx%d | Cols %d | GridW %d | Margins 2x%d'], ...
+    CanvasW, Ratio.W, Ratio.H, Baseline, GutterW, ...
+    char(956), uBlockW, uBlockH, ColumnsNum, GridW, CanvasMargin );
                  
 %% INITIALIZING FIGURE
 
@@ -99,19 +101,18 @@ fig_h.OuterPosition = [(ScreenW-figW)/2, ScreenH-figH, figW, figH];
 fig_h.NumberTitle   = 'off';
 fig_h.DockControls  = 'off';
 fig_h.GraphicsSmoothing = 'off';
-% fig_h.Resize        = 'off';
 
 % INITIALIZE AXIS
 ax = axes();
 hold on; pan yon;
-TPos = ax.Title.Position;
 ax.Title.String     = GridTitle;
 ax.Title.FontSize   = fR(2)*1.4;
 ax.Title.FontWeight = 'normal';
-ax.Title.Position   = [TPos(1)+600 TPos(2)-60 TPos(3)];
+TPos = ax.Title.Position; TExt = ax.Title.Extent;
+% ax.Title.Position   = [CanvasW*(1-TExt(3)) TPos(2)-50 0];
 
 ax.Units      = 'pixels';
-ax.Position   = [figMargin(1) -(CanvasH-figH+figMargin(2)) CanvasW CanvasH];
+ax.Position   = [figMargin(1) -(CanvasH-figH+figMargin(2)+20*ModeShow) CanvasW CanvasH];
 ax.XLim       = [0 CanvasW];
 ax.YLim       = [0 CanvasH];
 ax.Layer      = 'top'; 
@@ -212,54 +213,10 @@ hold off;
 
 
 %% SAVING FIGURE TO FILE(S)
-
-%TODO fix fig invisibility
-%TODO fix fullscale printing
-
-out = Opts.OutputDir;
-addpath(genpath('d:\Dropbox\Backup\Matlab\utility\'));
-
 if ~ModeShow
-    if ~exist(out, 'dir'); 
-        mkdir(out); 
-    end
-    for i=1:numel(Opts.Formats)
-        ext = Opts.Formats{i};
-        if ~exist([out ext '\'], 'dir'); mkdir([out ext '\']); end
-
-        if strcmp(ext, 'fig')
-            fprintf('Saving image: %s ... ', ext); tic;
-            savefig(fig_h, [out 'fig\' FileName], 'compact'); 
-            fprintf('%ds\n', round(toc));
-        else
-            if ModeSaveTop
-                fprintf('Saving image: %s ... ', ext); tic;
-                hgexport(fig_h, [out ext '\' FileName], hgexport('factorystyle'), 'Format', ext);
-                fprintf('%ds\n', round(toc));
-            else
-
-            % print to file - font size and line width deviates
-            figpos = getpixelposition(fig_h);
-            ScrnPPI = get(0,'ScreenPixelsPerInch');  % 96ppi
-            set(fig_h, 'paperunits', 'inches', 'papersize', figpos(3:4)/ScrnPPI,...
-                    'paperposition', [0 0 figpos(3:4)/ScrnPPI]);
-            for dpi = [ScrnPPI]
-                fprintf('Printing image: %s %d dpi ... ', upper(ext), dpi); tic;
-                print(fig_h, fullfile(out,  [ext '\dpi' num2str(dpi) '_' FileName]), ...
-                      ['-d' ext], ['-r', num2str(dpi)], '-painters');
-
-                % export_fig function - crashing when rendering full grid in -opengl mode (45Mpx image)
-%                 export_fig([out FileName '_fige' '.' ext], ['-d' ext], ['-r' num2str(600)], '-painters'); 
-
-                fprintf('%ds\n', round(toc));
-            end
-            end
-        end
-    end
-
-
-%     fig_h.Visible = 'on';
+    Fig2File(fig_h, FileName, Opts);
     close(fig_h);    
-end
-if ModeSave; system(fullfile(out, [FileName '_dpi' num2str(dpi) '.' ext])); end
+    % fig_h.Visible = 'on';
+end    
+% if ModeSave; system(fullfile(Opts.OutputDir, [Opts.Formats{1} '\dpi96_' FileName '.' Opts.Formats{1}])); end
 end

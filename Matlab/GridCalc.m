@@ -16,8 +16,8 @@ GutterBaselineRatios = [1 2 3 4];  % Assumption: gutter is proportional to basel
 
 %% Single input
 MaxCanvasWidth = 1200;
-Baseline = 12;
-Ratio = Ratios.('R_16x9');
+Baseline = 10;
+Ratio = Ratios.('R_3x2');
 GutterBaselineRatio = 3;
 
 
@@ -34,7 +34,7 @@ uBlockColumns = floor( (MaxCanvasWidth + Gutter) / (uBlockWidth + Gutter) );
 GridWidth = (uBlockWidth + Gutter) * uBlockColumns - Gutter;
 
 %% Plotting grids
-PlotGrid(MaxCanvasWidth, Baseline, Ratio, Gutter, Options);
+PlotGrid(MaxCanvasWidth, Ratio, Baseline, Gutter, Options);
 return;
 
 ratios = fieldnames(Ratios);
@@ -42,8 +42,8 @@ for width = MaxWidths
 for r = 1:numel(ratios)
 for baseline = Baselines
 for gutter = [GutterBaselineRatios*baseline]
-    fprintf('\nPrinting width %dpx, baseline %dpx, gutter %dpx, ratio %dx%d...\n', width, baseline, gutter, Ratios.(ratios{r}).W, Ratios.(ratios{r}).H);
-    PlotGrid(width, baseline, Ratios.(ratios{r}), gutter, 'save');
+    fprintf('\nProcessing Width %dpx, Ratio %dx%d, Baseline %dpx, Gutter %dpx:\n', width, Ratios.(ratios{r}).W, Ratios.(ratios{r}).H, baseline, gutter);
+    PlotGrid(width, Ratios.(ratios{r}), baseline, gutter, Options);
 end
 end   
 end
