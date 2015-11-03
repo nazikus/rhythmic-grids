@@ -73,9 +73,9 @@ if strcmp(Opts.Show, 'fit')
             MacroRowIdx(end+1) = r;
         end
     end
-    if numel(MacroRowIdx) <= 1 
+    if numel(MacroRowIdx) <= 1 || CanvasMargin > CanvasW*0.15
         Opts.FailGrid = true;
-        fprintf('\tuBlock %dx%d *%d  FAIL\n', uBlockW, uBlockH, numel(MacroRowIdx));
+        fprintf('\tuBlock %dx%d *%d  REJECTED\n', uBlockW, uBlockH, numel(MacroRowIdx));
     else
         fprintf('\tuBlock %dx%d *%d\n', uBlockW, uBlockH, numel(MacroRowIdx));
     end
@@ -297,6 +297,7 @@ if Opts.FailGrid
         'Rotation', 30, 'Color', [1 0 0], 'FontSize', 76*fR(1), 'FontWeight', 'bold', ...
         'EdgeColor', [1 0 0], 'LineWidth', 2, 'BackgroundColor', [1 1 1 .5], ...
         'Clipping', 'off');
+    FileName = [FileName '_X'];
 end
 
 % plottools
