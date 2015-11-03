@@ -29,12 +29,6 @@ end
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  DETERMINE MAIN QUANTITIES - DIMENSIONS, SIZES, MARGINS
 
-% current screen (display) size
-scrn = get(groot, 'ScreenSize');  % get current display screen resolution
-ScreenW = scrn(3);
-ScreenH = scrn(4);
-clear scrn;
-
 % micro-block width & height (minimum possible for current canvas and ratio)
 min_uBlockH = lcm(Baseline, Ratio.H);
 min_uBlockW = min_uBlockH * Ratio.R;
@@ -139,6 +133,21 @@ k = [2.2 3.6]/3432 * CanvasH;  % empirical coeffs, 3432 reference canvas height
 FontRatios = [10 10; k(1) k(2)];
 fR = FontRatios(ModeSave+1, :);
 
+% current or secondary screen (display) size
+scrn = get(groot, 'ScreenSize');  % get current display screen resolution
+mp = get(0,'MonitorPositions');
+if size(mp,1) == 1  % if single screen
+    ScreenW = scrn(3);
+    ScreenH = scrn(4);
+    ShiftX  = 0;
+else % if multiple screens
+    ScreenW = mp(2,3);
+    ScreenH = mp(2,4);
+    ShiftX  = mp(2,1);
+end
+clear scrn mp;
+
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  INITIALIZE FIGURE
 
@@ -146,6 +155,7 @@ fR = FontRatios(ModeSave+1, :);
 figMargin = [110 170 40]; % [left/right; top; bottom]
 figW = CanvasW + figMargin(1)*2;
 figH = min([ScreenH-50, max(ScreenH/2, CanvasH+figMargin(2)+figMargin(3))]); 
+
 
 if ModeSave
     figH = CanvasH + figMargin(2)+figMargin(3); 
@@ -155,7 +165,7 @@ end
 fig_h = figure('Menubar', menubar{ModeShow+1}, ...
                'Visible', visibility{ModeShow+1});
 fig_h.Name          = FileName;
-fig_h.OuterPosition = [(ScreenW-figW)/2, ScreenH-figH, figW, figH];
+fig_h.OuterPosition = [ShiftX + (ScreenW-figW)/2, ScreenH-figH, figW, figH];
 fig_h.NumberTitle   = 'off';
 fig_h.DockControls  = 'off';
 fig_h.GraphicsSmoothing = 'off';
@@ -235,7 +245,7 @@ for r=MacroRowIdx
                   );
     end
     
-    % bock size, ublock ratio, columns
+    % block size, uBlock ratio, columns
     text(CanvasMargin+4, y_pos+7, ...
          sprintf('%d: (%d x %d) X %d', r, uBlockW*r, uBlockH*r, MacroColsNum), ...
          'FontSize', fR(2)*1, 'FontWeight', 'Bold', ...
