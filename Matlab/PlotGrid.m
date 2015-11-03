@@ -1,6 +1,8 @@
 function fig_h = PlotGrid(CanvasW, Ratio, Baseline, ColumnN, GutterW, Opts)
+%PLOTGRID Plots harmonic grid based on given configuration. Possible multiple grids.
+%
 % CanvasW  [px] - Max canvas width
-% Ratio    struct 'W': Width; 'H': Height; 'R': Width/Height
+% Ratio    string representing ratio (eg, '3x2', '16x9')
 %          (aspect ratio structure: width, height, ratio, eg {16, 9, 1.777})
 % Baseline [px] - Baseline height
 % ColumnN  [num]- number of columns (of uBlocks)
@@ -12,6 +14,8 @@ function fig_h = PlotGrid(CanvasW, Ratio, Baseline, ColumnN, GutterW, Opts)
 
 % 'except last' lambda-f for the n-1 elements of a vector
 elast = @(x) x(1:end-1);  
+Ratio = RatioStr2Struct(Ratio);
+
 % default Options
 if ~exist('Opts', 'var'); 
     Opts = struct('OutputDir', '.\', ...

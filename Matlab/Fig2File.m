@@ -1,4 +1,6 @@
 function Fig_h = Fig2File(Fig_h, FileName, Opts)
+%FIG2FILE saves provided figure to file with give options.
+%
 % Fig_h   [h] - figure handler
 % Options [struct] OutputDir: 'path';
 %                  Formats  : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
