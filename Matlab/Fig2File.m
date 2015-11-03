@@ -4,12 +4,12 @@ function Fig_h = Fig2File(Fig_h, FileName, Opts)
 % Fig_h   [h] - figure handler
 % Options [struct] OutputDir: 'path';
 %                  Formats  : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
-%                  Mode     : 'show' or 'save' or 'savetop'
+%                  Mode     : 'show', 'save', 'savefull'
 %                  Show     : 'all', 'fit'
 
 
-%TODO fix fig invisibility
-%TODO fix fullscale printing
+%TODO fix invisibility for 'fig' export
+%TODO fix fullscale printing - pain in the ass, matlab bugs
 out = Opts.OutputDir;
 addpath(genpath('d:\Dropbox\Backup\Matlab\utility\'));
 
@@ -21,12 +21,12 @@ for i=1:numel(Opts.Formats)
     if ~exist([out ext '\'], 'dir'); mkdir([out ext '\']); end
 
     if strcmp(ext, 'fig')
-        fprintf('Saving image: %s ... ', upper(ext)); tic;
+        fprintf('\tSaving image: %s ... ', upper(ext)); tic;
         savefig(Fig_h, [out 'fig\' FileName], 'compact'); 
         fprintf('%ds\n', round(toc));
     else
-        if strcmp(Opts.Mode, 'savetop')
-            fprintf('Saving image: %s ... ', upper(ext)); tic;
+        if strcmp(Opts.Mode, 'save')
+            fprintf('\tSaving image: %s ... ', upper(ext)); tic;
             hgexport(Fig_h, [out ext '\' FileName], hgexport('factorystyle'), 'Format', ext);
             fprintf('%ds\n', round(toc));
         else
@@ -37,7 +37,7 @@ for i=1:numel(Opts.Formats)
                     'paperposition', [0 0 figpos(3:4)/ScrnPPI]);
 
             for dpi = [ScrnPPI]
-                fprintf('Printing image: %s %d dpi ... ', upper(ext), dpi); tic;
+                fprintf('\tPrinting image: %s %d dpi ... ', upper(ext), dpi); tic;
                 print(Fig_h, fullfile(out,  [ext '\dpi' num2str(dpi) '_' FileName]), ...
                       ['-d' ext], ['-r', num2str(dpi)], '-painters');
 

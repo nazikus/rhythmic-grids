@@ -2,7 +2,7 @@ clc; clear variables;
 close all;
 
 %% OUTPUT OPTIONS
-Options.Mode      = 'show';  % 'show', 'save', 'savetop'
+Options.Mode      = 'show';  % 'show', 'save', 'savefull'
 Options.Show      = 'fit';   %'all', 'fit'
 Options.Formats   = {'png'}; %{'png', 'tiff', 'svg', 'pdf', 'eps', 'fig'}
 Options.Verbose   = true;
@@ -10,11 +10,11 @@ Options.OutputDir = 'd:\Dropbox\Photos\Grids\';
 % Options.OutputDir = '..\Grids\';
 
 %% All possible input values
-MaxWidths = [640 960 1150 1440 1680];
-Ratios = {'1x1', '2x1',  '3x2', '4x3', '16x9'};
-Baselines =  8:14;
-Columns   = 10:14;
-GutterToBaselineRatios = [0 1 2 3 4];
+MaxWidths = [960 1440]; % [640 960 1150 1440 1680];
+Ratios = {'3x2', '16x9'}; % {'1x1', '2x1',  '3x2', '4x3', '16x9'};
+Baselines =  8:2:14;
+Columns   = 10:2:14;
+GutterToBaselineRatios = [1 3]; %[0 1 2 3 4];
 
 %% Single input
 MaxCanvasWidth = 1200;
@@ -36,8 +36,7 @@ uBlockColumns = floor( (MaxCanvasWidth + Gutter) / (uBlockWidth + Gutter) );
 GridWidth = (uBlockWidth + Gutter) * uBlockColumns - Gutter;
 
 %% Plotting grids
-PlotGrid(MaxCanvasWidth, RatioStr, Baseline, Column, Gutter, Options);
-return;
+PlotGrid(MaxCanvasWidth, RatioStr, Baseline, Column, Gutter, Options); return;
 
 for width = MaxWidths
 for ratio = Ratios
@@ -45,6 +44,7 @@ for baseline = Baselines
 for columns = Columns
 for gutter = [GutterToBaselineRatios*baseline]
     PlotGrid(width, ratio{1}, baseline, columns, gutter, Options);
+    fprintf('\n%s\n', repelem('-', 80));
 end
 end   
 end
