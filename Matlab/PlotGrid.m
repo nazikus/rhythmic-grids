@@ -52,8 +52,10 @@ if strcmp(Opts.Show, 'fit')
             MacroRowIdx(end+1) = r;
         end
     end
+    Opts.OneRowFail = false;
     if numel(MacroRowIdx) <= 1
         Opts.Show = 'all';
+        Opts.OneRowFail = true;
     end
 end
 
@@ -239,6 +241,14 @@ end
 
 % last X tick label
 text(CanvasW, -23, num2str(CanvasW), 'FontSize', fR(1)*.9, 'Color', [0 0 .6], 'Rotation', XTickRotation); %9
+
+% if grid failed, only 1 row fits
+if Opts.OneRowFail
+   text(50, 200, 'FAILED GRID', ...
+        'Rotation', 45, 'Color', [1 0 0], 'FontSize', 36, 'FontWeight', 'bold', ...
+        'EdgeColor', [1 0 0], 'LineWidth', 2, 'BackgroundColor', [1 1 1 .4], ...
+        'Clipping', 'on');
+end
 
 % plottools
 hold off;
