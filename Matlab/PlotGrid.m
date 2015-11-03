@@ -1,9 +1,10 @@
-function fig_h = PlotGrid(CanvasW, Ratio, Baseline, GutterW, Opts)
+function fig_h = PlotGrid(CanvasW, Ratio, Baseline, ColumnN, GutterW, Opts)
+% CanvasW  [px] - Max canvas width
+% Ratio    struct 'W': Width; 'H': Height; 'R': Width/Height
+%          (aspect ratio structure: width, height, ratio, eg {16, 9, 1.777})
 % Baseline [px] - Baseline height
-% CanvasW  [px] - Canvas width (input from user)
-% GutterV  [px] - vertical gutter width between columns
-% Ratio   struct 'W': Width; 'H': Height; 'R': Width/Height
-%         - aspect ratio structure: width, height, ration (eg 16, 9, 1.777)
+% ColumnN  [num]- number of columns (of uBlocks)
+% GutterW  [px] - vertical gutter width between columns
 % Options struct OutputDir: 'path';
 %                Formats  : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
 %                Mode     : 'show' or 'save' or 'savetop'
@@ -11,11 +12,22 @@ function fig_h = PlotGrid(CanvasW, Ratio, Baseline, GutterW, Opts)
 
 % 'except last' lambda-f for the n-1 elements of a vector
 elast = @(x) x(1:end-1);  
+% default Options
 if ~exist('Opts', 'var'); 
-    Opts = struct('OutputDir', '.\', 'Formats', {}, 'Mode', 'show', 'Show', 'fit'); 
+    Opts = struct('OutputDir', '.\', ...
+                  'Formats', {},  ...
+                  'Mode', 'show', ...
+                  'Show', 'fit',  ...
+                  'Verbose', true); 
 end
 
-%% DETERMINE MAIN QUANTITIES - DIMENSIONS, SIZES, MARGINS
+if Opts.Verbose
+    fprintf('\nWidth %dpx, Ratio %dx%d, Baseline %dpx, Columns %d, Gutter %dpx:\n', ...
+             CanvasW, Ratio.W, Ratio.H, Baseline, ColumnN, GutterW);
+end
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  DETERMINE MAIN QUANTITIES - DIMENSIONS, SIZES, MARGINS
 
 % current screen (display) size
 scrn = get(groot, 'ScreenSize');  % get current display screen resolution
@@ -24,26 +36,33 @@ ScreenH = scrn(4);
 clear scrn;
 
 % micro-block width & height (minimum possible for current canvas and ratio)
-minBlockH = lcm(Baseline, Ratio.H);
-minBlockW = minBlockH * Ratio.R;
-uBlockH = minBlockH;
-uBlockW = minBlockW;
-% max_uBlockW = (CanvasW+GutterW)/ColumnN - GutterW;
-% fprintf('minBlockW = %d\nmax_uBlockW = %d\nblocks=%d\n',minBlockW, max_uBlockW, floor(max_uBlockW/minBlockW));
+min_uBlockH = lcm(Baseline, Ratio.H);
+min_uBlockW = min_uBlockH * Ratio.R;
+
+% max possible uBlock width for selected columnsN
+max_uBlockW = (CanvasW+GutterW)/ColumnN - GutterW;
+
+% iterate through all possible uBlocks within give columns number
+%TODO test what heppens if to increment by Ratio.H instead of min_uBlockH
+for bw = [min_uBlockW : min_uBlockW : max_uBlockW]
+
+uBlockW = bw;
+uBlockH = bw/Ratio.R;
 
 % gutter height between rows
 GutterH = GutterW;
 
-% number of columns proportional to uBlock
-ColumnsNum   = floor( (CanvasW + GutterW) / (uBlockW + GutterW) );
+% number of columns 
+% ColumnsNum = floor( (CanvasW + GutterW) / (uBlockW + GutterW) );  % max columns for current uBlock
+ColumnsNum = ColumnN;   % input from user
 
 % number of rows: row height = uBlockH; macroRow height = incremental +uBlockH;
 MacroRowsNum = floor( CanvasW/uBlockW ) ;  % each subsequent row height is x2 of preceding
-RowsNum = sum(1:MacroRowsNum); % total uBlock rows
 
 % grid width (<=canvas width) with current uBlockW
 GridW = (uBlockW + GutterW) * ColumnsNum - GutterW;
 
+Opts.OneRowFail = false;
 if strcmp(Opts.Show, 'fit')
     % filtering blocks (indices) only that fit grid proportions horizontally
     MacroRowIdx = [];
@@ -52,19 +71,20 @@ if strcmp(Opts.Show, 'fit')
             MacroRowIdx(end+1) = r;
         end
     end
-    Opts.OneRowFail = false;
     if numel(MacroRowIdx) <= 1
         Opts.Show = 'all';
         Opts.OneRowFail = true;
     end
 end
+if Opts.Verbose; fprintf('Current uBlock: %dx%d #%d\n', bw, bw/Ratio.R, numel(MacroRowIdx)); end
 
 if strcmp(Opts.Show, 'all')
     MacroRowIdx = [1:ceil(MacroRowsNum/2) MacroRowsNum];
+    if Opts.OneRowFail; Warning('Fits only 1 multiple of uBlock. Iterating all possible blocks then'); end
 end
 MacroRowsNum = numel(MacroRowIdx);
 
-% grid height with select uBlocks
+% grid height with selected uBlock
 GridH = sum(uBlockH*MacroRowIdx) + GutterH*(numel(MacroRowIdx)-1);  
 % canvas height = grid height + optional vertical marging
 CanvasH = GridH + 0;  
@@ -97,33 +117,35 @@ MacroRowsY = sort([cumsum(MacroRowIdx) + [1:numel(MacroRowIdx)], ...
 GridLabelsY(MacroRowsY) = cellfun(@(x) num2str(x), ...
                                   num2cell(GridLinesY(MacroRowsY)), ...
                                   'UniformOutput', false);
-
-% title and file names
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  TITLES, FILES, AUX. VARS
 FileName = sprintf('Width%d_Ratio%dx%d_Base%d_Gut%d', ...
                    CanvasW, Ratio.W, Ratio.H, Baseline, GutterW);
 
 GridTitle  = sprintf( ...
-    ['     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Gutter %d\n' ...
-     'Output: %sBlock %dx%d | Cols %d | GridW %d | Margins 2x%d'], ...
-    CanvasW, Ratio.W, Ratio.H, Baseline, GutterW, ...
-    char(956), uBlockW, uBlockH, ColumnsNum, GridW, CanvasMargin );
+    ['     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Columns %d | Gutter %d\n' ...
+     'Output: %sBlock %dx%d | Blocks #%d | GridW %d | Margins 2x%d'], ...
+    CanvasW, Ratio.W, Ratio.H, Baseline, ColumnN, GutterW, ...
+    char(956), uBlockW, uBlockH, MacroRowsNum, GridW, CanvasMargin );
                  
-%% INITIALIZE FIGURE
-
-ModeShow = strcmp(Opts.Mode, 'show');
-ModeSave = strcmp(Opts.Mode, 'save');
+ModeShow    = strcmp(Opts.Mode, 'show');
+ModeSave    = strcmp(Opts.Mode, 'save');
 ModeSaveTop = strcmp(Opts.Mode, 'savetop');
+
 visibility = {'off', 'on'};
-menubar = {'none', 'figure'};
+menubar    = {'none', 'none'};
+
 k = [2.2 3.6]/3432 * CanvasH;  % empirical coeffs, 3432 reference canvas height
 FontRatios = [10 10; k(1) k(2)];
 fR = FontRatios(ModeSave+1, :);
 
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  INITIALIZE FIGURE
 
 % auxiliary margins between figure and canvas/plot (optional, matlab specific)
 figMargin = [110 170 40]; % [left/right; top; bottom]
 figW = CanvasW + figMargin(1)*2;
-figH = min([ScreenH-50, CanvasH + figMargin(2)+figMargin(3)]); 
+figH = min([ScreenH-50, max(ScreenH/2, CanvasH+figMargin(2)+figMargin(3))]); 
 
 if ModeSave
     figH = CanvasH + figMargin(2)+figMargin(3); 
@@ -138,7 +160,8 @@ fig_h.NumberTitle   = 'off';
 fig_h.DockControls  = 'off';
 fig_h.GraphicsSmoothing = 'off';
 
-%% INITIALIZE AXIS
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  INITIALIZE AXIS
 ax = axes();
 hold on; pan yon;
 ax.Title.String     = GridTitle;
@@ -178,7 +201,8 @@ ax.XGrid      = 'on';
 ax.XAxisLocation = 'top';
 ax.XTickLabel(numel(ax.XTickLabel)) = {''};   % remove last X tick label
 
-%% PLOT BLOCKS, GUIDES AND MARGINS
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  PLOT BLOCKS, GUIDES AND MARGINS
 
 % plot rectangles for canvas margins
 rectangle('Position' , [0 0 CanvasMargin GridH], ...
@@ -226,7 +250,7 @@ for r=MacroRowIdx
         t.Position = [t.Position(1)-t.Extent(3)-5 t.Position(2) 0];  % Align right precisely
         clear t;
     end
-end 
+end % rectangle plot loop
 
 % plot horizontal grid lines, multiples baseline height
 x = [zeros(1, numel(GridBaseY)); CanvasW*ones(1, numel(GridBaseY))];
@@ -245,7 +269,7 @@ text(CanvasW, -23, num2str(CanvasW), 'FontSize', fR(1)*.9, 'Color', [0 0 .6], 'R
 % if grid failed, only 1 row fits
 if Opts.OneRowFail
    text(50, 200, 'FAILED GRID', ...
-        'Rotation', 45, 'Color', [1 0 0], 'FontSize', 36, 'FontWeight', 'bold', ...
+        'Rotation', 30, 'Color', [1 0 0], 'FontSize', 54, 'FontWeight', 'bold', ...
         'EdgeColor', [1 0 0], 'LineWidth', 2, 'BackgroundColor', [1 1 1 .4], ...
         'Clipping', 'on');
 end
@@ -254,11 +278,18 @@ end
 hold off;
 
 
-%% SAVING FIGURE TO FILE(S)
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  SAVING FIGURE TO FILE(S)
 if ~ModeShow
     Fig2File(fig_h, FileName, Opts);
     close(fig_h);    
     % fig_h.Visible = 'on';
+else
+%     pause;
+%     close(fig_h);
 end    
 % if ModeSave; system(fullfile(Opts.OutputDir, [Opts.Formats{1} '\dpi96_' FileName '.' Opts.Formats{1}])); end
+
+end  % uBlock biiig loop
+
 end
