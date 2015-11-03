@@ -3,7 +3,8 @@ close all;
 
 %% All possible input values
 % SaveOptions.OutputDir = '..\Grids\';
-Options.Mode      = 'show';    % 'show' or 'save' or 'savetop'
+Options.Mode      = 'show';  % 'show', 'save', 'savetop'
+Options.Show      = 'fit';   %'all', 'fit'
 Options.Formats   = {'png'}; %{'png', 'tiff', 'svg', 'pdf', 'eps'}; % fig
 Options.OutputDir = 'd:\Dropbox\Photos\Grids\';
 
