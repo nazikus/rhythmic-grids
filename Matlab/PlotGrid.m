@@ -62,7 +62,7 @@ MacroRowsNum = floor( CanvasW/uBlockW ) ;  % each subsequent row height is x2 of
 GridW = (uBlockW + GutterW) * ColumnsNum - GutterW;
 
 % horizontal (left or right) margins between canvas and actual grid
-CanvasMargin = floor( (CanvasW - GridW)/2 );
+GridMargin = floor( (CanvasW - GridW)/2 );
 
 % filtering blocks (indices) only that fit grid proportions horizontally
 Opts.FailGrid = false;
@@ -73,7 +73,7 @@ if strcmp(Opts.Show, 'fit')
             MacroRowIdx(end+1) = r;
         end
     end
-    if numel(MacroRowIdx) <= 1 || CanvasMargin > CanvasW*0.15
+    if numel(MacroRowIdx) <= 1 || GridMargin > CanvasW*0.15
         Opts.FailGrid = true;
         fprintf('\tuBlock %dx%d *%d  REJECTED\n', uBlockW, uBlockH, numel(MacroRowIdx));
     else
@@ -95,7 +95,7 @@ CanvasH = GridH + 0;
 
 % X coordinates of all vertical gridlines (ticks) considerring canvas margins
 GridLinesX = unique( ...
-             [0, CanvasMargin + [0 elast(cumsum(reshape( ...
+             [0, GridMargin + [0 elast(cumsum(reshape( ...
               [uBlockW;GutterW]*ones(1,ColumnsNum), [1 ColumnsNum*2] )))], CanvasW] ...
               );
 
@@ -134,7 +134,7 @@ GridTitle  = sprintf( ...
     ['     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Columns %d | Gutter %d\n' ...
      'Output: %sBlock %dx%d | Blocks #%d | GridW %d | Margins 2x%d'], ...
     CanvasW, Ratio.W, Ratio.H, Baseline, ColumnN, GutterW, ...
-    char(956), uBlockW, uBlockH, MacroRowsNum, GridW, CanvasMargin );
+    char(956), uBlockW, uBlockH, MacroRowsNum, GridW, GridMargin );
                  
 if strcmp(Opts.Show, 'all'); FileName = [FileName '_all'];  end
 
@@ -236,9 +236,9 @@ ax.XTickLabel(numel(ax.XTickLabel)) = {''};
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % plot rectangles for canvas margins
-rectangle('Position' , [0 0 CanvasMargin GridH], ...
+rectangle('Position' , [0 0 GridMargin GridH], ...
           'FaceColor', [.97 .92 .92], 'LineStyle', 'none');
-rectangle('Position' , [CanvasMargin+GridW 0 CanvasMargin GridH], ...
+rectangle('Position' , [GridMargin+GridW 0 GridMargin GridH], ...
           'FaceColor', [.97 .92 .92], 'LineStyle', 'none');
 
 if GutterW>0;  RecLine = 'none'; else RecLine = '-'; end
@@ -258,7 +258,7 @@ for r=MacroRowIdx
     end
 
     for c=0:MacroColsNum-1
-        x_pos = CanvasMargin + c*(blockW+GutterW);
+        x_pos = GridMargin + c*(blockW+GutterW);
         y_pos = sum(elast([0 MacroRowIdx(1:ri)]))*uBlockH + (ri-1)*GutterH;
         rectangle('Position',  [x_pos, y_pos, blockW, blockH ], ...
                   'FaceColor', colors, ...
@@ -268,17 +268,17 @@ for r=MacroRowIdx
     end
     
     % block size, uBlock ratio, columns
-    text(CanvasMargin+4, y_pos+7, ...
+    text(GridMargin+4, y_pos+7, ...
          sprintf('%d: (%d x %d) X %d', r, uBlockW*r, uBlockH*r, MacroColsNum), ...
          'FontSize', 10*fR(2), 'FontWeight', 'Bold', ...
          'Color', [0 0 0], 'Clipping', 'on');
      
     % annotations arrows for fitting gap
     if ~fit
-        line([x_pos+blockW+2; CanvasMargin+GridW-3], [y_pos+blockH/2; y_pos+blockH/2], ...
+        line([x_pos+blockW+2; GridMargin+GridW-3], [y_pos+blockH/2; y_pos+blockH/2], ...
              'LineWidth', 2, 'Marker', 'd', 'MarkerSize', 5, 'MarkerFaceColor', [0 0 1]); 
-        gap = (CanvasMargin+GridW - (x_pos+blockW));
-        t=text(CanvasMargin+GridW, y_pos+blockH/2-10, sprintf('%dpx', gap), 'Clipping', 'on');
+        gap = (GridMargin+GridW - (x_pos+blockW));
+        t=text(GridMargin+GridW, y_pos+blockH/2-10, sprintf('%dpx', gap), 'Clipping', 'on');
         t.Position = [t.Position(1)-t.Extent(3)-5 t.Position(2) 0];  % Align right precisely
         clear t;
     end
