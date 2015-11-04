@@ -112,14 +112,19 @@ GridLinesY = unique(sort( ...
     ]));
 
 % Y tick lables per uBlock height considerring gutter height
-% GridLabelsY(1:numel(GridLinesY)) = cellfun(@(x) num2str(x), num2cell(GridLinesY), 'UniformOutput', false);
-MacroRowsY = sort([cumsum(MacroRowIdx) + [1:numel(MacroRowIdx)], ...
-                   cumsum(MacroRowIdx) + [1:numel(MacroRowIdx)]-1]);
+if GutterW>0
+    % ticks array indices on the top & bottom of each block
+    MacroRowsY = sort([cumsum(MacroRowIdx) + [1:numel(MacroRowIdx)], ...
+                       cumsum(MacroRowIdx) + [1:numel(MacroRowIdx)]-1]);
+else
+    MacroRowsY = cumsum(MacroRowIdx);
+end
 
+% assigning those ticks string representation of their value (the rest are imlicitly empty strings)
 GridLabelsY(MacroRowsY) = cellfun(@(x) num2str(x), ...
                                   num2cell(GridLinesY(MacroRowsY)), ...
                                   'UniformOutput', false);
-                              
+
 %% TITLES, FILES, AUX. VARS
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FileName = sprintf('Width%d_Ratio%dx%d_Base%d_Gut%d_Block%dx%d', ...
@@ -235,7 +240,9 @@ rectangle('Position' , [0 0 CanvasMargin GridH], ...
           'FaceColor', [.97 .92 .92], 'LineStyle', 'none');
 rectangle('Position' , [CanvasMargin+GridW 0 CanvasMargin GridH], ...
           'FaceColor', [.97 .92 .92], 'LineStyle', 'none');
-     
+
+if GutterW>0;  RecLine = 'none'; else RecLine = '-'; end
+
 % plot all blocks
 for r=MacroRowIdx
     ri = find(MacroRowIdx==r); % r index
@@ -255,7 +262,7 @@ for r=MacroRowIdx
         y_pos = sum(elast([0 MacroRowIdx(1:ri)]))*uBlockH + (ri-1)*GutterH;
         rectangle('Position',  [x_pos, y_pos, blockW, blockH ], ...
                   'FaceColor', colors, ...
-                  'LineStyle','none',  ...
+                  'LineStyle', RecLine,  ...
                   'Clipping', 'on'     ...
                   );
     end
