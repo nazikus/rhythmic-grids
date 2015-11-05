@@ -1,4 +1,4 @@
-function fig_h = PlotGrid(CanvasW, Ratio, Baseline, ColumnN, GutterW, Opts)
+function fig_h = PlotGrid(CanvasW, Ratio, Baseline, ColumnsNum, GutterW, Opts)
 %PLOTGRID Plots harmonic grid based on given configuration. Possible multiple grids.
 %
 % CanvasW  [px] - Max canvas width
@@ -27,7 +27,7 @@ end
 
 if Opts.Verbose
     fprintf('Configuration: Width %dpx, Ratio %dx%d, Baseline %dpx, Columns %d, Gutter %dpx\n', ...
-             CanvasW, Ratio.W, Ratio.H, Baseline, ColumnN, GutterW);
+             CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW);
 end
 
 %% DETERMINE MAIN QUANTITIES - DIMENSIONS, SIZES, MARGINS
@@ -38,12 +38,14 @@ min_uBlockH = lcm(Baseline, Ratio.H);
 min_uBlockW = min_uBlockH * Ratio.R;
 
 % max possible uBlock width for selected columnsN
-max_uBlockW = (CanvasW+GutterW)/ColumnN - GutterW;
+max_uBlockW = (CanvasW+GutterW)/ColumnsNum - GutterW;
 
 % iterate through all possible uBlocks within give columns number
 %TODO test what heppens if to increment by Ratio.H instead of min_uBlockH
+fprintf('Min. uBlock %dx%d\n', min_uBlockW, min_uBlockH);
 fprintf('Possible combinations: %d\n', floor(max_uBlockW/min_uBlockW));
-for bw = [min_uBlockW : min_uBlockW : max_uBlockW]
+bws = fliplr( [min_uBlockW : min_uBlockW : max_uBlockW] );
+for bw = bws(1:end)
 
 uBlockW = bw;
 uBlockH = bw/Ratio.R;
@@ -53,10 +55,9 @@ GutterH = GutterW;
 
 % number of columns 
 % ColumnsNum = floor( (CanvasW + GutterW) / (uBlockW + GutterW) );  % max columns for current uBlock
-ColumnsNum = ColumnN;   % input from user
 
-% number of rows: row height = uBlockH; macroRow height = incremental +uBlockH;
-MacroRowsNum = floor( CanvasW/uBlockW ) ;  % each subsequent row height is x2 of preceding
+% number of rows (macroRow height is incremental +min_uBlockH)
+MacroRowsNum = floor( CanvasW/uBlockW ) ;  
 
 % grid width (<=canvas width) with current uBlockW
 GridW = (uBlockW + GutterW) * ColumnsNum - GutterW;
@@ -68,28 +69,33 @@ GridMargin = floor( (CanvasW - GridW)/2 );
 Opts.FailGrid = false;
 if strcmp(Opts.Show, 'fit')
     MacroRowIdx = [];
+    %fprintf('\tuBlock %dx%d\n', uBlockW, uBlockH);
     for r=1:MacroRowsNum
-        if mod(GridW+GutterW, uBlockW*r+GutterW) == 0
+        if mod(GridW+GutterW, (uBlockW+GutterW)*r) == 0 ...
+                       && mod(((uBlockW+GutterW)*r-GutterW) / Ratio.R, 1) == 0
             MacroRowIdx(end+1) = r;
         end
+        %fprintf('\t\tx%d: mod(%d,%d) == %d\n', r, GridW, (uBlockW+GutterW)*r-GutterW, mod(GridW+GutterW, (uBlockW+GutterW)*r));
+        %fprintf('\t\tx%d: mod(%g,%g) == %g\n\n', r, ((uBlockW+GutterW)*r-GutterW) / Ratio.R, 1, mod(((uBlockW+GutterW)*r-GutterW) / Ratio.R, 1));
     end
-    if numel(MacroRowIdx) <= 1 || GridMargin > CanvasW*0.15
+    if numel(MacroRowIdx) <= 1 %|| GridMargin > CanvasW*0.15
         Opts.FailGrid = true;
         fprintf('\tuBlock %dx%d *%d  REJECTED\n', uBlockW, uBlockH, numel(MacroRowIdx));
     else
         fprintf('\tuBlock %dx%d *%d\n', uBlockW, uBlockH, numel(MacroRowIdx));
     end
 end
+% continue;
 
 % no filtering, plot all possible blocks including those that don't fit the grid
 if strcmp(Opts.Show, 'all') || numel(MacroRowIdx) <= 1
     MacroRowIdx = [1:ceil(MacroRowsNum/2) MacroRowsNum];
 end
-
 MacroRowsNum = numel(MacroRowIdx);
 
 % grid height with selected uBlock
-GridH = sum(uBlockH*MacroRowIdx) + GutterH*(numel(MacroRowIdx)-1);  
+GridH = ( -GutterW + (GutterW+uBlockW)*sum(MacroRowIdx) )/Ratio.R + (MacroRowsNum-1)*GutterH;
+
 % canvas height = grid height + optional vertical marging
 CanvasH = GridH + 0;  
 
@@ -125,15 +131,17 @@ GridLabelsY(MacroRowsY) = cellfun(@(x) num2str(x), ...
                                   num2cell(GridLinesY(MacroRowsY)), ...
                                   'UniformOutput', false);
 
+clear r TightUBlocksY;
+
 %% TITLES, FILES, AUX. VARS
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FileName = sprintf('Width%d_Ratio%dx%d_Base%d_Gut%d_Block%dx%d', ...
-                   CanvasW, Ratio.W, Ratio.H, Baseline, GutterW, uBlockW, uBlockH);
+FileName = sprintf('Width%d_Ratio%dx%d_Base%d_Cols%d_Gut%d_Block%dx%d', ...
+                   CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, uBlockW, uBlockH);
 
 GridTitle  = sprintf( ...
     ['     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Columns %d | Gutter %d\n' ...
      'Output: %sBlock %dx%d | Blocks #%d | GridW %d | Margins 2x%d'], ...
-    CanvasW, Ratio.W, Ratio.H, Baseline, ColumnN, GutterW, ...
+    CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, ...
     char(956), uBlockW, uBlockH, MacroRowsNum, GridW, GridMargin );
                  
 if strcmp(Opts.Show, 'all'); FileName = [FileName '_all'];  end
@@ -163,8 +171,8 @@ else % if multiple screens
     ScreenH = mp(2,4);
     ShiftX  = mp(2,1);
 end
-clear scrn mp;
 
+clear scrn mp FontRatios k;
 
 %% INITIALIZE FIGURE      
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -186,6 +194,8 @@ fig_h.OuterPosition = [ShiftX + (ScreenW-Fig.W)/2, ScreenH-Fig.H, Fig.W, Fig.H];
 fig_h.NumberTitle   = 'off';
 fig_h.DockControls  = 'off';
 fig_h.GraphicsSmoothing = 'off';
+
+clear menubar visibility ShiftX ScreenW ScreenH;
 
 %% INITIALIZE AXES
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -231,6 +241,7 @@ ax.XAxisLocation = 'top';
 ax.XTickLabel(numel(ax.XTickLabel)) = {''};   
 % removes last X tick label, 'cause it overlaps previous tick if margin is small
 
+clear ax GridTitle TPos TExt;
 
 %%  PLOT BLOCKS, GUIDES AND MARGINS
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -248,18 +259,19 @@ for r=MacroRowIdx
     ri = find(MacroRowIdx==r); % r index
     
     % MacroCol width == current macro blockW
-    MacroColsNum = floor( (GridW+GutterW) / (uBlockW*r+GutterW) ) + 0*logical(r);
-    blockW = uBlockW*r;
-    blockH = uBlockH*r;
-    
-    fit = MacroColsNum*(uBlockW*r + GutterW) - GutterW == GridW;
+    blockW = -GutterW + (GutterW+uBlockW)*r;
+    blockH = blockW / Ratio.R;
+    MacroColsNum = floor( (GridW+GutterW) / (blockW+GutterW) ) + 0*logical(r);
+
+    fit = (blockW+GutterW)*MacroColsNum - GutterW == GridW;
     if fit % if columns fit grid evently
         colors = [0 1 0]; else colors = [0 .6 0]; 
     end
 
+    currRows= elast([0 MacroRowIdx(1:ri)]);
+    y_pos = sum((currRows*(uBlockW+GutterW)-GutterW*logical(currRows)) / Ratio.R) + (ri-1)*GutterH;
     for c=0:MacroColsNum-1
         x_pos = GridMargin + c*(blockW+GutterW);
-        y_pos = sum(elast([0 MacroRowIdx(1:ri)]))*uBlockH + (ri-1)*GutterH;
         rectangle('Position',  [x_pos, y_pos, blockW, blockH ], ...
                   'FaceColor', colors, ...
                   'LineStyle', RecLine,  ...
@@ -267,9 +279,9 @@ for r=MacroRowIdx
                   );
     end
     
-    % block size, uBlock ratio, columns
+    % text: block size, uBlock ratio, columns
     text(GridMargin+4, y_pos+7, ...
-         sprintf('%d: (%d x %d) X %d', r, uBlockW*r, uBlockH*r, MacroColsNum), ...
+         sprintf('%d: (%d x %d) X %d', r, blockW, blockH, MacroColsNum), ...
          'FontSize', 10*fR(2), 'FontWeight', 'Bold', ...
          'Color', [0 0 0], 'Clipping', 'on');
      
@@ -322,7 +334,7 @@ else
 %     close(fig_h);
 end    
 % if Mode.SaveFull; system(fullfile(Opts.OutputDir, [Opts.Formats{1} '\dpi96_' FileName '.' Opts.Formats{1}])); end
-
+% fprintf('\n');
 end  % uBlock biiig loop
 
 end
