@@ -8,8 +8,8 @@ function Fig_h = Fig2File(Fig_h, FileName, Opts)
 %                  Show     : 'all', 'fit'
 
 
-%TODO fix invisibility for 'fig' export
-%TODO fix fullscale printing - pain in the ass, matlab bugs
+% FIXME invisibility for 'fig' export
+% FIXME fullscale printing - pain in the ass, matlab bugs
 out = Opts.OutputDir;
 addpath(genpath('d:\Dropbox\Backup\Matlab\utility\'));
 

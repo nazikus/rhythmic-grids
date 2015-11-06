@@ -48,6 +48,7 @@ fprintf('Number of candidates: %d\n', floor(max_uBlockW/min_uBlockW));
 
 % first element of 'bws' is the biggest uBlock suitable, the rest are fractions
 % which provide the same proportion for the rest of blocks, hence are redundant.
+% TODO plot 0-candidates anyway
 bws = fliplr( [min_uBlockW : min_uBlockW : max_uBlockW] );
 if numel(bws)==0; return; end
 for bw = bws(1:1)
@@ -78,7 +79,8 @@ if strcmp(Opts.Show, 'fit')
     for r=1:MacroRowsNum
         blockW = (uBlockW+GutterW)*r - GutterW;
         blockH = blockW / Ratio.R;
-        if mod(GridW+GutterW, blockW+GutterW) == 0 && mod(blockH, 1) == 0
+        if mod(GridW+GutterW, blockW+GutterW) == 0 ...
+                && mod(blockH, Baseline) == 0 ...
             MacroRowIdx(end+1) = r;
         end
         %fprintf('\t\tx%d: mod(%d,%d) == %d\n', r, GridW, blockW, mod(GridW+GutterW, blockW+GutterW));
@@ -279,7 +281,8 @@ for r=MacroRowIdx
     blockH = blockW / Ratio.R;
     MacroColsNum = floor( (GridW+GutterW) / (blockW+GutterW) ) + 0*logical(r);
 
-    fit = (blockW+GutterW)*MacroColsNum - GutterW == GridW && mod(blockH,1) == 0;
+    fit = (blockW+GutterW)*MacroColsNum - GutterW == GridW  ...
+                          && mod(blockH,Baseline) == 0;
     if fit % if columns fit grid evently
         colors = [0 1 0]; else colors = [0 .6 0]; 
     end
@@ -293,17 +296,27 @@ for r=MacroRowIdx
                   'LineStyle', RecLine,  ...
                   'Clipping', 'on'     ...
                   );
-    end
+
+        % draw rectangle at the bottom of block, denoting baseline remainder
+        if mod(blockH,Baseline) || mod(blockW,1)
+            blockQuot = floor(blockH/Baseline) * Baseline;
+            rectangle('Position', [x_pos, y_pos+blockQuot, ...
+                                   blockW, blockH-blockQuot], ...
+                      'FaceColor', [0 1 1], ...
+                      'LineStyle', 'none', ...
+                      'Clipping', 'on');
+            % change text label color for non-integer blocks
+            blockLabelColor = [1 1 0];         
+        else
+            blockLabelColor = [0 0 0];
+        end
     
-    % red text lables for non-integer blocks
-    if mod(blockH,1) || mod(blockW,1)
-        blockLabelColor = [1 1 0]; else blockLabelColor = [0 0 0];
     end
-        
     
     % text: block size, uBlock ratio, columns
     text(GridMargin+4, y_pos+7, ...
-         sprintf('%s%d  (%g x %g) X %d', char(956), r, blockW, blockH, MacroColsNum), ...
+         sprintf('%s%d  (%g x %g) X %d', char(956), ...
+         r, blockW, blockH, MacroColsNum), ...
          'FontSize', 10*fR(2), 'FontWeight', 'Bold', ...
          'Color', blockLabelColor, 'Clipping', 'on');
      

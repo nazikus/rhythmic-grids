@@ -2,12 +2,11 @@ clc; clear variables;
 close all;
 
 %% OUTPUT OPTIONS
-Options.Mode      = 'save';  % 'show', 'save', 'savefull'
+Options.Mode      = 'show';  % 'show', 'save', 'savefull'
 Options.Show      = 'fit';   %'all', 'fit'
 Options.Formats   = {'png'}; %{'png', 'tiff', 'svg', 'pdf', 'eps', 'fig'}
 Options.Verbose   = true;
 Options.OutputDir = '..\Grids\';
-% Options.OutputDir = '..\Grids\';
 
 %% All possible input values
 MaxWidths = [960 1280]; % [960 1280 1440];
@@ -16,12 +15,14 @@ Baselines =  8:12; % 3:12;
 Columns   =  [5 6 9 12]; % [5 6 9 12];
 GutterToBaselineRatios = [0 1 2]; % [0 1 2];
 
+
 %% Single input
+% TODO make interactive interface: http://blogs.mathworks.com/community/2008/02/18/interactive-web-pages-in-matlab-part-2/
 MaxCanvasWidth = 960; %1000;
 RatioStr = '3x2';
-Baseline = 5; % 11;
-Column   = 9;
-GutterToBaselineRatio = 3;
+Baseline = 12; % 11;
+Column   = 6;
+GutterToBaselineRatio = 2;
 
 
 %% Determine number of micro-blocks
@@ -54,7 +55,7 @@ end
 end
 end
 end
-
+% TODO print valid/invalid statistics
 diary off;
 
 % log grep configurations with 0 uBlocks
@@ -66,5 +67,5 @@ cd(currDir);
 clear Ratios Baselines GutterBaselineRatios;
 clear GutterBaselineRatio MinColumnNum;
 % clear Ratio MaxCanvasWidth uBlockNum CanvasWidth;
-
+% TODO gif animatino out of all possible grids (even small ones)
 
