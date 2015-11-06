@@ -12,8 +12,9 @@ function fig_h = PlotGrid(CanvasW, Ratio, Baseline, ColumnsNum, GutterW, Opts)
 %                Mode     : 'show', 'save', 'savefull'
 %                Show     : 'all' or 'fit'
 
-% 'except last' lambda-f for the n-1 elements of a vector
-elast = @(x) x(1:end-1);  
+% except last, except first - lambda-f for the 1:n-1, 2:n elements of a vector
+elast  = @(x) x(1:end-1);
+efirst = @(x) x(2:end);
 Ratio = RatioStr2Struct(Ratio);
 
 % default Options
@@ -41,11 +42,15 @@ min_uBlockW = min_uBlockH * Ratio.R;
 max_uBlockW = (CanvasW+GutterW)/ColumnsNum - GutterW;
 
 % iterate through all possible uBlocks within give columns number
-%TODO test what heppens if to increment by Ratio.H instead of min_uBlockH
+% TODO test what heppens if to increment by Ratio.H instead of min_uBlockH (if 'vertical' search)
 fprintf('Min. uBlock %dx%d\n', min_uBlockW, min_uBlockH);
-fprintf('Possible combinations: %d\n', floor(max_uBlockW/min_uBlockW));
+fprintf('Number of candidates: %d\n', floor(max_uBlockW/min_uBlockW));
+
+% first element of 'bws' is the biggest uBlock suitable, the rest are fractions
+% which provide the same proportion for the rest of blocks, hence are redundant.
 bws = fliplr( [min_uBlockW : min_uBlockW : max_uBlockW] );
-for bw = bws(1:end)
+if numel(bws)==0; return; end
+for bw = bws(1:1)
 
 uBlockW = bw;
 uBlockH = bw/Ratio.R;
@@ -53,8 +58,8 @@ uBlockH = bw/Ratio.R;
 % gutter height between rows
 GutterH = GutterW;
 
-% number of columns 
-% ColumnsNum = floor( (CanvasW + GutterW) / (uBlockW + GutterW) );  % max columns for current uBlock
+% number of max possible columns for current uBlock
+MaxColumnsNum = floor( (CanvasW + GutterW) / (uBlockW + GutterW) );
 
 % number of rows (macroRow height is incremental +min_uBlockH)
 MacroRowsNum = floor( CanvasW/uBlockW ) ;  
@@ -68,17 +73,18 @@ GridMargin = floor( (CanvasW - GridW)/2 );
 % filtering blocks (indices) only that fit grid proportions horizontally
 Opts.FailGrid = false;
 if strcmp(Opts.Show, 'fit')
-    MacroRowIdx = [];
+    MacroRowIdx = [];  % horizontal factors of uBlock for each fitting row
     %fprintf('\tuBlock %dx%d\n', uBlockW, uBlockH);
     for r=1:MacroRowsNum
-        if mod(GridW+GutterW, (uBlockW+GutterW)*r) == 0 ...
-                       && mod(((uBlockW+GutterW)*r-GutterW) / Ratio.R, 1) == 0
+        blockW = (uBlockW+GutterW)*r - GutterW;
+        blockH = blockW / Ratio.R;
+        if mod(GridW+GutterW, blockW+GutterW) == 0 && mod(blockH, 1) == 0
             MacroRowIdx(end+1) = r;
         end
-        %fprintf('\t\tx%d: mod(%d,%d) == %d\n', r, GridW, (uBlockW+GutterW)*r-GutterW, mod(GridW+GutterW, (uBlockW+GutterW)*r));
-        %fprintf('\t\tx%d: mod(%g,%g) == %g\n\n', r, ((uBlockW+GutterW)*r-GutterW) / Ratio.R, 1, mod(((uBlockW+GutterW)*r-GutterW) / Ratio.R, 1));
+        %fprintf('\t\tx%d: mod(%d,%d) == %d\n', r, GridW, blockW, mod(GridW+GutterW, blockW+GutterW));
+        %fprintf('\t\tx%d: mod(%g,%g) == %g\n\n', r, blockH, 1, mod(blockH, 1));
     end
-    if numel(MacroRowIdx) <= 1 %|| GridMargin > CanvasW*0.15
+    if numel(MacroRowIdx) <= 1
         Opts.FailGrid = true;
         fprintf('\tuBlock %dx%d *%d  REJECTED\n', uBlockW, uBlockH, numel(MacroRowIdx));
     else
@@ -94,44 +100,52 @@ end
 MacroRowsNum = numel(MacroRowIdx);
 
 % grid height with selected uBlock
-GridH = ( -GutterW + (GutterW+uBlockW)*sum(MacroRowIdx) )/Ratio.R + (MacroRowsNum-1)*GutterH;
+GridH = sum(((uBlockW+GutterW)*MacroRowIdx-GutterW)/Ratio.R)  + (MacroRowsNum-1)*GutterH;
 
 % canvas height = grid height + optional vertical marging
 CanvasH = GridH + 0;  
 
 % X coordinates of all vertical gridlines (ticks) considerring canvas margins
 GridLinesX = unique( ...
-             [0, GridMargin + [0 elast(cumsum(reshape( ...
-              [uBlockW;GutterW]*ones(1,ColumnsNum), [1 ColumnsNum*2] )))], CanvasW] ...
-              );
+             [0, ...
+              GridMargin + [0 elast(cumsum(reshape( ...
+                                           [uBlockW;GutterW]*ones(1,ColumnsNum), ...
+                                           [1 ColumnsNum*2]  )))], ...
+              CanvasW]);
 
 % Y coordinates of baseline gridlines
 GridBaseY = [Baseline:Baseline:GridH];
 
-% Y coordinates of all horizontal uBlock gridlines (ticks)
-TightUBlocksY = cumsum(uBlockH*ones(1,sum(MacroRowIdx)));  % no horizontal gutters
-GridLinesY = unique(sort( ...
-    [ TightUBlocksY+GutterH*(repelem(1:MacroRowsNum, MacroRowIdx)-1), ... % ticks along vertical side -1st
-	  arrayfun(@(i)  sum(TightUBlocksY(MacroRowIdx(1:i))) + ...    % first tick along vertical side
-                     i * GutterH, ...    
-      1:MacroRowsNum) ...  
-    ]));
+% row heights and Y coordinates for each fitting block and its sub-micro-blocks
+MacroRowH = ((uBlockW+GutterW)*MacroRowIdx - GutterW) / Ratio.R;
+MacroRowY = cumsum(MacroRowH)  + GutterH*[0:MacroRowsNum-1];
+uFactorH  = MacroRowH / uBlockH;
+uFactorY  = cellfun( @(y,f) y+uBlockH*([1:floor(f)]), ...
+                     num2cell(elast(MacroRowY+GutterH)), num2cell(efirst(uFactorH)), ...
+                     'UniformOutput', false);
 
-% Y tick lables per uBlock height considerring gutter height
+% Y coordinates of all horizontal uBlock gridlines (ticks)
+GridLinesY = unique(sort( [ MacroRowY, MacroRowY+GutterH, [uFactorY{:}] ]  ));
+
+% TODO GridLines mode 'adaptive' (implemented) vs 'linear' (todo)
+% if  strcmp(Mode.GridLines, 'linear')
+% GridLinesY = uBlockH:uBlockH:GridH;  % monothonic uBlock Y gridlines
+
+% Y tick lables per uBlock height considerring gutter height.
+% ticks array indices on the top & bottom of each block
 if GutterW>0
-    % ticks array indices on the top & bottom of each block
-    MacroRowsY = sort([cumsum(MacroRowIdx) + [1:numel(MacroRowIdx)], ...
-                       cumsum(MacroRowIdx) + [1:numel(MacroRowIdx)]-1]);
+    MacroRowsY = unique(sort([[0:MacroRowsNum-1] + cumsum(ceil(uFactorH)), ...
+                              [1:MacroRowsNum] + cumsum(ceil(uFactorH)) ]));
 else
     MacroRowsY = cumsum(MacroRowIdx);
 end
 
-% assigning those ticks string representation of their value (the rest are imlicitly empty strings)
+% assigning those ticks string representation of their value 
+% (the rest are imlicitly asigned empty strings)
 GridLabelsY(MacroRowsY) = cellfun(@(x) num2str(x), ...
                                   num2cell(GridLinesY(MacroRowsY)), ...
                                   'UniformOutput', false);
-
-clear r TightUBlocksY;
+clear r TightUBlocksY blockW blockH MacroRowY uFactorH;
 
 %% TITLES, FILES, AUX. VARS
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -147,7 +161,7 @@ GridTitle  = sprintf( ...
 if strcmp(Opts.Show, 'all'); FileName = [FileName '_all'];  end
 
 visibility = {'off', 'on'};
-menubar    = {'none', 'none'};
+menubar    = {'none', 'figure'};
 
 Mode.Show     = strcmp(Opts.Mode, 'show');
 Mode.Save     = strcmp(Opts.Mode, 'save');
@@ -161,7 +175,7 @@ fR = FontRatios(Mode.SaveFull+1, :);
 
 % current or secondary screen (display) size
 scrn = get(groot, 'ScreenSize');  % get current display screen resolution
-mp = get(0,'MonitorPositions');
+mp = get(0, 'MonitorPositions');
 if size(mp,1) == 1  % if single screen
     ScreenW = scrn(3);
     ScreenH = scrn(4);
@@ -176,6 +190,7 @@ clear scrn mp FontRatios k;
 
 %% INITIALIZE FIGURE      
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO fix axis margin for menubar->figure 
 
 % auxiliary margins between figure and canvas/plot (optional, matlab specific)
 Fig = struct('LR', 110, 'Top', 160, 'Bot', 40); % [left/right; top; bottom] margins
@@ -221,7 +236,7 @@ ax.GridAlpha  = 0.2;
 ax.GridColor  = [0 0 0];
 
 % Y AXIS
-ax.YLabel.String   = sprintf('%d px | %d x block types', CanvasH, MacroRowsNum);
+ax.YLabel.String   = sprintf('%g px | %d x block types', CanvasH, MacroRowsNum);
 ax.YLabel.FontSize = 14*fR(2);
 ax.YLabel.Color    = [0 0 0];
 ax.YLabel.Position = [-60 Fig.Top-60];  % disables anti-panning
