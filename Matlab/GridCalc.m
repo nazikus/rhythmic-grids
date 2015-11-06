@@ -39,7 +39,9 @@ GridWidth = (uBlockWidth + Gutter) * uBlockColumns - Gutter;
 %% Plotting grids
 PlotGrid(MaxCanvasWidth, RatioStr, Baseline, Column, Gutter, Options); return;
 
-diary([Options.OutputDir strrep(datestr(now),':','-') '.txt']);
+logfilename = strrep(datestr(now),':','-');
+diary([Options.OutputDir logfilename '.txt']);
+
 for width = MaxWidths
 for ratio = Ratios
 for baseline = Baselines
@@ -53,7 +55,14 @@ end
 end
 end
 
-diary off
+diary off;
+
+% log grep configurations with 0 uBlocks
+currDir = pwd;
+cd(Options.OutputDir)
+system(['grep -B3 -A1 "candidates\: 0" "' [logfilename '.txt" '] ['> "' logfilename '.candidates0.txt"'] ]);
+cd(currDir);
+
 clear Ratios Baselines GutterBaselineRatios;
 clear GutterBaselineRatio MinColumnNum;
 % clear Ratio MaxCanvasWidth uBlockNum CanvasWidth;
