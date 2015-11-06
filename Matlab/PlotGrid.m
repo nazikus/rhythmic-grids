@@ -86,9 +86,11 @@ if strcmp(Opts.Show, 'fit')
     end
     if numel(MacroRowIdx) <= 1
         Opts.FailGrid = true;
-        fprintf('\tuBlock %dx%d *%d  REJECTED\n', uBlockW, uBlockH, numel(MacroRowIdx));
+        fprintf('\tsingle uBlock %dx%d possible, REJECTED \n', uBlockW, uBlockH);
     else
-        fprintf('\tuBlock %dx%d *%d\n', uBlockW, uBlockH, numel(MacroRowIdx));
+        fprintf('\tblocks %d:[ %s] \n', numel(MacroRowIdx), ...
+            sprintf('%dx%d ',[(uBlockW+GutterW)*MacroRowIdx-GutterW; ...
+                             ((uBlockW+GutterW)*MacroRowIdx-GutterW)/Ratio.R]));
     end
 end
 % continue;
@@ -145,7 +147,7 @@ end
 GridLabelsY(MacroRowsY) = cellfun(@(x) num2str(x), ...
                                   num2cell(GridLinesY(MacroRowsY)), ...
                                   'UniformOutput', false);
-clear r TightUBlocksY blockW blockH MacroRowY uFactorH;
+clear r blockW blockH MacroRowY uFactorH uFactorY;
 
 %% TITLES, FILES, AUX. VARS
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -166,7 +168,7 @@ menubar    = {'none', 'figure'};
 Mode.Show     = strcmp(Opts.Mode, 'show');
 Mode.Save     = strcmp(Opts.Mode, 'save');
 Mode.SaveFull = strcmp(Opts.Mode, 'savefull');
-Mode.menuFlag     = strcmp(menubar{Mode.Show+1}, 'figure');
+Mode.menuFlag = strcmp(menubar{Mode.Show+1}, 'figure');
 
 k = [2.2 3.6]/3432/10 * CanvasH;  % empirical coeffs, 3432 reference canvas height
 FontRatios = [1 1; k(1) k(2)];
@@ -190,7 +192,6 @@ clear scrn mp FontRatios k;
 
 %% INITIALIZE FIGURE      
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO fix axis margin for menubar->figure 
 
 % auxiliary margins between figure and canvas/plot (optional, matlab specific)
 Fig = struct('LR', 110, 'Top', 160, 'Bot', 40); % [left/right; top; bottom] margins
@@ -225,7 +226,7 @@ TPos = ax.Title.Position; TExt = ax.Title.Extent;
 ax.Title.Position   = [Fig.LR+CanvasW*(1-TExt(3)) TPos(2)-Fig.TitleMargin 0];  % disable anti-panning
 
 ax.Units      = 'pixels';
-ax.Position   = [Fig.LR -(CanvasH-Fig.H+Fig.Top + 20*Mode.menuFlag) CanvasW CanvasH];
+ax.Position   = [Fig.LR -(CanvasH-Fig.H+Fig.Top + 50*Mode.menuFlag) CanvasW CanvasH];
 ax.XLim       = [0 CanvasW];
 ax.YLim       = [0 CanvasH];
 ax.Layer      = 'top'; 
@@ -278,7 +279,7 @@ for r=MacroRowIdx
     blockH = blockW / Ratio.R;
     MacroColsNum = floor( (GridW+GutterW) / (blockW+GutterW) ) + 0*logical(r);
 
-    fit = (blockW+GutterW)*MacroColsNum - GutterW == GridW;
+    fit = (blockW+GutterW)*MacroColsNum - GutterW == GridW && mod(blockH,1) == 0;
     if fit % if columns fit grid evently
         colors = [0 1 0]; else colors = [0 .6 0]; 
     end
@@ -294,11 +295,17 @@ for r=MacroRowIdx
                   );
     end
     
+    % red text lables for non-integer blocks
+    if mod(blockH,1) || mod(blockW,1)
+        blockLabelColor = [1 1 0]; else blockLabelColor = [0 0 0];
+    end
+        
+    
     % text: block size, uBlock ratio, columns
     text(GridMargin+4, y_pos+7, ...
-         sprintf('%d: (%d x %d) X %d', r, blockW, blockH, MacroColsNum), ...
+         sprintf('%s%d  (%g x %g) X %d', char(956), r, blockW, blockH, MacroColsNum), ...
          'FontSize', 10*fR(2), 'FontWeight', 'Bold', ...
-         'Color', [0 0 0], 'Clipping', 'on');
+         'Color', blockLabelColor, 'Clipping', 'on');
      
     % annotations arrows for fitting gap
     if ~fit
@@ -318,8 +325,8 @@ line(x, y, 'Color', [.8 0 0 .3], 'LineWidth', .5);
 
 % Baseline tick and label
 if uBlockH ~= Baseline
-    line([0; -10], [Baseline; Baseline], 'LineWidth', .5, 'Clipping', 'off');
-    text(-30,Baseline-3, num2str(Baseline), 'FontSize', 9*fR(1), 'Color', [0 0 .6]);
+    line([0; -10], [Baseline; Baseline], 'LineWidth', .5, 'Color', [1 0 0], 'Clipping', 'off');
+    text(-30,Baseline-3, ['b' num2str(Baseline)], 'FontSize', 9*fR(1), 'Color', [1 0 .6]);
 end
 
 % last X tick label
@@ -327,9 +334,9 @@ text(CanvasW, -23, num2str(CanvasW), 'FontSize', 9*fR(1), 'Color', [0 0 .6], 'Ro
 
 % if grid failed, only 1 row fits
 if Opts.FailGrid
-   text(-10, 270, 'REJECTED', ...
+   text(200, 220, 'REJECTED', ...
         'Rotation', 30, 'Color', [1 0 0], 'FontSize', 76*fR(1), 'FontWeight', 'bold', ...
-        'EdgeColor', [1 0 0], 'LineWidth', 2, 'BackgroundColor', [1 1 1 .5], ...
+        'EdgeColor', [1 0 0], 'LineWidth', 2, 'BackgroundColor', [1 1 1 .7], ...
         'Clipping', 'off');
     FileName = [FileName '_X'];
 end

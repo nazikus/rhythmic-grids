@@ -2,26 +2,27 @@ clc; clear variables;
 close all;
 
 %% OUTPUT OPTIONS
-Options.Mode      = 'show';  % 'show', 'save', 'savefull'
+Options.Mode      = 'save';  % 'show', 'save', 'savefull'
 Options.Show      = 'fit';   %'all', 'fit'
 Options.Formats   = {'png'}; %{'png', 'tiff', 'svg', 'pdf', 'eps', 'fig'}
 Options.Verbose   = true;
-Options.OutputDir = 'd:\Dropbox\Photos\Grids\';
+Options.OutputDir = '..\Grids\';
 % Options.OutputDir = '..\Grids\';
 
 %% All possible input values
-MaxWidths = [960 1440]; % [640 960 1150 1440 1680];
-Ratios = {'3x2', '16x9'}; % {'1x1', '2x1',  '3x2', '4x3', '16x9'};
-Baselines =  8:2:14;
-Columns   = 10:2:14;
-GutterToBaselineRatios = [1 3]; %[0 1 2 3 4];
+MaxWidths = [960 1280]; % [960 1280 1440];
+Ratios = {'1x1', '3x2', '16x9'}; % {'1x1', '3x2', '16x9'};
+Baselines =  8:12; % 3:12;
+Columns   =  [5 6 9 12]; % [5 6 9 12];
+GutterToBaselineRatios = [0 1 2]; % [0 1 2];
 
 %% Single input
-MaxCanvasWidth = 1200;
+MaxCanvasWidth = 960; %1000;
 RatioStr = '3x2';
-Baseline = 8;
-Column = 12;
+Baseline = 5; % 11;
+Column   = 9;
 GutterToBaselineRatio = 3;
+
 
 %% Determine number of micro-blocks
 Ratio = RatioStr2Struct(RatioStr);
@@ -38,6 +39,7 @@ GridWidth = (uBlockWidth + Gutter) * uBlockColumns - Gutter;
 %% Plotting grids
 PlotGrid(MaxCanvasWidth, RatioStr, Baseline, Column, Gutter, Options); return;
 
+diary([Options.OutputDir strrep(datestr(now),':','-') '.txt']);
 for width = MaxWidths
 for ratio = Ratios
 for baseline = Baselines
@@ -51,6 +53,7 @@ end
 end
 end
 
+diary off
 clear Ratios Baselines GutterBaselineRatios;
 clear GutterBaselineRatio MinColumnNum;
 % clear Ratio MaxCanvasWidth uBlockNum CanvasWidth;
