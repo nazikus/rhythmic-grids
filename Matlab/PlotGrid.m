@@ -1,113 +1,108 @@
-function fig_h = PlotGrid(CanvasW, Ratio, Baseline, ColumnsNum, GutterW, Opts)
-%PLOTGRID Plots harmonic grid based on given configuration. Possible multiple grids.
+function fig_h = PlotGrid(GridConf, Opts)
+%PLOTGRID Plots harmonic grid based on given configuration. 
+%Possible multiple grids if ShowGrid option is 'all'.
 %
-% CanvasW  [px] - Max canvas width
-% Ratio    string representing ratio (eg, '3x2', '16x9')
-%          (aspect ratio structure: width, height, ratio, eg {16, 9, 1.777})
-% Baseline [px] - Baseline height
-% ColumnN  [num]- number of columns (of uBlocks)
-% GutterW  [px] - vertical gutter width between columns
-% Options struct OutputDir: 'path';
-%                Formats  : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
-%                Mode     : 'show', 'save', 'savefull'
-%                Show     : 'all' or 'fit'
+% GridConf  - grid configuration structure (see GenerateRhythmicGrid.m docs).
+%       
+% Options struct fields:
+%       OutputDir: 'path';
+%       Formats  : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
+%       Mode     : 'show' | 'save' | 'savefull'
+%       ShowRows : 'fit'  | 'all'
+%       ShowGrid : 'largest' | 'all'
 
 % except last, except first - lambda-f for the 1:n-1, 2:n elements of a vector
 elast  = @(x) x(1:end-1);
 efirst = @(x) x(2:end);
-Ratio = RatioStr2Struct(Ratio);
 
 % default Options
 if ~exist('Opts', 'var'); 
     Opts = struct('OutputDir', '.\', ...
                   'Formats', {},  ...
                   'Mode', 'show', ...
-                  'Show', 'fit',  ...
-                  'Verbose', true); 
+                  'ShowRows', 'all', ...
+                  'ShowGrid', 'largest');
 end
 
-if Opts.Verbose
-    fprintf('Configuration: Width %dpx, Ratio %dx%d, Baseline %dpx, Columns %d, Gutter %dpx\n', ...
-             CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW);
-end
-
-%% DETERMINE MAIN QUANTITIES - DIMENSIONS, SIZES, MARGINS
+fprintf('Configuration: Width %dpx, Ratio %dx%d, Baseline %dpx, Columns %d, Gutter %dpx\n', ...
+         GridConf.MaxCanvasWidth, GridConf.Ratio.W, GridConf.Ratio.H, ...
+         GridConf.Baseline, GridConf.ColumnsNum, GridConf.Gutter.W);
+%fn_structdisp(GridConf);
+     
+%% MAIN QUANTITIES - DIMENSIONS, SIZES, MARGINS, DISPLAY MODES
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % micro-block width & height (minimum possible for current canvas and ratio)
-min_uBlockH = lcm(Baseline, Ratio.H);
-min_uBlockW = min_uBlockH * Ratio.R;
+min_uBlockW = GridConf.uBlock.min_W;
+min_uBlockH = GridConf.uBlock.min_H;
 
-% max possible uBlock width for selected columnsN
-max_uBlockW = (CanvasW+GutterW)/ColumnsNum - GutterW;
+CanvasW    = GridConf.MaxCanvasWidth;
+Ratio      = GridConf.Ratio;
+Baseline   = GridConf.Baseline;
+ColumnsNum = GridConf.ColumnsNum;
+GutterH    = GridConf.Gutter.H;
+GutterW    = GridConf.Gutter.W;
 
-% iterate through all possible uBlocks within give columns number
-% TODO test what heppens if to increment by Ratio.H instead of min_uBlockH (if 'vertical' search)
 fprintf('Min. uBlock %dx%d\n', min_uBlockW, min_uBlockH);
-fprintf('Number of candidates: %d\n', floor(max_uBlockW/min_uBlockW));
+fprintf('Number of candidates: %d\n', numel(GridConf.Grids));
 
-% first element of 'bws' is the biggest uBlock suitable, the rest are fractions
-% which provide the same proportion for the rest of blocks, hence are redundant.
 % TODO plot 0-candidates anyway
-bws = fliplr( [min_uBlockW : min_uBlockW : max_uBlockW] );
-if numel(bws)==0; return; end
-for bw = bws(1:1)
+if numel(GridConf.Grids)==0; return; end
 
-uBlockW = bw;
-uBlockH = bw/Ratio.R;
+% first element Grids cell array containts the biggest uBlock suitable, the 
+% rest are just fractions of it, s.t. provide the same proportion for the rest 
+% of blocks, hence they are redundant. But could be useful for proportion visualization.
+if strcmp(Opts.ShowGrid, 'largest')
+    grids = GridConf.Grids(1);
+else
+    grids = GridConf.Grids(1:end);
+end
 
-% gutter height between rows
-GutterH = GutterW;
+%% IF 'LARGEST' ShowGrid MODE, THEN THIS LOOP HAS ONLY 1 ITERATION.
+for grid = grids
+grid = grid{1};
 
-% number of max possible columns for current uBlock
-MaxColumnsNum = floor( (CanvasW + GutterW) / (uBlockW + GutterW) );
-
-% number of rows (macroRow height is incremental +min_uBlockH)
-MacroRowsNum = floor( CanvasW/uBlockW ) ;  
-
+uBlockW = grid.uBlock.W;
+uBlockH = grid.uBlock.H;
 % grid width (<=canvas width) with current uBlockW
-GridW = (uBlockW + GutterW) * ColumnsNum - GutterW;
+GridW = grid.W;
+GridMargin = grid.Margin;
 
-% horizontal (left or right) margins between canvas and actual grid
-GridMargin = floor( (CanvasW - GridW)/2 );
+% NB! grid acceptance criteria:
+%     - number of uBlocks factors (unique blocks) >= 2 
+Opts.FailGrid = ~(numel(grid.Fit.MacroRowIdx) >= 2);
 
-% filtering blocks (indices) only that fit grid proportions horizontally
-Opts.FailGrid = false;
-if strcmp(Opts.Show, 'fit')
-    MacroRowIdx = [];  % horizontal factors of uBlock for each fitting row
-    %fprintf('\tuBlock %dx%d\n', uBlockW, uBlockH);
-    for r=1:MacroRowsNum
-        blockW = (uBlockW+GutterW)*r - GutterW;
-        blockH = blockW / Ratio.R;
-        if mod(GridW+GutterW, blockW+GutterW) == 0 ...
-                && mod(blockH, Baseline) == 0 ...
-            MacroRowIdx(end+1) = r;
-        end
-        %fprintf('\t\tx%d: mod(%d,%d) == %d\n', r, GridW, blockW, mod(GridW+GutterW, blockW+GutterW));
-        %fprintf('\t\tx%d: mod(%g,%g) == %g\n\n', r, blockH, 1, mod(blockH, 1));
-    end
-    if numel(MacroRowIdx) <= 1
-        Opts.FailGrid = true;
-        fprintf('\tsingle uBlock %dx%d possible, REJECTED \n', uBlockW, uBlockH);
-    else
-        fprintf('\tblocks %d:[ %s] \n', numel(MacroRowIdx), ...
-            sprintf('%dx%d ',[(uBlockW+GutterW)*MacroRowIdx-GutterW; ...
-                             ((uBlockW+GutterW)*MacroRowIdx-GutterW)/Ratio.R]));
-    end
+% in case gird has only 1 fit row, then show full grid
+% in order to visualize the fitting proglem
+Mode.ShowFit  =  (numel(grid.Fit.MacroRowIdx) > 1);
+if strcmp(Opts.ShowRows, 'all')
+    Mode.ShowFit = false;
 end
-% continue;
-
-% no filtering, plot all possible blocks including those that don't fit the grid
-if strcmp(Opts.Show, 'all') || numel(MacroRowIdx) <= 1
-    MacroRowIdx = [1:ceil(MacroRowsNum/2) MacroRowsNum];
+if Mode.ShowFit
+    % number of rows (macroRow height is incremental +min_uBlockH)
+    MacroRowsNum = numel(grid.Fit.MacroRowIdx);
+    % macro row indices - each index is a factor for micro-block
+    MacroRowIdx  = grid.Fit.MacroRowIdx;
+    GridH = grid.Fit.H;
+    % usually, canvas height = grid height
+    CanvasH = grid.Fit.Canvas.H;
+    % all blocks sizes [W H]
+    Blocks = grid.Fit.Blocks;
+else
+    MacroRowsNum = numel(grid.Full.MacroRowIdx);
+    MacroRowIdx  = grid.Full.MacroRowIdx;
+    GridH = grid.Full.H;
+    CanvasH = grid.Full.Canvas.H;
+    Blocks = grid.Full.Blocks;
 end
-MacroRowsNum = numel(MacroRowIdx);
 
-% grid height with selected uBlock
-GridH = sum(((uBlockW+GutterW)*MacroRowIdx-GutterW)/Ratio.R)  + (MacroRowsNum-1)*GutterH;
+% print out blocks info (and if rejected according to acceptance criteria)
+if Opts.FailGrid; RejMsg = 'REJECTED | '; else RejMsg = ''; end;
+fprintf('\t%sblocks %d:[ %s], margins 2x%dpx\n', ...
+    RejMsg, MacroRowsNum, sprintf('%gx%g ', Blocks'), GridMargin);
+clear RejMsg;
 
-% canvas height = grid height + optional vertical marging
-CanvasH = GridH + 0;  
+%% DETERMINE AXES DIMENSIONS, TICKS, LABELS
 
 % X coordinates of all vertical gridlines (ticks) considerring canvas margins
 GridLinesX = unique( ...
@@ -131,7 +126,7 @@ uFactorY  = cellfun( @(y,f) y+uBlockH*([1:floor(f)]), ...
 % Y coordinates of all horizontal uBlock gridlines (ticks)
 GridLinesY = unique(sort( [ MacroRowY, MacroRowY+GutterH, [uFactorY{:}] ]  ));
 
-% TODO GridLines mode 'adaptive' (implemented) vs 'linear' (todo)
+% TODO GridLines mode 'adaptive' (current) vs 'linear' (to implement)
 % if  strcmp(Mode.GridLines, 'linear')
 % GridLinesY = uBlockH:uBlockH:GridH;  % monothonic uBlock Y gridlines
 
@@ -149,9 +144,9 @@ end
 GridLabelsY(MacroRowsY) = cellfun(@(x) num2str(x), ...
                                   num2cell(GridLinesY(MacroRowsY)), ...
                                   'UniformOutput', false);
-clear r blockW blockH MacroRowY uFactorH uFactorY;
+clear MacroRowY uFactorH uFactorY;
 
-%% TITLES, FILES, AUX. VARS
+%% TITLES, FILE NAMES, AUX. VARS
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FileName = sprintf('Width%d_Ratio%dx%d_Base%d_Cols%d_Gut%d_Block%dx%d', ...
                    CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, uBlockW, uBlockH);
@@ -162,7 +157,7 @@ GridTitle  = sprintf( ...
     CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, ...
     char(956), uBlockW, uBlockH, MacroRowsNum, GridW, GridMargin );
                  
-if strcmp(Opts.Show, 'all'); FileName = [FileName '_all'];  end
+if ~Mode.ShowFit; FileName = [FileName '_all'];  end
 
 visibility = {'off', 'on'};
 menubar    = {'none', 'figure'};
@@ -171,6 +166,11 @@ Mode.Show     = strcmp(Opts.Mode, 'show');
 Mode.Save     = strcmp(Opts.Mode, 'save');
 Mode.SaveFull = strcmp(Opts.Mode, 'savefull');
 Mode.menuFlag = strcmp(menubar{Mode.Show+1}, 'figure');
+
+if Mode.Save || Mode.SaveFull || numel(Opts.Formats) == 0
+    % skip creating figure and axis if no formats are specified for 'save' mode
+    continue;
+end
 
 k = [2.2 3.6]/3432/10 * CanvasH;  % empirical coeffs, 3432 reference canvas height
 FontRatios = [1 1; k(1) k(2)];

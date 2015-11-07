@@ -1,5 +1,6 @@
 [Tt]est
 Grids/*.txt
+Grids/*/Test*
 *.fig
 *.png
 *.svg
