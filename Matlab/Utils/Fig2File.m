@@ -11,7 +11,7 @@ function Fig_h = Fig2File(Fig_h, FileName, Opts)
 % FIXME invisibility for 'fig' export
 % FIXME fullscale printing - pain in the ass, matlab bugs
 out = Opts.OutputDir;
-addpath(genpath('d:\Dropbox\Backup\Matlab\utility\'));
+% addpath(genpath('<path to export_fig() function>'));
 
 if ~exist(out, 'dir'); 
     mkdir(out); 

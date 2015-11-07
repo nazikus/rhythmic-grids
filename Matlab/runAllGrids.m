@@ -3,11 +3,11 @@ close all;
 addpath('Utils');
 
 %% OUTPUT MODE
-GenerateImagesMode = false;  % if False, show statistics only, without images
+GenerateImagesMode = true;  % if False, show statistics only, without images
 
 %% INPUT RANGES
 MaxWidths = [960 1280];             % [960 1280 1440];
-Ratios    = {'1x1', '3x2', '16x9'}; % {'1x1', '3x2', '16x9'};
+Ratios    = {'16x9', '1x1', '3x2'}; % {'1x1', '3x2', '16x9'};
 Baselines =  8:12;                  % 3:12;
 Columns   =  [5 6 9 12];            % [5 6 9 12];
 GutterToBaselineRatios = [0 1 2];   % [0 1 2];
@@ -67,10 +67,10 @@ diary off;
     % log grep configurations with 0 uBlocks
     currDir = pwd; cd(Options.OutputDir)
     system(['grep -B3 -A1 "candidates\: 0" "' [logfilename '.txt" '] ['> "' logfilename '.candidates0.txt"'] ]);
-    system(['grep -B4 -A2 "REJECTED " "' [logfilename '.txt" '] ['> "' logfilename '.rejected.txt"'] ]);    
+    system(['grep -B4 -A2 "INVALID " "' [logfilename '.txt" '] ['> "' logfilename '.invalid.txt"'] ]);    
     cd(currDir);
 % end
 
 % TODO gif animatino out of all possible grids (including smaller ones)
 
-clear offs
+clear offs currDir;

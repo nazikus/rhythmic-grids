@@ -1,6 +1,7 @@
 function fig_h = PlotGrid(GridConf, Opts)
+% FIXME title shift, figure width and height
 %PLOTGRID Plots harmonic grid based on given configuration. 
-%Possible multiple grids if ShowGrid option is 'all'.
+%Possible multiple grids (if ShowGrid option is 'all') or none.
 %
 % GridConf  - grid configuration structure (see GenerateRhythmicGrid.m docs).
 %       
@@ -46,8 +47,11 @@ GutterW    = GridConf.Gutter.W;
 fprintf('Min. uBlock %dx%d\n', min_uBlockW, min_uBlockH);
 fprintf('Number of candidates: %d\n', numel(GridConf.Grids));
 
-% TODO plot 0-candidates anyway
-if numel(GridConf.Grids)==0; return; end
+% plot dummy grid if 0 fitting rows
+if numel(GridConf.Grids)==0; 
+    PlotZeroRhythmGrid(GridConf, Opts);
+    return;
+end
 
 % first element Grids cell array containts the biggest uBlock suitable, the 
 % rest are just fractions of it, s.t. provide the same proportion for the rest 
@@ -96,8 +100,8 @@ else
     Blocks = grid.Full.Blocks;
 end
 
-% print out blocks info (and if rejected according to acceptance criteria)
-if Opts.FailGrid; RejMsg = 'REJECTED | '; else RejMsg = ''; end;
+% print out blocks info (and if invalid according to acceptance criteria)
+if Opts.FailGrid; RejMsg = 'INVALID | '; else RejMsg = ''; end;
 fprintf('\t%sblocks %d:[ %s], margins 2x%dpx\n', ...
     RejMsg, MacroRowsNum, sprintf('%gx%g ', Blocks'), GridMargin);
 clear RejMsg;
@@ -167,8 +171,8 @@ Mode.Save     = strcmp(Opts.Mode, 'save');
 Mode.SaveFull = strcmp(Opts.Mode, 'savefull');
 Mode.menuFlag = strcmp(menubar{Mode.Show+1}, 'figure');
 
-if Mode.Save || Mode.SaveFull || numel(Opts.Formats) == 0
-    % skip creating figure and axis if no formats are specified for 'save' mode
+if numel(Opts.Formats) == 0
+    % skip generating figures if no formats specified in Options
     continue;
 end
 
@@ -182,7 +186,7 @@ scrn = get(groot, 'ScreenSize');  % get current display screen resolution
 mp = get(0, 'MonitorPositions');
 if size(mp,1) == 1  % if single screen
     ScreenW = scrn(3);
-    ScreenH = scrn(4);
+    ScreenH = 768; % in order to fit most popular 768 height %  scrn(4);
     ShiftX  = 0;
 else % if multiple screens
     ScreenW = mp(2,3);
@@ -196,9 +200,10 @@ clear scrn mp FontRatios k;
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % auxiliary margins between figure and canvas/plot (optional, matlab specific)
-Fig = struct('LR', 110, 'Top', 160, 'Bot', 40); % [left/right; top; bottom] margins
-Fig.W = CanvasW + Fig.LR*2;
-Fig.H = min([ScreenH-50, max(ScreenH/2, CanvasH+Fig.Top+Fig.Bot)]); 
+Fig = struct('LR', 110, 'Top', 160, 'Bot', 60); % [left/right; top; bottom] margins
+Fig.W = min([ CanvasW + Fig.LR*2]);
+Fig.H = ScreenH-50*Mode.Show; 
+% Fig.H = min([ScreenH-50*Mode.Show, max(ScreenH/2, CanvasH+Fig.Top+Fig.Bot)]); 
 Fig.TitleMargin = 60; % margin between title and cavnas
 
 if Mode.SaveFull
@@ -213,7 +218,7 @@ fig_h.NumberTitle   = 'off';
 fig_h.DockControls  = 'off';
 fig_h.GraphicsSmoothing = 'off';
 
-clear menubar visibility ShiftX ScreenW ScreenH;
+clear menubar visibility ShiftX ScreenW;
 
 %% INITIALIZE AXES
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -223,7 +228,8 @@ hold on; pan yon;
 ax.Title.String     = GridTitle;
 ax.Title.FontSize   = 14*fR(2);
 ax.Title.FontWeight = 'normal';
-ax.Title.Margin = 8;
+% ax.Title.Margin = 8;
+% ax.Title.HorizontalAlignment = 'left';
 TPos = ax.Title.Position; TExt = ax.Title.Extent;
 ax.Title.Position   = [Fig.LR+CanvasW*(1-TExt(3)) TPos(2)-Fig.TitleMargin 0];  % disable anti-panning
 
@@ -242,7 +248,7 @@ ax.GridColor  = [0 0 0];
 ax.YLabel.String   = sprintf('%g px | %d x block types', CanvasH, MacroRowsNum);
 ax.YLabel.FontSize = 14*fR(2);
 ax.YLabel.Color    = [0 0 0];
-ax.YLabel.Position = [-60 Fig.Top-60];  % disables anti-panning
+ax.YLabel.Position = [-60 Fig.Top-40];  % disables anti-panning
 ax.YTick      = [GridLinesY(1:end-1)];
 ax.YTickLabel = GridLabelsY;
 ax.YColor     = [0 0 .6];
@@ -270,7 +276,7 @@ rectangle('Position' , [0 0 GridMargin GridH], ...
 rectangle('Position' , [GridMargin+GridW 0 GridMargin GridH], ...
           'FaceColor', [.97 .92 .92], 'LineStyle', 'none');
 
-if GutterW>0;  RecLine = 'none'; else RecLine = '-'; end
+if GutterW>0;  RecLineStyle = 'none'; else RecLineStyle = '-'; end
 
 % plot all blocks
 for r=MacroRowIdx
@@ -293,7 +299,7 @@ for r=MacroRowIdx
         x_pos = GridMargin + c*(blockW+GutterW);
         rectangle('Position',  [x_pos, y_pos, blockW, blockH ], ...
                   'FaceColor', colors, ...
-                  'LineStyle', RecLine,  ...
+                  'LineStyle', RecLineStyle,  ...
                   'Clipping', 'on'     ...
                   );
 
@@ -347,7 +353,7 @@ text(CanvasW, -23, num2str(CanvasW), 'FontSize', 9*fR(1), 'Color', [0 0 .6], 'Ro
 
 % if grid failed, only 1 row fits
 if Opts.FailGrid
-   text(200, 220, 'REJECTED', ...
+   text(200, 220, 'INVALID', ...
         'Rotation', 30, 'Color', [1 0 0], 'FontSize', 76*fR(1), 'FontWeight', 'bold', ...
         'EdgeColor', [1 0 0], 'LineWidth', 2, 'BackgroundColor', [1 1 1 .7], ...
         'Clipping', 'off');
@@ -371,5 +377,144 @@ end
 % if Mode.SaveFull; system(fullfile(Opts.OutputDir, [Opts.Formats{1} '\dpi96_' FileName '.' Opts.Formats{1}])); end
 % fprintf('\n');
 end  % uBlock biiig loop
+
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                                                                   %%%%%%
+%%%%%%    FUNCTION FOR DUMMY PLOT OF ZERO RHYTHM GRID, FOR CONSISTENCY   %%%%%%
+%%%%%%                                                                   %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function fig_h = PlotZeroRhythmGrid(GridConf, Opts)
+
+Ratio   = GridConf.Ratio;
+uBlockW = GridConf.uBlock.min_W;
+uBlockH = GridConf.uBlock.min_H;
+Baseline= GridConf.Baseline;
+ColumnsNum = GridConf.ColumnsNum;
+GutterW = GridConf.Gutter.W;
+CanvasW = GridConf.MaxCanvasWidth;
+
+GridW = (uBlockW+GutterW)*ColumnsNum - GutterW;
+GridH = uBlockH*4;
+CanvasH = GridH + 0;
+Cols  = floor( (CanvasW+GutterW)/(uBlockW+GutterW) );
+
+fprintf('\t%smin. uBlock size is [%dx%d]. For %d columns it requires %dpx width and max. cavnas is %dpx\n', ...
+    'INVALID | ', uBlockW, uBlockH, ColumnsNum, GridW, CanvasW);
+
+FileName = sprintf('Width%d_Ratio%dx%d_Base%d_Cols%d_Gut%d_Block%dx%d', ...
+   CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, uBlockW, uBlockH);
+FileName = [FileName '_X'];
+GridTitle  = sprintf( ...
+    ['     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Columns %d | Gutter %d\n' ...
+     'Output: %sBlock %dx%d | no hip hop, no rhythm'], ...
+    CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, ...
+    char(956), uBlockW, uBlockH);
+
+
+%% AUXILIARY VARS
+
+visibility = {'off', 'on'};
+% current or secondary screen (display) size
+scrn = get(groot, 'ScreenSize');  % get current display screen resolution
+mp = get(0, 'MonitorPositions');
+if size(mp,1) == 1  % if single screen
+    ScreenW = scrn(3);
+    ScreenH = 768; % in order to fit most popular 768 height %  scrn(4);
+    ShiftX  = 0;
+else % if multiple screens
+    ScreenW = mp(2,3);
+    ScreenH = mp(2,4);
+    ShiftX  = mp(2,1);
+end
+
+Fig = struct('LR', 110, 'Top', 160, 'Bot', 40); % [left/right; top; bottom] margins
+Fig.W = CanvasW + Fig.LR*2;
+Fig.H = ScreenH-50*strcmp(Opts.Mode, 'show'); 
+Fig.TitleMargin = 60; % margin between title and cavnas
+
+%% FIGURE
+
+fig_h = figure('Menubar', 'none', ...
+               'Visible', visibility{strcmp(Opts.Mode, 'show')+1});
+fig_h.Name          = FileName;
+fig_h.OuterPosition = [ShiftX + (ScreenW-Fig.W)/2, ScreenH-Fig.H, Fig.W, Fig.H];
+fig_h.NumberTitle   = 'off';
+fig_h.DockControls  = 'off';
+fig_h.GraphicsSmoothing = 'off';
+
+ax = axes();
+hold on; pan yon;
+ax.Title.String     = GridTitle;
+ax.Title.FontSize   = 14;
+ax.Title.FontWeight = 'normal';
+% ax.Title.Margin = 8;
+% ax.Title.HorizontalAlignment = 'left';
+TPos = ax.Title.Position; TExt = ax.Title.Extent;
+ax.Title.Position   = [Fig.LR+CanvasW*(1-TExt(3)) TPos(2)-Fig.TitleMargin 0];  % disable anti-panning
+
+ax.Units      = 'pixels';
+ax.Position   = [Fig.LR -(CanvasH-Fig.H+Fig.Top) CanvasW CanvasH];
+ax.XLim       = [0 CanvasW];
+ax.YLim       = [0 CanvasH];
+ax.Layer      = 'top'; 
+ax.TickDir    = 'out';
+ax.FontSize   = 9;
+ax.TickLength = [10 / max([CanvasW CanvasH]) 0];  % magic ratio :)
+ax.GridAlpha  = 0.2;
+ax.GridColor  = [0 0 0];
+
+% Y AXIS
+ax.YTick      = [0, uBlockH];
+ax.YColor     = [0 0 .6];
+ax.YGrid      = 'on';
+ax.YDir       = 'reverse';
+
+% X AXIS
+GridLinesX = unique(sort([0, [1:Cols]*uBlockW + GutterW*[0:Cols-1], ...
+              [1:Cols]*uBlockW + GutterW*[0:Cols-1] + GutterW, CanvasW]));
+ax.XTick      = [GridLinesX];
+ax.XColor     = [0 0 .6];
+ax.XGrid      = 'on';
+ax.XAxisLocation = 'top';
+XTickRotation = 60*(GutterW<28|uBlockW<28);
+ax.XTickLabelRotation = XTickRotation;
+
+%% PLOT BLOCKS
+
+if GutterW>0;  RecLineStyle = 'none'; else RecLineStyle = '-'; end
+for c = 0:Cols
+    x_pos = (uBlockW+GutterW)*c;
+    rectangle('Position', [x_pos, 0, uBlockW, uBlockH], ...
+          'FaceColor', [0 .6 0], 'LineStyle', RecLineStyle, 'Clipping', 'on');
+            
+end
+
+% out of canvas portion of block
+uBlockRem =  (uBlockW+GutterW)*(Cols+1)-GutterW - CanvasW;
+rectangle('Position', [x_pos + uBlockW-uBlockRem, 0, uBlockRem, uBlockH], ...
+    'FaceColor', [.5 1 .7], 'LineStyle', RecLineStyle, 'Clipping', 'off');
+
+% text: block size, uBlock ratio, columns
+text(0+4, 0+7, ...
+     sprintf('%s1  (%g x %g) X %d [of %d]', char(956), ...
+     uBlockW, uBlockH, Cols, ColumnsNum), ...
+     'FontSize', 10, 'FontWeight', 'Bold', ...
+     'Color', [1 1 0], 'Clipping', 'on');
+
+text(200, 220, 'INVALID', ...
+    'Rotation', 30, 'Color', [1 0 0], 'FontSize', 76, 'FontWeight', 'bold', ...
+    'EdgeColor', [1 0 0], 'LineWidth', 2, 'BackgroundColor', [1 1 1 .7], ...
+    'Clipping', 'off');
+
+    if ~strcmp(Opts.Mode, 'show')
+        Fig2File(fig_h, FileName, Opts);
+        close(fig_h);    
+    end
 
 end

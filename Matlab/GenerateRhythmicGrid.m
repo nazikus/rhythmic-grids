@@ -1,6 +1,6 @@
 function GridConfig = GenerateRhythmicGrid(CanvasW, Ratio, Baseline, ColumnsNum, GutterW)
 %GENERATEHARMONICGRIDS Generate rhythmic grid(s) based on input configuration.
-%Possible return of multiple grids if ShowGrid option is 'all'.
+%Possible return of multiple grids (if ShowGrid option is 'all') or none.
 %
 % CanvasW  [px] - Max canvas width
 % Ratio    string representing ratio (eg, '3x2', '16x9')
