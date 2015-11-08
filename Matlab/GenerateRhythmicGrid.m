@@ -1,6 +1,6 @@
 function GridConfig = GenerateRhythmicGrid(CanvasW, Ratio, Baseline, ColumnsNum, GutterW)
-%GENERATEHARMONICGRIDS Generate rhythmic grid(s) based on input configuration.
-%Possible return of multiple grids (if ShowGrid option is 'all') or none.
+%GENERATERHYTHMICGRID Generate rhythmic grid(s) based on input configuration.
+%Possible return of multiple grids (including non-optimal) or none.
 %
 % CanvasW  [px] - Max canvas width
 % Ratio    string representing ratio (eg, '3x2', '16x9')
@@ -28,23 +28,24 @@ function GridConfig = GenerateRhythmicGrid(CanvasW, Ratio, Baseline, ColumnsNum,
 %            *Margin : left & right margin length (px)
 %   (unusued) MaxColumnsNum : maximum columns num (>= input columns num)
 %
-%             Fit    : cell array of blocks fitting the rhythm:
+%             Fit    : Structure containing only blocks fitting the rhytm.
 %               *H           : grid height
 %                CanvasH     : minimum canvas height to plot all current blocks
 %               *MacroRowIdx : vector, each value is a factor of micro-block
 %                              width, formula: (uBw+Gw)*MacroRowIdx-Gw.
 %                              uBw - micro-block width, Gw - gutter width.
-%               *Blocks      : All blocks sizes [W; H] fitting the rhythm. Each 
-%                              block width is a multiple of some MacroRowIdx value
+%               *Blocks      : Matrix of all blocks sizes [W; H] fitting the 
+%                              rhythm. Each block width is a multiple of some 
+%                              MacroRowIdx value.
 %
-%             Full    : cell array of all blocks, regardless if fitting the rhythm or not:
+%             Full    : structure contianing all blocks, regardless if fitting the rhythm or not:
 %                H           : grid height
 %                CanvasH     : minimum canvas height to plot all current blocks
 %                MacroRowIdx : vector, each value is a factor of micro-block
 %                              width, formula: (uBw+Gw)*MacroRowIdx-Gw.
 %                              uBw - micro-block width, Gw - gutter width.
-%                Blocks      : All blocks sizes [W; H]. Each block width is 
-%                              a multiple of some MacroRowIdx value
+%                Blocks      : Matrix of all blocks sizes [W; H]. Each block 
+%                              width is a multiple of some MacroRowIdx value.
 %       
 % Options struct fields:
 %       OutputDir: 'path';

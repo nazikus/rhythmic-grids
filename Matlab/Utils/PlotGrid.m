@@ -1,5 +1,4 @@
 function fig_h = PlotGrid(GridConf, Opts)
-% FIXME title shift, figure width and height
 %PLOTGRID Plots harmonic grid based on given configuration. 
 %Possible multiple grids (if ShowGrid option is 'all') or none.
 %
@@ -101,7 +100,7 @@ else
 end
 
 % print out blocks info (and if invalid according to acceptance criteria)
-if Opts.FailGrid; RejMsg = 'INVALID | '; else RejMsg = ''; end;
+if Opts.FailGrid; RejMsg = 'INVALID - '; else RejMsg = ''; end;
 fprintf('\t%sblocks %d:[ %s], margins 2x%dpx\n', ...
     RejMsg, MacroRowsNum, sprintf('%gx%g ', Blocks'), GridMargin);
 clear RejMsg;
@@ -405,7 +404,7 @@ CanvasH = GridH + 0;
 Cols  = floor( (CanvasW+GutterW)/(uBlockW+GutterW) );
 
 fprintf('\t%smin. uBlock size is [%dx%d]. For %d columns it requires %dpx width and max. cavnas is %dpx\n', ...
-    'INVALID | ', uBlockW, uBlockH, ColumnsNum, GridW, CanvasW);
+    'INVALID - ', uBlockW, uBlockH, ColumnsNum, GridW, CanvasW);
 
 FileName = sprintf('Width%d_Ratio%dx%d_Base%d_Cols%d_Gut%d_Block%dx%d', ...
    CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, uBlockW, uBlockH);
