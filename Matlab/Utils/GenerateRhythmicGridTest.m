@@ -9,11 +9,11 @@ fprintf('\nPrecondition test against known reference grid, generated manually:\n
 fprintf('\t\tmax. width 1200, columns 12, gutter 24 => uBlock 72x48, grid width 1128\n');
 fprintf('\nGenerated grid:\n');  DispGrid(GridConf);
 
-assert(GridConf.Grids{1}.W == 1128, 'Grid width = %g; Reference grid width must be 1128.', GridConf.Grids{1}.W);
-assert(all(GridConf.Grids{1}.Fit.Blocks(1, :) == [72 48]),   'Micro-block = %gx%g; Expected: 72x48.', GridConf.Grids{1}.Fit.Blocks(1, :));
-assert(all(GridConf.Grids{1}.Fit.Blocks(2, :) == [168 112]), '2nd block = %gx%g; Expected: 168x112.', GridConf.Grids{1}.Fit.Blocks(2, :));
-assert(all(GridConf.Grids{1}.Fit.Blocks(3, :) == [264 176]), '3rd block = %gx%g; Expected: 264x176.', GridConf.Grids{1}.Fit.Blocks(3, :));
-assert(all(GridConf.Grids{1}.Fit.Blocks(4, :) == [360 240]), '4th block = %gx%g; Expected: 360x240.', GridConf.Grids{1}.Fit.Blocks(4, :));
+assert(GridConf.RhythmicGrid.W == 1128, 'Grid width = %g; Reference grid width must be 1128.', GridConf.RhythmicGrid.W);
+assert(all(GridConf.RhythmicGrid.Blocks(1, :) == [72 48]),   'Micro-block = %gx%g; Expected: 72x48.', GridConf.RhythmicGrid.Blocks(1, :));
+assert(all(GridConf.RhythmicGrid.Blocks(2, :) == [168 112]), '2nd block = %gx%g; Expected: 168x112.', GridConf.RhythmicGrid.Blocks(2, :));
+assert(all(GridConf.RhythmicGrid.Blocks(3, :) == [264 176]), '3rd block = %gx%g; Expected: 264x176.', GridConf.RhythmicGrid.Blocks(3, :));
+assert(all(GridConf.RhythmicGrid.Blocks(4, :) == [360 240]), '4th block = %gx%g; Expected: 360x240.', GridConf.RhythmicGrid.Blocks(4, :));
 
 % GENERATE RANGE OF GRIDS
 MaxWidths = [960 1280 1440];
@@ -44,7 +44,7 @@ for gutter = [GutterToBaselineRatios*baseline]
 
     CTotal = CTotal + 1;
     if numel(GridConf.Grids)
-        CFailGrid = CFailGrid + ~(numel(GridConf.Grids{1}.Fit.MacroRowIdx) >= 2);
+        CFailGrid = CFailGrid + ~(numel(GridConf.RhythmicGrid.MacroRowIdx) >= 2);
     else
         CZero = CZero + 1;
     end    
@@ -77,7 +77,7 @@ assert(numel(GridConfs) == TotalCombinations, 'Total grids configurations:%d. Ex
 for gc = GridConfs
     gc = gc{1};
     if numel(gc.Grids) > 0 % if contains any fitting grid 
-        assert(gc.Grids{1}.W <= gc.MaxCanvasWidth, 'Grid width %d px > max canvas width %d px', gc.Grids{1}.W, gc.MaxCanvasWidth);
+        assert(gc.RhythmicGrid.W <= gc.MaxCanvasWidth, 'Grid width %d px > max canvas width %d px', gc.RhythmicGrid.W, gc.MaxCanvasWidth);
     end
 end
 
@@ -87,7 +87,7 @@ for gc = GridConfs
     gc = gc{1};
     if numel(gc.Grids) > 0 % if contains any fitting grid
         gw = gc.Gutter.W;
-        uBlockColumns = (gc.Grids{1}.W+gw) / (gc.Grids{1}.uBlock.W+gw);
+        uBlockColumns = (gc.RhythmicGrid.W+gw) / (gc.RhythmicGrid.uBlock.W+gw);
         assert(uBlockColumns == gc.ColumnsNum, 'micro-blocks columns %d. Expected: %d', uBlockColumns, gc.ColumnsNum);
     end
 end
@@ -97,6 +97,6 @@ end
 for gc = GridConfs
     gc = gc{1};
     if numel(gc.Grids) > 0 % if contains any fitting grid
-        assert(all( ~mod(gc.Grids{1}.Fit.Blocks(:,2), gc.Baseline) ));
+        assert(all( ~mod(gc.RhythmicGrid.Blocks(:,2), gc.Baseline) ));
     end
 end

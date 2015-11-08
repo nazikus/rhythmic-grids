@@ -73,24 +73,24 @@ GridMargin = grid.Margin;
 
 % NB! grid acceptance criteria:
 %     - number of uBlocks factors (unique blocks) >= 2 
-Opts.FailGrid = ~(numel(grid.Fit.MacroRowIdx) >= 2);
+Opts.FailGrid = ~(numel(grid.MacroRowIdx) >= 2);
 
 % in case gird has only 1 fit row, then show full grid
 % in order to visualize the fitting proglem
-Mode.ShowFit  =  (numel(grid.Fit.MacroRowIdx) > 1);
+Mode.ShowFit  =  (numel(grid.MacroRowIdx) > 1);
 if strcmp(Opts.ShowRows, 'all')
     Mode.ShowFit = false;
 end
 if Mode.ShowFit
     % number of rows (macroRow height is incremental +min_uBlockH)
-    MacroRowsNum = numel(grid.Fit.MacroRowIdx);
+    MacroRowsNum = numel(grid.MacroRowIdx);
     % macro row indices - each index is a factor for micro-block
-    MacroRowIdx  = grid.Fit.MacroRowIdx;
-    GridH = grid.Fit.H;
+    MacroRowIdx  = grid.MacroRowIdx;
+    GridH = grid.H;
     % usually, canvas height = grid height
-    CanvasH = grid.Fit.Canvas.H;
+    CanvasH = grid.Canvas.H;
     % all blocks sizes [W H]
-    Blocks = grid.Fit.Blocks;
+    Blocks = grid.Blocks;
 else
     MacroRowsNum = numel(grid.Full.MacroRowIdx);
     MacroRowIdx  = grid.Full.MacroRowIdx;

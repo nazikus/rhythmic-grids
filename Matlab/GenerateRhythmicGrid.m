@@ -16,31 +16,30 @@ function GridConfig = GenerateRhythmicGrid(CanvasW, Ratio, Baseline, ColumnsNum,
 %      *ColumnsNum     : number of columns (input)
 %      *Gutter         : Gutter struct {'W': Width, 'H': Height} (input) 
 %       GutterBaselineRatio - self-explanatory (input)
+%      *RhythmicGrid   : optimal (largest) out of all rhytmic grids possible
 %       uBlock         : minimum/maximum possible micro-block, struct:
 %          min_W : miNimum possible micro-block width  for current configuration
 %          min_H : miNimum possible micro-block height for current configuration
 % (unused) max_W : maXimum possible micro-block width  for current configuration
 % (unused) max_H : maXimum possible micro-block height for current configuration
-%       Grids : cell array of grid structs.
+%       Grids : cell array of all possible rhytmic grids (structs).
 %       Grid struct: 
-%             uBlock : current micro-block: {'W': Width, 'H': Height}
-%            *W      : actual grid width (<= max canvas width)
-%            *Margin : left & right margin length (px)
+%             uBlock  : current micro-block: {'W': Width, 'H': Height}
+%            *W       : actual grid width (<= max canvas width)
+%            *H       : grid height needed to fit all rhytmic blocks
+%             CanvasH : minimum canvas height to fit all current blocks (usually  == grid height)
+%            *Margin  : length px of left & right margin beteen canvas and grid
+%            *Blocks  : Matrix of all blocks sizes [W; H] fitting the 
+%                       rhythm. Each block width is a multiple of some 
+%                       MacroRowIdx value.
+%            *MacroRowIdx : vector, each value is a factor of micro-block
+%                       width, formula: (uBw+Gw)*MacroRowIdx-Gw.
+%                       uBw - micro-block width, Gw - gutter width.
 %   (unusued) MaxColumnsNum : maximum columns num (>= input columns num)
 %
-%             Fit    : Structure containing only blocks fitting the rhytm.
-%               *H           : grid height
-%                CanvasH     : minimum canvas height to plot all current blocks
-%               *MacroRowIdx : vector, each value is a factor of micro-block
-%                              width, formula: (uBw+Gw)*MacroRowIdx-Gw.
-%                              uBw - micro-block width, Gw - gutter width.
-%               *Blocks      : Matrix of all blocks sizes [W; H] fitting the 
-%                              rhythm. Each block width is a multiple of some 
-%                              MacroRowIdx value.
-%
 %             Full    : structure contianing all blocks, regardless if fitting the rhythm or not:
-%                H           : grid height
-%                CanvasH     : minimum canvas height to plot all current blocks
+%                H           : grid height needed to fit all the possible blocks
+%                CanvasH     : minimum canvas height to plot all the blocks
 %                MacroRowIdx : vector, each value is a factor of micro-block
 %                              width, formula: (uBw+Gw)*MacroRowIdx-Gw.
 %                              uBw - micro-block width, Gw - gutter width.
@@ -80,6 +79,7 @@ GridConfig.uBlock.min_H = min_uBlockH;
 GridConfig.uBlock.max_W = max_uBlockW;
 GridConfig.uBlock.max_H = max_uBlockH;
 GridConfig.GutterBaselineRatio = GutterW / Baseline;
+GridConfig.RhythmicGrid = 0;
 GridConfig.Grids = {};
 
 % First element of 'bws' is the biggest uBlock suitable. The rest are fractions
@@ -139,32 +139,31 @@ GridHAll = sum(((uBlockW+GutterW)*MacroRowIdxAll-GutterW)/Ratio.R)  + (MacroRows
 % canvas height = grid height + optional vertical marging
 % CanvasH = GridHFit + 0;
 
-% populating return structure
+% populating a return structure
 Grid = struct();
 Grid.uBlock.W = uBlockW;
 Grid.uBlock.H = uBlockH;
-Grid.W = GridW;  % the same for Fit and Full
+Grid.W = GridW;  % the same for Full grids
+Grid.H = GridHFit;
 Grid.Margin = GridMargin;
-Grid.MaxColumnsNum = MaxColumnsNum;
+Grid.Canvas.H = GridHFit + 0;  % grid height + (optional) margin
+Grid.Blocks = [(uBlockW+GutterW)*MacroRowIdxFit-GutterW; ...
+              ((uBlockW+GutterW)*MacroRowIdxFit-GutterW) / Ratio.R]';
+Grid.MacroRowIdx = MacroRowIdxFit;
+Grid.MaxColumnsNum = MaxColumnsNum; % unused so far
 
-Grid.Fit.H = GridHFit;
-Grid.Fit.Canvas.H = GridHFit + 0;  % grid height + (optional) marging
-Grid.Fit.MacroRowIdx = MacroRowIdxFit;
-Grid.Fit.Blocks = [(uBlockW+GutterW)*MacroRowIdxFit-GutterW; ...
-                  ((uBlockW+GutterW)*MacroRowIdxFit-GutterW) / Ratio.R]';
 Grid.Full.H = GridHAll;
 Grid.Full.Canvas.H = GridHAll + 0;  % grid height + (optional) marging
 Grid.Full.MacroRowIdx = MacroRowIdxAll;
-Grid.Full.Blocks = [(uBlockW+GutterW)*MacroRowIdxAll-GutterW; ...
-                   ((uBlockW+GutterW)*MacroRowIdxAll-GutterW) / Ratio.R; ...
-(GridW+GutterW) ./ (((uBlockW+GutterW)*MacroRowIdxAll-GutterW)+GutterW) ]';
+Grid.Full.Blocks = [(uBlockW+GutterW)*MacroRowIdxAll-GutterW; ...  % block width
+                   ((uBlockW+GutterW)*MacroRowIdxAll-GutterW) / Ratio.R; ... % block height
+(GridW+GutterW) ./ (((uBlockW+GutterW)*MacroRowIdxAll-GutterW)+GutterW) ]';  % block columns
 
 GridConfig.Grids{end+1} = Grid;
 
 end  % bws iteration
 
 % Out of all fitting grids, rhythmic grid is with the biggest uBlock (the first one)
-GridConfig.RhythmicGrid = GridConfig.Grids{1}.Fit;
+GridConfig.RhythmicGrid = GridConfig.Grids{1};
 
 end
-
