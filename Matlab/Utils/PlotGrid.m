@@ -5,11 +5,11 @@ function fig_h = PlotGrid(GridConf, Opts)
 % GridConf  - grid configuration structure (see GenerateRhythmicGrid.m docs).
 %       
 % Options struct fields:
-%       OutputDir: 'path';
-%       Formats  : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
-%       Mode     : 'show' | 'save' | 'savefull'
-%       ShowRows : 'fit'  | 'all'
-%       ShowGrid : 'largest' | 'all'
+%       OutputDir  : 'path';
+%       Formats    : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
+%       Mode       : 'show' | 'save' | 'savefull'
+%       ShowBlocks : 'fit'  | 'all'
+%       ShowGrid   : 'largest' | 'all'
 
 % except last, except first - lambda-f for the 1:n-1, 2:n elements of a vector
 elast  = @(x) x(1:end-1);
@@ -20,7 +20,7 @@ if ~exist('Opts', 'var');
     Opts = struct('OutputDir', '.\', ...
                   'Formats', {},  ...
                   'Mode', 'show', ...
-                  'ShowRows', 'all', ...
+                  'ShowBlocks', 'fit', ...
                   'ShowGrid', 'largest');
 end
 
@@ -46,7 +46,7 @@ GutterW    = GridConf.Gutter.W;
 fprintf('Min. uBlock %dx%d\n', min_uBlockW, min_uBlockH);
 fprintf('Number of candidates: %d\n', numel(GridConf.Grids));
 
-% plot dummy grid if 0 fitting rows
+% plot dummy grid if 0 rhythms
 if numel(GridConf.Grids)==0; 
     PlotZeroRhythmGrid(GridConf, Opts);
     return;
@@ -73,36 +73,36 @@ GridMargin = grid.Margin;
 
 % NB! grid acceptance criteria:
 %     - number of uBlocks factors (unique blocks) >= 2 
-Opts.FailGrid = ~(numel(grid.MacroRowIdx) >= 2);
+Opts.FailGrid = ~(numel(grid.uFactors) >= 2);
 
-% in case gird has only 1 fit row, then show full grid
+% in case gird has only 1 rhythmic block, then show full grid
 % in order to visualize the fitting proglem
-Mode.ShowFit  =  (numel(grid.MacroRowIdx) > 1);
-if strcmp(Opts.ShowRows, 'all')
+Mode.ShowFit  =  (numel(grid.uFactors) > 1);
+if strcmp(Opts.ShowBlocks, 'all')
     Mode.ShowFit = false;
 end
 if Mode.ShowFit
-    % number of rows (macroRow height is incremental +min_uBlockH)
-    MacroRowsNum = numel(grid.MacroRowIdx);
-    % macro row indices - each index is a factor for micro-block
-    MacroRowIdx  = grid.MacroRowIdx;
+    % number of blocks
+    uFactorsNum = numel(grid.uFactors);
+    % each value is a factor for micro-block considerring gutter in between
+    uFactors  = grid.uFactors;
     GridH = grid.H;
     % usually, canvas height = grid height
     CanvasH = grid.Canvas.H;
     % all blocks sizes [W H]
     Blocks = grid.Blocks;
 else
-    MacroRowsNum = numel(grid.Full.MacroRowIdx);
-    MacroRowIdx  = grid.Full.MacroRowIdx;
-    GridH = grid.Full.H;
-    CanvasH = grid.Full.Canvas.H;
-    Blocks = grid.Full.Blocks;
+    uFactorsNum = numel(grid.AllBlocks.uFactors);
+    uFactors  = grid.AllBlocks.uFactors;
+    GridH = grid.AllBlocks.H;
+    CanvasH = grid.AllBlocks.Canvas.H;
+    Blocks = grid.AllBlocks.Blocks;
 end
 
 % print out blocks info (and if invalid according to acceptance criteria)
 if Opts.FailGrid; RejMsg = 'INVALID - '; else RejMsg = ''; end;
 fprintf('\t%sblocks %d:[ %s], margins 2x%dpx\n', ...
-    RejMsg, MacroRowsNum, sprintf('%gx%g ', Blocks'), GridMargin);
+    RejMsg, uFactorsNum, sprintf('%gx%g ', Blocks'), GridMargin);
 clear RejMsg;
 
 %% DETERMINE AXES DIMENSIONS, TICKS, LABELS
@@ -118,10 +118,10 @@ GridLinesX = unique( ...
 % Y coordinates of baseline gridlines
 GridBaseY = [Baseline:Baseline:GridH];
 
-% row heights and Y coordinates for each fitting block and its sub-micro-blocks
-MacroRowH = ((uBlockW+GutterW)*MacroRowIdx - GutterW) / Ratio.R;
-MacroRowY = cumsum(MacroRowH)  + GutterH*[0:MacroRowsNum-1];
-uFactorH  = MacroRowH / uBlockH;
+% block heights and Y coordinates for each fitting block and its sub-micro-blocks
+BlockHs = ((uBlockW+GutterW)*uFactors - GutterW) / Ratio.R;
+MacroRowY = cumsum(BlockHs)  + GutterH*[0:uFactorsNum-1];
+uFactorH  = BlockHs / uBlockH;
 uFactorY  = cellfun( @(y,f) y+uBlockH*([1:floor(f)]), ...
                      num2cell(elast(MacroRowY+GutterH)), num2cell(efirst(uFactorH)), ...
                      'UniformOutput', false);
@@ -136,10 +136,10 @@ GridLinesY = unique(sort( [ MacroRowY, MacroRowY+GutterH, [uFactorY{:}] ]  ));
 % Y tick lables per uBlock height considerring gutter height.
 % ticks array indices on the top & bottom of each block
 if GutterW>0
-    MacroRowsY = unique(sort([[0:MacroRowsNum-1] + cumsum(ceil(uFactorH)), ...
-                              [1:MacroRowsNum] + cumsum(ceil(uFactorH)) ]));
+    MacroRowsY = unique(sort([[0:uFactorsNum-1] + cumsum(ceil(uFactorH)), ...
+                              [1:uFactorsNum] + cumsum(ceil(uFactorH)) ]));
 else
-    MacroRowsY = cumsum(MacroRowIdx);
+    MacroRowsY = cumsum(uFactors);
 end
 
 % assigning those ticks string representation of their value 
@@ -158,7 +158,7 @@ GridTitle  = sprintf( ...
     ['     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Columns %d | Gutter %d\n' ...
      'Output: %sBlock %dx%d | Blocks #%d | GridW %d | Margins 2x%d'], ...
     CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, ...
-    char(956), uBlockW, uBlockH, MacroRowsNum, GridW, GridMargin );
+    char(956), uBlockW, uBlockH, uFactorsNum, GridW, GridMargin );
                  
 if ~Mode.ShowFit; FileName = [FileName '_all'];  end
 
@@ -244,7 +244,7 @@ ax.GridAlpha  = 0.2;
 ax.GridColor  = [0 0 0];
 
 % Y AXIS
-ax.YLabel.String   = sprintf('%g px | %d x block types', CanvasH, MacroRowsNum);
+ax.YLabel.String   = sprintf('%g px | %d x block types', CanvasH, uFactorsNum);
 ax.YLabel.FontSize = 14*fR(2);
 ax.YLabel.Color    = [0 0 0];
 ax.YLabel.Position = [-60 Fig.Top-40];  % disables anti-panning
@@ -278,8 +278,8 @@ rectangle('Position' , [GridMargin+GridW 0 GridMargin GridH], ...
 if GutterW>0;  RecLineStyle = 'none'; else RecLineStyle = '-'; end
 
 % plot all blocks
-for r=MacroRowIdx
-    ri = find(MacroRowIdx==r); % r index
+for r=uFactors
+    ri = find(uFactors==r); % r index
     
     % MacroCol width == current macro blockW
     blockW = -GutterW + (GutterW+uBlockW)*r;
@@ -292,7 +292,7 @@ for r=MacroRowIdx
         colors = [0 1 0]; else colors = [0 .6 0]; 
     end
 
-    currRows= elast([0 MacroRowIdx(1:ri)]);
+    currRows= elast([0 uFactors(1:ri)]);
     y_pos = sum((currRows*(uBlockW+GutterW)-GutterW*logical(currRows)) / Ratio.R) + (ri-1)*GutterH;
     for c=0:MacroColsNum-1
         x_pos = GridMargin + c*(blockW+GutterW);

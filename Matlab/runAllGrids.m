@@ -42,7 +42,7 @@ for gutter = [GutterToBaselineRatios*baseline]
     
     CTotal = CTotal + 1;
     if numel(GridConfig.Grids)
-        CFailGrid = CFailGrid + ~(numel(GridConfig.RhythmicGrid.MacroRowIdx) >= 2);
+        CFailGrid = CFailGrid + ~(numel(GridConfig.RhythmicGrid.uFactors) >= 2);
     else
         CZero = CZero + 1;
     end    

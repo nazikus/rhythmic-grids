@@ -31,27 +31,27 @@ function GridConfig = GenerateRhythmicGrid(CanvasW, Ratio, Baseline, ColumnsNum,
 %            *Margin  : length px of left & right margin beteen canvas and grid
 %            *Blocks  : Matrix of all blocks sizes [W; H] fitting the 
 %                       rhythm. Each block width is a multiple of some 
-%                       MacroRowIdx value.
-%            *MacroRowIdx : vector, each value is a factor of micro-block
-%                       width, formula: (uBw+Gw)*MacroRowIdx-Gw.
+%                       uFactros value.
+%            *uFactors: vector, each value is a factor of micro-block width,
+%                       formula: (uBw+Gw)*uFactors-Gw.
 %                       uBw - micro-block width, Gw - gutter width.
 %   (unusued) MaxColumnsNum : maximum columns num (>= input columns num)
 %
 %             Full    : structure contianing all blocks, regardless if fitting the rhythm or not:
-%                H           : grid height needed to fit all the possible blocks
-%                CanvasH     : minimum canvas height to plot all the blocks
-%                MacroRowIdx : vector, each value is a factor of micro-block
-%                              width, formula: (uBw+Gw)*MacroRowIdx-Gw.
-%                              uBw - micro-block width, Gw - gutter width.
-%                Blocks      : Matrix of all blocks sizes [W; H]. Each block 
-%                              width is a multiple of some MacroRowIdx value.
+%                H         : grid height needed to fit all the possible blocks
+%                CanvasH   : minimum canvas height to plot all the blocks
+%                uFactors  : vector, each value is a factor of micro-block
+%                            width, formula: (uBw+Gw)*uFactors-Gw.
+%                            uBw - micro-block width, Gw - gutter width.
+%                Blocks    : Matrix of all blocks sizes [W; H]. Each block 
+%                            width is a multiple of some uFactors value.
 %       
 % Options struct fields:
-%       OutputDir: 'path';
-%       Formats  : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
-%       Mode     : 'show' | 'save' | 'savefull'
-%       ShowRows : 'fit'  | 'all'
-%       ShowGrid : 'largest' | 'all'
+%       OutputDir  : 'path';
+%       Formats    : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
+%       Mode       : 'show' | 'save' | 'savefull'
+%       ShowBlocks : 'fit'  | 'all'
+%       ShowGrid   : 'largest' | 'all'
 
 Ratio = RatioStr2Struct(Ratio);
 
@@ -63,7 +63,7 @@ min_uBlockW = min_uBlockH * Ratio.R;
 max_uBlockW = (CanvasW+GutterW)/ColumnsNum - GutterW;
 max_uBlockH = max_uBlockW / Ratio.R;
 
-% gutter height between rows
+% horizontal gutter height between blocks
 GutterH = GutterW;
 
 % Initialize return structure - grid configuration for plotting
@@ -99,12 +99,12 @@ uBlockH = bw/Ratio.R;
 MaxColumnsNum = floor( (CanvasW + GutterW) / (uBlockW + GutterW) );
 
 % number of all possible rows (macroRow height is incremental +min_uBlockH)
-MacroRowsNumAll = floor( (CanvasW+GutterW)/(uBlockW+GutterW) ) ;  
+uFactorsAllNum = floor( (CanvasW+GutterW)/(uBlockW+GutterW) ) ;  
 
 % row indices with no filtering (if need to plot all possible blocks including 
 % those that don't fit the grid). But ingore blocks wider then GridW/2 - no 
 % sense to iterate through them.
-MacroRowIdxAll = [1:ceil(MacroRowsNumAll/2), MacroRowsNumAll-1];
+uFactorsAll = [1:ceil(uFactorsAllNum/2), uFactorsAllNum-1];
 
 % grid width (<=canvas width) with current uBlockW
 GridW = (uBlockW + GutterW) * ColumnsNum - GutterW;
@@ -113,28 +113,36 @@ GridW = (uBlockW + GutterW) * ColumnsNum - GutterW;
 GridMargin = floor( (CanvasW - GridW)/2 );
 
 % filtering blocks (indices) only that fit grid proportions horizontally
-MacroRowIdxFit = [];  % vector of horizontal factors of uBlock for each fitting row
+uFactorsFit = [];  % uBlock factors for each block fitting the rhythm
 
 %fprintf('\tuBlock %dx%d\n', uBlockW, uBlockH);
-for r=1:MacroRowsNumAll
+for r=1:uFactorsAllNum
     blockW = (uBlockW+GutterW)*r - GutterW;
     blockH = blockW / Ratio.R;
     if mod(GridW+GutterW, blockW+GutterW) == 0 ...
                   && mod(blockH, Baseline) == 0; ...
-        MacroRowIdxFit(end+1) = r;
+        uFactorsFit(end+1) = r;
     end
     %fprintf('\t\tx%d: mod(%d,%d) == %d\n', r, GridW, blockW, mod(GridW+GutterW, blockW+GutterW));
     %fprintf('\t\tx%d: mod(%g,%g) == %g\n\n', r, blockH, Baseline, mod(blockH, Baseline));
 end
-MacroRowsNumFit = numel(MacroRowIdxFit);
+uFactorsFitNum = numel(uFactorsFit);
 
-% fprintf('\tblocks %d:[ %s] \n', numel(MacroRowIdx), ...
-%     sprintf('%dx%d ',[(uBlockW+GutterW)*MacroRowIdxFit-GutterW; ...
-%                      ((uBlockW+GutterW)*MacroRowIdxFit-GutterW)/Ratio.R]));
+% fprintf('\tblocks %d:[ %s] \n', numel(uFactorsFit), ...
+%     sprintf('%dx%d ',[(uBlockW+GutterW)*uFactorsFit-GutterW; ...
+%                      ((uBlockW+GutterW)*uFactorsFit-GutterW)/Ratio.R]));
+
+% grid blocks that fit the rhythm
+BlocksFit = [(uBlockW+GutterW)*uFactorsFit-GutterW; ...
+            ((uBlockW+GutterW)*uFactorsFit-GutterW) / Ratio.R]';
+
+BlocksAll = [(uBlockW+GutterW)*uFactorsAll-GutterW; ...  % block width
+            ((uBlockW+GutterW)*uFactorsAll-GutterW) / Ratio.R; ... % block height
+(GridW+GutterW) ./ (((uBlockW+GutterW)*uFactorsAll-GutterW)+GutterW) ]';  % block columns
 
 % grid height with selected uBlock
-GridHFit = sum(((uBlockW+GutterW)*MacroRowIdxFit-GutterW)/Ratio.R)  + (MacroRowsNumFit-1)*GutterH;
-GridHAll = sum(((uBlockW+GutterW)*MacroRowIdxAll-GutterW)/Ratio.R)  + (MacroRowsNumAll-1)*GutterH;
+GridHFit = sum(BlocksFit(:,2)) + (uFactorsFitNum-1)*GutterH;
+GridHAll = sum(BlocksAll(:,2)) + (uFactorsAllNum-1)*GutterH;
 
 % canvas height = grid height + optional vertical marging
 % CanvasH = GridHFit + 0;
@@ -147,17 +155,15 @@ Grid.W = GridW;  % the same for Full grids
 Grid.H = GridHFit;
 Grid.Margin = GridMargin;
 Grid.Canvas.H = GridHFit + 0;  % grid height + (optional) margin
-Grid.Blocks = [(uBlockW+GutterW)*MacroRowIdxFit-GutterW; ...
-              ((uBlockW+GutterW)*MacroRowIdxFit-GutterW) / Ratio.R]';
-Grid.MacroRowIdx = MacroRowIdxFit;
-Grid.MaxColumnsNum = MaxColumnsNum; % unused so far
+Grid.Blocks = BlocksFit;
+Grid.uFactors = uFactorsFit;
 
-Grid.Full.H = GridHAll;
-Grid.Full.Canvas.H = GridHAll + 0;  % grid height + (optional) marging
-Grid.Full.MacroRowIdx = MacroRowIdxAll;
-Grid.Full.Blocks = [(uBlockW+GutterW)*MacroRowIdxAll-GutterW; ...  % block width
-                   ((uBlockW+GutterW)*MacroRowIdxAll-GutterW) / Ratio.R; ... % block height
-(GridW+GutterW) ./ (((uBlockW+GutterW)*MacroRowIdxAll-GutterW)+GutterW) ]';  % block columns
+Grid.AllBlocks.H = GridHAll;
+Grid.AllBlocks.Canvas.H = GridHAll + 0;  % grid height + (optional) marging
+Grid.AllBlocks.uFactors = uFactorsAll;
+Grid.AllBlocks.Blocks = BlocksAll;
+
+Grid.MaxColumnsNum = MaxColumnsNum; % unused so far
 
 GridConfig.Grids{end+1} = Grid;
 
