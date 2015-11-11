@@ -86,13 +86,12 @@ RhythmicGridGenerator = (function () {
             function(e,i){ return (i+1) * min_uBlockW; }
         ).reverse(); // largest first
 
-        if (blockWs.Length == 0)
-            return gf;
-
+        if (blockWs.length == 0)
+            return gc;
+        
         // iterate through all possible uBlocks withing given columns number
         // NB! The first one is probabely what you want - the largest uBlock
         // size and the smallest side-margins (between canvas and grid)
-        // blockWs.forEach( function(bw){
         for (var i = 0; i < blockWs.length; i++)
         {
             var uBlockW = blockWs[i];
@@ -100,23 +99,23 @@ RhythmicGridGenerator = (function () {
             // number of max possible columns for current uBlock (unused).
             // For small  uBlocks MaxColumnsNum is greater then columnsNum.
             var maxColumnsNum = Math.floor( (canvasW+gutterW) / (uBlockW+gutterW) );
-            
-            // number of all possible uBlock factors generating larger blocks 
-            // that fit into canvas width (considering gutters in between)
-            var uFactorsAllNum = Math.floor( (canvasW+gutterW) / (uBlockW+gutterW) );
-
-            // uBlock factors (multipliers) for generating largers blocks:
-            // [1:uFactorsNum/2, uFactrosNum]   // all, not only rhythmic
-            // first half only, no need to traverse blocks wider then canvasW/2
-            var uFactorsAll = Array.apply(null, Array(uFactorsAllNum)).map( 
-                function(e,i){ return i+1; }
-            ).slice(0, Math.ceil(uFactorsAllNum/2)).concat(uFactorsAllNum-1);
 
             // actual grid width (<= canvasW) for current uBlockW
             var gridW = (uBlockW + gutterW) * columnsNum - gutterW;
 
             // horizontal (left and right) margins between canvas and grid
             var gridMargin = Math.floor( (canvasW-gridW)/2 );
+            
+            // number of all possible uBlock factors generating larger blocks 
+            // that fit into grid width (considering gutters in between)
+            var uFactorsAllNum = Math.floor( (gridW+gutterW) / (uBlockW+gutterW) );
+
+            // uBlock factors (multipliers) for generating largers blocks:
+            // [1:uFactorsNum/2, uFactrosNum]   // all, not only rhythmic
+            // first half only, no need to traverse blocks wider then gridW/2
+            var uFactorsAll = Array.apply(null, Array(uFactorsAllNum)).map( 
+                function(e,i){ return i+1; }
+            ).slice(0, Math.ceil(uFactorsAllNum/2)).concat(uFactorsAllNum);
 
             // The most important step!
             // filtering uBlock factors that generate only blocks fitting the rhythm.

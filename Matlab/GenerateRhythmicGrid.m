@@ -98,25 +98,26 @@ uBlockH = bw/Ratio.R;
 % this number could be smaller then ColumnsNum input. Not used.
 MaxColumnsNum = floor( (CanvasW + GutterW) / (uBlockW + GutterW) );
 
-% number of all possible rows (macroRow height is incremental +min_uBlockH)
-uFactorsAllNum = floor( (CanvasW+GutterW)/(uBlockW+GutterW) ) ;  
-
-% row indices with no filtering (if need to plot all possible blocks including 
-% those that don't fit the grid). But ingore blocks wider then GridW/2 - no 
-% sense to iterate through them.
-uFactorsAll = [1:ceil(uFactorsAllNum/2), uFactorsAllNum-1];
-
 % grid width (<=canvas width) with current uBlockW
 GridW = (uBlockW + GutterW) * ColumnsNum - GutterW;
 
 % horizontal (left or right) margins between actual grid and canvas
 GridMargin = floor( (CanvasW - GridW)/2 );
 
+% number of all possible blocks
+uFactorsAllNum = floor( (GridW+GutterW)/(uBlockW+GutterW) ) ;  
+
+% block factors with no filtering (if need to plot all possible blocks including 
+% those that don't fit the rhythm). But ingore blocks wider then GridW/2 - no 
+% sense to iterate through them.
+uFactorsAll = [1:ceil(uFactorsAllNum/2), uFactorsAllNum];
+uFactorsAllNum = numel(uFactorsAll); % update total number correspondingly
+
 % filtering blocks (indices) only that fit grid proportions horizontally
 uFactorsFit = [];  % uBlock factors for each block fitting the rhythm
 
 %fprintf('\tuBlock %dx%d\n', uBlockW, uBlockH);
-for r=1:uFactorsAllNum
+for r=uFactorsAll
     blockW = (uBlockW+GutterW)*r - GutterW;
     blockH = blockW / Ratio.R;
     if mod(GridW+GutterW, blockW+GutterW) == 0 ...
