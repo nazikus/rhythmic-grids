@@ -182,6 +182,22 @@ RhythmicGridGenerator = (function () {
         return gc;
     };
 
+    this.generateAllRhytmicGrids = 
+    function (canvasW_arr, ratioStr_arr, baseline_arr, columnsNum_arr, gutterR_arr){
+        var rg = [];
+        
+        for (var w = 0; w < canvasW_arr.length   ; w++)
+        for (var r = 0; r < ratioStr_arr.length  ; r++)
+        for (var b = 0; b < baseline_arr.length  ; b++)
+        for (var c = 0; c < columnsNum_arr.length; c++)
+        for (var g = 0; g < gutterR_arr.length   ; g++)
+            rg.push(this.generateRhythmicGrid(
+                canvasW_arr[w],   ratioStr_arr[r], baseline_arr[b],
+                columnsNum_arr[c], gutterR_arr[g]* baseline_arr[b]
+            ));
+
+        return rg;
+    };
     
     /**
      * Least Common Multiple
@@ -213,7 +229,8 @@ RhythmicGridGenerator = (function () {
         return {
             W: Number(split[0]),
             H: Number(split[1]),
-            R: Number(split[0]) / Number(split[1])
+            R: Number(split[0]) / Number(split[1]),
+            str: ratioStr.toLowerCase()
         };
     };
 
@@ -221,3 +238,13 @@ RhythmicGridGenerator = (function () {
 
 }).call(this);
 
+
+// Some helper methods for Array prototype
+if (!Array.prototype.unique) {
+    Array.prototype.unique = function() {
+        return this.reduce(function(p, c) {
+            if (p.indexOf(c) < 0) p.push(c);
+            return p;
+        }, []);
+    };
+}
