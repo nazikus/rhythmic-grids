@@ -1,9 +1,10 @@
 require('./RhythmicGridGenerator.js');
 rgg = RhythmicGridGenerator;
 
-// gc  = rgg.generateRhythmicGrid(1200, '3x2', 8, 12, 24);
-// console.log(gc); console.log('\n');
-// console.log(JSON.stringify(gc, null, '\t') );
+/**
+gc  = rgg.generateRhythmicGrid(1200, '3x2', 8, 12, 24);
+console.log(gc); console.log('\n');
+console.log(JSON.stringify(gc, null, '\t') );  /**/
 
 /***** GENERATE GRID CONFIGURATIONS FIRST *****/
 
@@ -55,7 +56,7 @@ console.log('ratios available: ' + ratios_avail);
 var ratio_choice = '3x2';
 console.log('\nUser ratio choice: ' + ratio_choice);
 
-// filter rhythmic grids left limiting further by chosen ratio
+// filter rhythmic grids limiting further by chosen ratio
 left_gc = left_gc.filter( 
     function(g, i) { return g.ratio.str == ratio_choice; }
 );
@@ -73,7 +74,7 @@ console.log('baselines available: ' + baselines_avail);
 var baseline_choice = 8;
 console.log('\nUser baseline choice: ' + baseline_choice);
 
-// filter rhythmic grids left limiting further by chosen baseline
+// filter rhythmic grids limiting further by chosen baseline
 left_gc = left_gc.filter( 
     function(g, i) { return g.baseline == baseline_choice; }
 );
@@ -92,7 +93,7 @@ console.log('columns available: ' + columns_avail);
 var columns_choice = 9;
 console.log('\nUser columns choice: ' + columns_choice);
 
-// filter rhythmic grids left limiting further by chosen columns
+// filter rhythmic grids limiting further by chosen columns
 left_gc = left_gc.filter( 
     function(g, i) { return g.columnsNum == columns_choice; }
 );
