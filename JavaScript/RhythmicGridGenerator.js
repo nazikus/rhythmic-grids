@@ -4,7 +4,7 @@
  * Algorithm generating all the necessary values, sizes & dimensions for
  * rhythmic grids and for drawing corresponding guides and blocks.
  * 
- * @version 1.0
+ * @version 1.1
  * @date 2015-11-12
  * @author Nazariy Hrabovskyy nazariy.hrabovskyy@gmail.com
  *
@@ -20,16 +20,7 @@
  * with varying ECMAScript compatability:
  *  - Browsers (V8, SpiderMonkey, JavaScriptCore, Trident, mostly ES5.1)
  *  - Photoshop (ExtendedScript, ES3)
- *  - Sketch (CocoaScript, ES?)
- *
- * Encountered ECMA-compatability issues (s.t., cannot use in Photoshop):
- *   Array.prototype.map()      ECMA-262 5.1 
- *   Array.prototype.reguce()   ECMA-262 5.1
- *   Array.prototype.filter()   ECMA-262 5.1
- *   Array.prototype.forEach()  ECMA-262 5.1
- *   Array.prototype.indexOf()  ECMA-262 5.1
- *   String.prototype.trim()    ECMA-262 5.1
- *   JSON.stringify()           ECMA-262 5.1
+ *  - Sketch (CocoaScript, ES5 or whatever WebKit version is running locally)
  *
  * Project specific notation used in code and comments:
  *  > uBlock  - micro-block, the smallest integer block with height multiple of baseline.
@@ -38,10 +29,7 @@
  *  > "fit the rhythm" - denotes if grid-width devides by block-width taking
  *                       into consideration gutter width (!).
  *
- * TODO refactor for ES3 compatability.
- * TODO check ES3 compatability: Math.js, clojure namespaces
  * TODO wiki, formula documentation
- * TODO namespace collisions(?)
  *
 *******************************************************************************/
 
@@ -313,7 +301,25 @@ RhythmicGridGenerator = (function () {
 }).call(this);
 
 
-// Some helper methods for Array prototype
+
+
+
+/*********************************************************************
+ * ES3 COMPATIBILITY ISSUES
+ *
+ * Encountered ECMA-compatability issues (s.t., cannot use in Photoshop):
+ *   Array.prototype.filter()   ECMA-262 5.1
+ *   Array.prototype.map()      ECMA-262 5.1 
+ *   Array.prototype.reduce()   ECMA-262 5.1
+ *   Array.prototype.indexOf()  ECMA-262 5.1
+ *   Array.prototype.forEach()  ECMA-262 5.1
+ *   String.prototype.trim()    ECMA-262 5.1
+ *   JSON.stringify()           ECMA-262 5.1
+ *
+ * Below are Array.prototype helper methods for ES3 compatability
+ *
+/*********************************************************************/
+
 
 /**
  * Derives an array with non-repeated values
@@ -324,5 +330,154 @@ if (!Array.prototype.unique) {
             if (p.indexOf(c) < 0) p.push(c);
             return p;
         }, []);
+    };
+}
+
+
+// Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter#Polyfill
+if (!Array.prototype.filter) {
+    Array.prototype.filter = function(fun /*, thisArg*/ ) {
+        'use strict';
+
+        if (this === void 0 || this === null) {
+            throw new TypeError();
+        }
+
+        var t = Object(this);
+        var len = t.length >>> 0;
+        if (typeof fun !== 'function') {
+            throw new TypeError();
+        }
+
+        var res = [];
+        var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+        for (var i = 0; i < len; i++) {
+            if (i in t) {
+                var val = t[i];
+
+                if (fun.call(thisArg, val, i, t)) {
+                    res.push(val);
+                }
+            }
+        }
+
+        return res;
+    };
+}
+
+
+// Production steps of ECMA-262, Edition 5, 15.4.4.19
+// Reference: http://es5.github.io/#x15.4.4.19
+// Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map#Polyfill
+if (!Array.prototype.map)
+{
+    Array.prototype.map = function (callback, thisArg)
+    {
+        var T, A, k;
+        if (this == null) {
+            throw new TypeError(' this is null or not defined');
+        }
+
+        var O = Object(this);
+        var len = O.length >>> 0;
+
+        if (typeof callback !== 'function') {
+            throw new TypeError(callback + ' is not a function');
+        }
+
+        if (arguments.length > 1) {
+            T = thisArg;
+        }
+        A = new Array(len);
+        k = 0;
+        while (k < len)
+        {
+            var kValue,
+            mappedValue;
+            if (k in O)
+            {
+                kValue = O[k];
+                mappedValue = callback.call(T, kValue, k, O);
+                A[k] = mappedValue;
+            }
+            k++;
+        }
+
+        return A;
+    };
+}
+
+
+// Production steps of ECMA-262, Edition 5, 15.4.4.21
+// Reference: http://es5.github.io/#x15.4.4.21
+// Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce#Polyfill
+if (!Array.prototype.reduce) {
+    Array.prototype.reduce = function(callback /*, initialValue*/ ) {
+        'use strict';
+        if (this == null) {
+            throw new TypeError('Array.prototype.reduce called on null or undefined');
+        }
+        if (typeof callback !== 'function') {
+            throw new TypeError(callback + ' is not a function');
+        }
+        var t = Object(this),
+            len = t.length >>> 0,
+            k = 0,
+            value;
+
+        if (arguments.length == 2) {
+            value = arguments[1];
+        } else {
+            while (k < len && !(k in t)) {
+                k++;
+            }
+            if (k >= len) {
+                throw new TypeError('Reduce of empty array with no initial value');
+            }
+            value = t[k++];
+        }
+        for (; k < len; k++) {
+            if (k in t) {
+                value = callback(value, t[k], k, t);
+            }
+        }
+        return value;
+    };
+}
+
+
+// Production steps of ECMA-262, Edition 5, 15.4.4.14
+// Reference: http://es5.github.io/#x15.4.4.14
+// Source: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf#Polyfill
+if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function(searchElement, fromIndex) {
+
+        var k;
+        if (this == null) {
+            throw new TypeError('"this" is null or not defined');
+        }
+
+        var O = Object(this);
+        var len = O.length >>> 0;
+        if (len === 0) {
+            return -1;
+        }
+
+        var n = +fromIndex || 0;
+        if (Math.abs(n) === Infinity) {
+            n = 0;
+        }
+        if (n >= len) {
+            return -1;
+        }
+
+        k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+        while (k < len) {
+            if (k in O && O[k] === searchElement) {
+                return k;
+            }
+            k++;
+        }
+        return -1;
     };
 }

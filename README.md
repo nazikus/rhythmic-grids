@@ -2,7 +2,7 @@
 
 Rhythmic grid is a type of grid for layout design where size of blocks (grid cells) are aligned strictly and with preserved proportions to baseline and gutter length between blocks.
 
-Current generator computes optimal rhythmic blocks for given grid configuration (max. width, aspect ration, basline, columns, gutter). Source code includes Matlab and JavaScript implementations.
+Current generator computes optimal rhythmic blocks for given grid configuration (max. width, aspect ratio, basline, columns, gutter). Source code includes Matlab and JavaScript implementations.
 
 **Rhythmic grid example**
  * Max. canvas width - 1280px
