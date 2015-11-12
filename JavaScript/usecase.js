@@ -1,5 +1,5 @@
 require('./RhythmicGridGenerator.js');
-rgg = RhythmicGridGenerator;
+var rgg = RhythmicGridGenerator;
 
 /**
 gc  = rgg.generateRhythmicGrid(1200, '3x2', 8, 12, 24);
@@ -19,7 +19,7 @@ var gutter2baselineRatio_arr = [0, 1, 2, 3];
 var all_gc = rgg.generateAllRhytmicGrids(
     width_arr, ratio_arr, baseline_arr, columns_arr, gutter2baselineRatio_arr);
 
-// filter only those rhythmic grids that have more then 1 blocks
+// filter only those rhythmic grids that have more than 1 blocks
 var valid_gc = all_gc.filter(
     function(g,i){ return g.rhythmicGrid && g.rhythmicGrid.blocks.length > 1; }
 );

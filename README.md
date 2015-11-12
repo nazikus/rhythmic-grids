@@ -11,7 +11,8 @@ Current generator computes optimal rhythmic blocks for given grid configuration 
  * Columns - 12
  * Gutter - 24px
  * blocks - [85x56px ]
-For current grid configuration it generates grid with micro-block of size 85x56px and the rest blocks are generated and aligned proportionally (including gutter) preserving ratio with baseline.
+
+For current grid configuration it generates grid with micro-block of size 85x56px, s.t. the rest blocks are generated and aligned proportionally (including gutter) preserving ratio with baseline.
 
 
 ![Rhythmic grid sample](https://dl.dropboxusercontent.com/u/553423/Grids/1.png)
