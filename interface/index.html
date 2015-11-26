@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>grid generator</title>
+    <script src="jquery.js"></script>
+    <script src="../JavaScript/RhythmicGridGenerator.js"></script>
+
+    <style>
+      .options {
+        margin: 20px 0;
+      }
+
+      .ib,
+      #placeholder {
+        display: inline-block;
+      }
+        .ib label {
+          margin-right: 5px;
+        }
+        .ib select {
+          margin-right: 15px;
+        }
+
+      #grid {
+        border: 1px solid #000;
+      }
+
+      .row {
+        background: #e6e6e6;
+        white-space: nowrap;
+        float:left;
+      }
+
+      .block {
+        border: 2px solid gray;
+        box-sizing: border-box;
+        float: left;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="options">
+      <div id="placeholder"></div><button id="go">Generate</button>
+    </div>
+
+    <div id="grid"></div>
+
+
+    <script type="text/javascript">
+      var width_arr    = [960, 1280, 1440];
+      var ratio_arr    = ['16x9', '3x2', '1x1'];
+      var baseline_arr = [3,4,5,6,7,8,9,10,11,12];
+      var columns_arr  = [5, 6, 9, 12];
+      var gutter2baselineRatio_arr = [0, 1, 2];
+
+      $('#placeholder')
+        .append( createDropDown('width', width_arr) )
+        .append( createDropDown('ratio', ratio_arr) )
+        .append( createDropDown('baseline', baseline_arr) )
+        .append( createDropDown('columns', columns_arr) )
+        .append( createDropDown('gutter', gutter2baselineRatio_arr) )
+
+      function createDropDown(id, values){
+        var container = $('<div class="ib"></div>');
+        var l = $('<label>'+id+':</label>')
+        var d = $('<select id="'+id+'"></select>');
+
+        container.append(l);
+        container.append(d);
+
+        d.append( $('<option value="">--</option>') );
+        values.map(function(item){
+          var o = $('<option value="'+item+'">'+item+'</option>')
+          d.append(o);
+        });
+
+        return container;
+      }
+
+      $('#go').on('click', function(){
+        var width = $('#width').val();
+        var ratio = $('#ratio').val();
+        var baseline = $('#baseline').val();
+        var columns = $('#columns').val();
+        var gutter = $('#gutter').val();
+
+        if( !width || !ratio || !baseline || !columns || !gutter ){
+          alert('select all options');
+          return;
+        }
+
+        var grid = RhythmicGridGenerator.generateRhythmicGrid(width, ratio, baseline, columns, baseline*gutter);
+        console.log(grid.rhythmicGrid)
+        drawGrid(grid.rhythmicGrid, columns, baseline*gutter)
+      });
+
+      function drawGrid(grid, columns, gutter){
+        var K = 10;
+        if( grid.W > 15000 ){
+          K = 100;
+          gutter = gutter/10;
+        }
+
+        var $base = $('#grid');
+        $base.html('');
+
+        $base.css('width', grid.W/K+'px');
+        $base.css('height', grid.H/K+'px');
+
+        grid.blocks.map(function(block){
+          var row = $('<div class="row"></div>');
+          var cnt = columns/block[2];
+          var w = block[0]/K;
+          var h = block[1]/K;
+          for(var i = 0;i<cnt;i++){
+            var block = $('<div class="block" style="width:'+w+'px; height:'+h+'px; margin-right: '+gutter+'px;"></div>');
+            row.append(block);
+          }
+          $base.append(row);
+        });
+
+      }
+    </script>
+  </body>
+</html>
