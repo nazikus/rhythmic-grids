@@ -109,12 +109,16 @@
         $base.css('height', grid.H/K+'px');
 
         grid.blocks.map(function(block){
-          var row = $('<div class="row"></div>');
+          var row = $('<div class="row" style="margin-bottom:'+gutter+'px;"></div>');
           var cnt = columns/block[2];
           var w = block[0]/K;
           var h = block[1]/K;
+          var g = gutter;
           for(var i = 0;i<cnt;i++){
-            var block = $('<div class="block" style="width:'+w+'px; height:'+h+'px; margin-right: '+gutter+'px;"></div>');
+            if( i == cnt - 1 ){
+              g = 0;
+            }
+            var block = $('<div class="block" style="width:'+w+'px; height:'+h+'px; margin-right: '+g+'px;"></div>');
             row.append(block);
           }
           $base.append(row);
