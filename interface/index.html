@@ -90,17 +90,17 @@
           return;
         }
 
-        var grid = RhythmicGridGenerator.generateRhythmicGrid(width, ratio, baseline, columns, baseline*gutter);
+        var grid = RhythmicGridGenerator.generateRhythmicGrid(width*1, ratio, baseline*1, columns*1, baseline*gutter);
         console.log(grid.rhythmicGrid)
         drawGrid(grid.rhythmicGrid, columns, baseline*gutter)
       });
 
       function drawGrid(grid, columns, gutter){
-        var K = 10;
-        if( grid.W > 15000 ){
-          K = 100;
-          gutter = gutter/10;
-        }
+        var K = 1;
+        // if( grid.W > 15000 ){
+        //   K = 100;
+        //   gutter = gutter/10;
+        // }
 
         var $base = $('#grid');
         $base.html('');
