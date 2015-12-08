@@ -1,0 +1,36 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+
+\title{Rhythmic Grid}
+% \author{nazik.g }
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Micro-block formula}
+\textbf{Given}: \\ \\
+\begin{tabular}{r l}
+$C_w$ & -- canvas width, px \\ 
+$R_w$ & -- vertical aspect ratio \\
+$R_h$ & -- horizontal aspect ratio \\
+$b$ & -- baseline height, px \\ 
+$c$ & -- number of columns \\
+$g$ & -- gutter width, px \\
+\end{tabular} \\ \\
+\noindent\rule{15cm}{0.4pt} \\ \\
+\begin{tabular}{r l}
+$(w_\mu, h_\mu)$ & -- width and height of a micro-block \\
+$G_w$ & -- grid width, $G_w \leq C_w$ \\
+\end{tabular} \\ \\ \\
+\textbf{Find}: \ $\{\left( w_{\mu}, h_{\mu} \right) \ | \ h_\mu \equiv 0\pmod{b}  \ \land \  G_w+g \equiv 0\pmod{w_\mu + g}  \}$  \\ \\
+\\
+The smallest and the largest micro-block fitting the grid:\\ \\
+$h_{\mu_{min}} = \textup{lcm} (b, R_h)$ \\ \\
+$w_{\mu_{min}} = h_{\mu_{min}} / R_h \cdot R_w$ \\ \\
+$w_{\mu_{max}} = \left \lfloor \left \lfloor \frac{C_w+g}{c} -g \right \rfloor /  w_{\mu_{min}} \right \rfloor \cdot w_{\mu_{min}}$ \\ \\
+$h_{\mu_{max}} = w_{\mu_{max}} / R_w \cdot R_h$ \\
+
+
+\end{document}
