@@ -1,5 +1,5 @@
 clc; clear; close all;
-addpath('./Utils/');
+addpath('./Tests/');
 
 result = runtests('GenerateRhythmicGridTest');
 disp(table(result))

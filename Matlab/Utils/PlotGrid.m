@@ -185,7 +185,7 @@ scrn = get(groot, 'ScreenSize');  % get current display screen resolution
 mp = get(0, 'MonitorPositions');
 if size(mp,1) == 1  % if single screen
     ScreenW = scrn(3);
-    ScreenH = 768; % in order to fit most popular 768 height %  scrn(4);
+    ScreenH = scrn(4); % in order to fit most popular 768 height %  scrn(4);
     ShiftX  = 0;
 else % if multiple screens
     ScreenW = mp(2,3);

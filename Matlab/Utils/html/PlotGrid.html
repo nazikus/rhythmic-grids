@@ -1,0 +1,1071 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>PlotGrid</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-12-08"><meta name="DC.source" content="PlotGrid.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">MAIN QUANTITIES - DIMENSIONS, SIZES, MARGINS, DISPLAY MODES</a></li><li><a href="#4">IF 'LARGEST' ShowGrid MODE, THEN THIS LOOP HAS ONLY 1 ITERATION.</a></li><li><a href="#6">DETERMINE AXES DIMENSIONS, TICKS, LABELS</a></li><li><a href="#7">TITLES, FILE NAMES, AUX. VARS</a></li><li><a href="#8">INITIALIZE FIGURE</a></li><li><a href="#9">INITIALIZE AXES</a></li><li><a href="#10">PLOT BLOCKS, GUIDES AND MARGINS</a></li><li><a href="#11">SAVING FIGURE TO FILE(S)</a></li><li><a href="#15">AUXILIARY VARS</a></li><li><a href="#16">FIGURE</a></li><li><a href="#17">PLOT BLOCKS</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> fig_h = PlotGrid(GridConf, Opts)
+</pre><pre class="codeinput"><span class="comment">%PLOTGRID Plots harmonic grid based on given configuration.</span>
+<span class="comment">%Possible multiple grids (if ShowGrid option is 'all') or none.</span>
+<span class="comment">%</span>
+<span class="comment">% GridConf  - grid configuration structure (see GenerateRhythmicGrid.m docs).</span>
+<span class="comment">%</span>
+<span class="comment">% Options struct fields:</span>
+<span class="comment">%       OutputDir  : 'path';</span>
+<span class="comment">%       Formats    : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};</span>
+<span class="comment">%       Mode       : 'show' | 'save' | 'savefull'</span>
+<span class="comment">%       ShowBlocks : 'fit'  | 'all'</span>
+<span class="comment">%       ShowGrid   : 'largest' | 'all'</span>
+
+<span class="comment">% except last, except first - lambda-f for the 1:n-1, 2:n elements of a vector</span>
+elast  = @(x) x(1:end-1);
+efirst = @(x) x(2:end);
+
+<span class="comment">% default Options</span>
+<span class="keyword">if</span> ~exist(<span class="string">'Opts'</span>, <span class="string">'var'</span>);
+    Opts = struct(<span class="string">'OutputDir'</span>, <span class="string">'.\'</span>, <span class="keyword">...</span>
+                  <span class="string">'Formats'</span>, {},  <span class="keyword">...</span>
+                  <span class="string">'Mode'</span>, <span class="string">'show'</span>, <span class="keyword">...</span>
+                  <span class="string">'ShowBlocks'</span>, <span class="string">'fit'</span>, <span class="keyword">...</span>
+                  <span class="string">'ShowGrid'</span>, <span class="string">'largest'</span>);
+<span class="keyword">end</span>
+
+fprintf(<span class="string">'Configuration: Width %dpx, Ratio %dx%d, Baseline %dpx, Columns %d, Gutter %dpx\n'</span>, <span class="keyword">...</span>
+         GridConf.MaxCanvasWidth, GridConf.Ratio.W, GridConf.Ratio.H, <span class="keyword">...</span>
+         GridConf.Baseline, GridConf.ColumnsNum, GridConf.Gutter.W);
+<span class="comment">%fn_structdisp(GridConf);</span>
+</pre><pre class="codeoutput error">Error using PlotGrid (line 27)
+Not enough input arguments.
+</pre><h2>MAIN QUANTITIES - DIMENSIONS, SIZES, MARGINS, DISPLAY MODES<a name="3"></a></h2><pre>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</pre><pre class="codeinput"><span class="comment">% micro-block width &amp; height (minimum possible for current canvas and ratio)</span>
+min_uBlockW = GridConf.uBlock.min_W;
+min_uBlockH = GridConf.uBlock.min_H;
+
+CanvasW    = GridConf.MaxCanvasWidth;
+Ratio      = GridConf.Ratio;
+Baseline   = GridConf.Baseline;
+ColumnsNum = GridConf.ColumnsNum;
+GutterH    = GridConf.Gutter.H;
+GutterW    = GridConf.Gutter.W;
+
+fprintf(<span class="string">'Min. uBlock %dx%d\n'</span>, min_uBlockW, min_uBlockH);
+fprintf(<span class="string">'Number of candidates: %d\n'</span>, numel(GridConf.Grids));
+
+<span class="comment">% plot dummy grid if 0 rhythms</span>
+<span class="keyword">if</span> numel(GridConf.Grids)==0;
+    PlotZeroRhythmGrid(GridConf, Opts);
+    <span class="keyword">return</span>;
+<span class="keyword">end</span>
+
+<span class="comment">% first element Grids cell array containts the biggest uBlock suitable, the</span>
+<span class="comment">% rest are just fractions of it, s.t. provide the same proportion for the rest</span>
+<span class="comment">% of blocks, hence they are redundant. But could be useful for proportion visualization.</span>
+<span class="keyword">if</span> strcmp(Opts.ShowGrid, <span class="string">'largest'</span>)
+    grids = GridConf.Grids(1);
+<span class="keyword">else</span>
+    grids = GridConf.Grids(1:end);
+<span class="keyword">end</span>
+</pre><h2>IF 'LARGEST' ShowGrid MODE, THEN THIS LOOP HAS ONLY 1 ITERATION.<a name="4"></a></h2><pre class="codeinput"><span class="keyword">for</span> grid = grids
+</pre><pre class="codeinput">grid = grid{1};
+
+uBlockW = grid.uBlock.W;
+uBlockH = grid.uBlock.H;
+<span class="comment">% grid width (&lt;=canvas width) with current uBlockW</span>
+GridW = grid.W;
+GridMargin = grid.Margin;
+
+<span class="comment">% NB! grid acceptance criteria:</span>
+<span class="comment">%     - number of uBlocks factors (unique blocks) &gt;= 2</span>
+Opts.FailGrid = ~(numel(grid.uFactors) &gt;= 2);
+
+<span class="comment">% in case gird has only 1 rhythmic block, then show full grid</span>
+<span class="comment">% in order to visualize the fitting proglem</span>
+Mode.ShowFit  =  (numel(grid.uFactors) &gt; 1);
+<span class="keyword">if</span> strcmp(Opts.ShowBlocks, <span class="string">'all'</span>)
+    Mode.ShowFit = false;
+<span class="keyword">end</span>
+<span class="keyword">if</span> Mode.ShowFit
+    <span class="comment">% number of blocks</span>
+    uFactorsNum = numel(grid.uFactors);
+    <span class="comment">% each value is a factor for micro-block considerring gutter in between</span>
+    uFactors  = grid.uFactors;
+    GridH = grid.H;
+    <span class="comment">% usually, canvas height = grid height</span>
+    CanvasH = grid.Canvas.H;
+    <span class="comment">% all blocks sizes [W H]</span>
+    Blocks = grid.Blocks;
+<span class="keyword">else</span>
+    uFactorsNum = numel(grid.AllBlocks.uFactors);
+    uFactors  = grid.AllBlocks.uFactors;
+    GridH = grid.AllBlocks.H;
+    CanvasH = grid.AllBlocks.Canvas.H;
+    Blocks = grid.AllBlocks.Blocks;
+<span class="keyword">end</span>
+
+<span class="comment">% print out blocks info (and if invalid according to acceptance criteria)</span>
+<span class="keyword">if</span> Opts.FailGrid; RejMsg = <span class="string">'INVALID - '</span>; <span class="keyword">else</span> RejMsg = <span class="string">''</span>; <span class="keyword">end</span>;
+fprintf(<span class="string">'\t%sblocks %d:[ %s], margins 2x%dpx\n'</span>, <span class="keyword">...</span>
+    RejMsg, uFactorsNum, sprintf(<span class="string">'%gx%g '</span>, Blocks'), GridMargin);
+clear <span class="string">RejMsg</span>;
+</pre><h2>DETERMINE AXES DIMENSIONS, TICKS, LABELS<a name="6"></a></h2><pre class="codeinput"><span class="comment">% X coordinates of all vertical gridlines (ticks) considerring canvas margins</span>
+GridLinesX = unique( <span class="keyword">...</span>
+             [0, <span class="keyword">...</span>
+              GridMargin + [0 elast(cumsum(reshape( <span class="keyword">...</span>
+                                           [uBlockW;GutterW]*ones(1,ColumnsNum), <span class="keyword">...</span>
+                                           [1 ColumnsNum*2]  )))], <span class="keyword">...</span>
+              CanvasW]);
+
+<span class="comment">% Y coordinates of baseline gridlines</span>
+GridBaseY = [Baseline:Baseline:GridH];
+
+<span class="comment">% block heights and Y coordinates for each fitting block and its sub-micro-blocks</span>
+BlockHs = ((uBlockW+GutterW)*uFactors - GutterW) / Ratio.R;
+MacroRowY = cumsum(BlockHs)  + GutterH*[0:uFactorsNum-1];
+uFactorH  = BlockHs / uBlockH;
+uFactorY  = cellfun( @(y,f) y+uBlockH*([1:floor(f)]), <span class="keyword">...</span>
+                     num2cell(elast(MacroRowY+GutterH)), num2cell(efirst(uFactorH)), <span class="keyword">...</span>
+                     <span class="string">'UniformOutput'</span>, false);
+
+<span class="comment">% Y coordinates of all horizontal uBlock gridlines (ticks)</span>
+GridLinesY = unique(sort( [ MacroRowY, MacroRowY+GutterH, [uFactorY{:}] ]  ));
+
+<span class="comment">% TODO GridLines mode 'adaptive' (current) vs 'linear' (to implement)</span>
+<span class="comment">% if  strcmp(Mode.GridLines, 'linear')</span>
+<span class="comment">% GridLinesY = uBlockH:uBlockH:GridH;  % monothonic uBlock Y gridlines</span>
+
+<span class="comment">% Y tick lables per uBlock height considerring gutter height.</span>
+<span class="comment">% ticks array indices on the top &amp; bottom of each block</span>
+<span class="keyword">if</span> GutterW&gt;0
+    MacroRowsY = unique(sort([[0:uFactorsNum-1] + cumsum(ceil(uFactorH)), <span class="keyword">...</span>
+                              [1:uFactorsNum] + cumsum(ceil(uFactorH)) ]));
+<span class="keyword">else</span>
+    MacroRowsY = cumsum(uFactors);
+<span class="keyword">end</span>
+
+<span class="comment">% assigning those ticks string representation of their value</span>
+<span class="comment">% (the rest are imlicitly asigned empty strings)</span>
+GridLabelsY(MacroRowsY) = cellfun(@(x) num2str(x), <span class="keyword">...</span>
+                                  num2cell(GridLinesY(MacroRowsY)), <span class="keyword">...</span>
+                                  <span class="string">'UniformOutput'</span>, false);
+clear <span class="string">MacroRowY</span> <span class="string">uFactorH</span> <span class="string">uFactorY</span>;
+</pre><h2>TITLES, FILE NAMES, AUX. VARS<a name="7"></a></h2><pre>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</pre><pre class="codeinput">FileName = sprintf(<span class="string">'Width%d_Ratio%dx%d_Base%d_Cols%d_Gut%d_Block%dx%d'</span>, <span class="keyword">...</span>
+                   CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, uBlockW, uBlockH);
+
+GridTitle  = sprintf( <span class="keyword">...</span>
+    [<span class="string">'     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Columns %d | Gutter %d\n'</span> <span class="keyword">...</span>
+     <span class="string">'Output: %sBlock %dx%d | Blocks #%d | GridW %d | Margins 2x%d'</span>], <span class="keyword">...</span>
+    CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, <span class="keyword">...</span>
+    char(956), uBlockW, uBlockH, uFactorsNum, GridW, GridMargin );
+
+<span class="keyword">if</span> ~Mode.ShowFit; FileName = [FileName <span class="string">'_all'</span>];  <span class="keyword">end</span>
+
+visibility = {<span class="string">'off'</span>, <span class="string">'on'</span>};
+menubar    = {<span class="string">'none'</span>, <span class="string">'figure'</span>};
+
+Mode.Show     = strcmp(Opts.Mode, <span class="string">'show'</span>);
+Mode.Save     = strcmp(Opts.Mode, <span class="string">'save'</span>);
+Mode.SaveFull = strcmp(Opts.Mode, <span class="string">'savefull'</span>);
+Mode.menuFlag = strcmp(menubar{Mode.Show+1}, <span class="string">'figure'</span>);
+
+<span class="keyword">if</span> numel(Opts.Formats) == 0
+    <span class="comment">% skip generating figures if no formats specified in Options</span>
+    <span class="keyword">continue</span>;
+<span class="keyword">end</span>
+
+k = [2.2 3.6]/3432/10 * CanvasH;  <span class="comment">% empirical coeffs, 3432 reference canvas height</span>
+FontRatios = [1 1; k(1) k(2)];
+fR = FontRatios(Mode.SaveFull+1, :);
+<span class="comment">% fprintf('CanvasH=%d; k1=%f; k2=%f;\n', CanvasH, k(1), k(2));</span>
+
+<span class="comment">% current or secondary screen (display) size</span>
+scrn = get(groot, <span class="string">'ScreenSize'</span>);  <span class="comment">% get current display screen resolution</span>
+mp = get(0, <span class="string">'MonitorPositions'</span>);
+<span class="keyword">if</span> size(mp,1) == 1  <span class="comment">% if single screen</span>
+    ScreenW = scrn(3);
+    ScreenH = 768; <span class="comment">% in order to fit most popular 768 height %  scrn(4);</span>
+    ShiftX  = 0;
+<span class="keyword">else</span> <span class="comment">% if multiple screens</span>
+    ScreenW = mp(2,3);
+    ScreenH = mp(2,4);
+    ShiftX  = mp(2,1);
+<span class="keyword">end</span>
+
+clear <span class="string">scrn</span> <span class="string">mp</span> <span class="string">FontRatios</span> <span class="string">k</span>;
+</pre><h2>INITIALIZE FIGURE<a name="8"></a></h2><pre>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</pre><pre class="codeinput"><span class="comment">% auxiliary margins between figure and canvas/plot (optional, matlab specific)</span>
+Fig = struct(<span class="string">'LR'</span>, 110, <span class="string">'Top'</span>, 160, <span class="string">'Bot'</span>, 60); <span class="comment">% [left/right; top; bottom] margins</span>
+Fig.W = min([ CanvasW + Fig.LR*2]);
+Fig.H = ScreenH-50*Mode.Show;
+<span class="comment">% Fig.H = min([ScreenH-50*Mode.Show, max(ScreenH/2, CanvasH+Fig.Top+Fig.Bot)]);</span>
+Fig.TitleMargin = 60; <span class="comment">% margin between title and cavnas</span>
+
+<span class="keyword">if</span> Mode.SaveFull
+    Fig.H = CanvasH + Fig.Top + Fig.Bot;
+<span class="keyword">end</span>
+
+fig_h = figure(<span class="string">'Menubar'</span>, menubar{Mode.Show+1}, <span class="keyword">...</span>
+               <span class="string">'Visible'</span>, visibility{Mode.Show+1});
+fig_h.Name          = FileName;
+fig_h.OuterPosition = [ShiftX + (ScreenW-Fig.W)/2, ScreenH-Fig.H, Fig.W, Fig.H];
+fig_h.NumberTitle   = <span class="string">'off'</span>;
+fig_h.DockControls  = <span class="string">'off'</span>;
+fig_h.GraphicsSmoothing = <span class="string">'off'</span>;
+
+clear <span class="string">menubar</span> <span class="string">visibility</span> <span class="string">ShiftX</span> <span class="string">ScreenW</span>;
+</pre><h2>INITIALIZE AXES<a name="9"></a></h2><pre>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</pre><pre class="codeinput">ax = axes();
+hold <span class="string">on</span>; pan <span class="string">yon</span>;
+ax.Title.String     = GridTitle;
+ax.Title.FontSize   = 14*fR(2);
+ax.Title.FontWeight = <span class="string">'normal'</span>;
+<span class="comment">% ax.Title.Margin = 8;</span>
+<span class="comment">% ax.Title.HorizontalAlignment = 'left';</span>
+TPos = ax.Title.Position; TExt = ax.Title.Extent;
+ax.Title.Position   = [Fig.LR+CanvasW*(1-TExt(3)) TPos(2)-Fig.TitleMargin 0];  <span class="comment">% disable anti-panning</span>
+
+ax.Units      = <span class="string">'pixels'</span>;
+ax.Position   = [Fig.LR -(CanvasH-Fig.H+Fig.Top + 50*Mode.menuFlag) CanvasW CanvasH];
+ax.XLim       = [0 CanvasW];
+ax.YLim       = [0 CanvasH];
+ax.Layer      = <span class="string">'top'</span>;
+ax.TickDir    = <span class="string">'out'</span>;
+ax.FontSize   = 9*fR(1);
+ax.TickLength = [10 / max([CanvasW CanvasH]) 0];  <span class="comment">% magic ratio :)</span>
+ax.GridAlpha  = 0.2;
+ax.GridColor  = [0 0 0];
+
+<span class="comment">% Y AXIS</span>
+ax.YLabel.String   = sprintf(<span class="string">'%g px | %d x block types'</span>, CanvasH, uFactorsNum);
+ax.YLabel.FontSize = 14*fR(2);
+ax.YLabel.Color    = [0 0 0];
+ax.YLabel.Position = [-60 Fig.Top-40];  <span class="comment">% disables anti-panning</span>
+ax.YTick      = [GridLinesY(1:end-1)];
+ax.YTickLabel = GridLabelsY;
+ax.YColor     = [0 0 .6];
+ax.YGrid      = <span class="string">'on'</span>;
+ax.YDir       = <span class="string">'reverse'</span>;
+
+<span class="comment">% X AXIS</span>
+XTickRotation = 60*(GutterW&lt;28|uBlockW&lt;28);
+ax.XTickLabelRotation = XTickRotation;
+ax.XTick      = [GridLinesX];
+ax.XColor     = [0 0 .6];
+ax.XGrid      = <span class="string">'on'</span>;
+ax.XAxisLocation = <span class="string">'top'</span>;
+ax.XTickLabel(numel(ax.XTickLabel)) = {<span class="string">''</span>};
+<span class="comment">% removes last X tick label, 'cause it overlaps previous tick if margin is small</span>
+
+clear <span class="string">ax</span> <span class="string">GridTitle</span> <span class="string">TPos</span> <span class="string">TExt</span>;
+</pre><h2>PLOT BLOCKS, GUIDES AND MARGINS<a name="10"></a></h2><pre>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</pre><pre class="codeinput"><span class="comment">% plot rectangles for canvas margins</span>
+rectangle(<span class="string">'Position'</span> , [0 0 GridMargin GridH], <span class="keyword">...</span>
+          <span class="string">'FaceColor'</span>, [.97 .92 .92], <span class="string">'LineStyle'</span>, <span class="string">'none'</span>);
+rectangle(<span class="string">'Position'</span> , [GridMargin+GridW 0 GridMargin GridH], <span class="keyword">...</span>
+          <span class="string">'FaceColor'</span>, [.97 .92 .92], <span class="string">'LineStyle'</span>, <span class="string">'none'</span>);
+
+<span class="keyword">if</span> GutterW&gt;0;  RecLineStyle = <span class="string">'none'</span>; <span class="keyword">else</span> RecLineStyle = <span class="string">'-'</span>; <span class="keyword">end</span>
+
+<span class="comment">% plot all blocks</span>
+<span class="keyword">for</span> r=uFactors
+    ri = find(uFactors==r); <span class="comment">% r index</span>
+
+    <span class="comment">% MacroCol width == current macro blockW</span>
+    blockW = -GutterW + (GutterW+uBlockW)*r;
+    blockH = blockW / Ratio.R;
+    MacroColsNum = floor( (GridW+GutterW) / (blockW+GutterW) ) + 0*logical(r);
+
+    fit = (blockW+GutterW)*MacroColsNum - GutterW == GridW  <span class="keyword">...</span>
+                          &amp;&amp; mod(blockH,Baseline) == 0;
+    <span class="keyword">if</span> fit <span class="comment">% if columns fit grid evently</span>
+        colors = [0 1 0]; <span class="keyword">else</span> colors = [0 .6 0];
+    <span class="keyword">end</span>
+
+    currRows= elast([0 uFactors(1:ri)]);
+    y_pos = sum((currRows*(uBlockW+GutterW)-GutterW*logical(currRows)) / Ratio.R) + (ri-1)*GutterH;
+    <span class="keyword">for</span> c=0:MacroColsNum-1
+        x_pos = GridMargin + c*(blockW+GutterW);
+        rectangle(<span class="string">'Position'</span>,  [x_pos, y_pos, blockW, blockH ], <span class="keyword">...</span>
+                  <span class="string">'FaceColor'</span>, colors, <span class="keyword">...</span>
+                  <span class="string">'LineStyle'</span>, RecLineStyle,  <span class="keyword">...</span>
+                  <span class="string">'Clipping'</span>, <span class="string">'on'</span>     <span class="keyword">...</span>
+                  );
+
+        <span class="comment">% draw rectangle at the bottom of block, denoting baseline remainder</span>
+        <span class="keyword">if</span> mod(blockH,Baseline) || mod(blockW,1)
+            blockQuot = floor(blockH/Baseline) * Baseline;
+            rectangle(<span class="string">'Position'</span>, [x_pos, y_pos+blockQuot, <span class="keyword">...</span>
+                                   blockW, blockH-blockQuot], <span class="keyword">...</span>
+                      <span class="string">'FaceColor'</span>, [0 1 1], <span class="keyword">...</span>
+                      <span class="string">'LineStyle'</span>, <span class="string">'none'</span>, <span class="keyword">...</span>
+                      <span class="string">'Clipping'</span>, <span class="string">'on'</span>);
+            <span class="comment">% change text label color for non-integer blocks</span>
+            blockLabelColor = [1 1 0];
+        <span class="keyword">else</span>
+            blockLabelColor = [0 0 0];
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+
+    <span class="comment">% text: block size, uBlock ratio, columns</span>
+    text(GridMargin+4, y_pos+7, <span class="keyword">...</span>
+         sprintf(<span class="string">'%s%d  (%g x %g) X %d'</span>, char(956), <span class="keyword">...</span>
+         r, blockW, blockH, MacroColsNum), <span class="keyword">...</span>
+         <span class="string">'FontSize'</span>, 10*fR(2), <span class="string">'FontWeight'</span>, <span class="string">'Bold'</span>, <span class="keyword">...</span>
+         <span class="string">'Color'</span>, blockLabelColor, <span class="string">'Clipping'</span>, <span class="string">'on'</span>);
+
+    <span class="comment">% annotations arrows for fitting gap</span>
+    <span class="keyword">if</span> ~fit
+        line([x_pos+blockW+2; GridMargin+GridW-3], [y_pos+blockH/2; y_pos+blockH/2], <span class="keyword">...</span>
+             <span class="string">'LineWidth'</span>, 2, <span class="string">'Marker'</span>, <span class="string">'d'</span>, <span class="string">'MarkerSize'</span>, 5, <span class="string">'MarkerFaceColor'</span>, [0 0 1]);
+        gap = (GridMargin+GridW - (x_pos+blockW));
+        t=text(GridMargin+GridW, y_pos+blockH/2-10, sprintf(<span class="string">'%dpx'</span>, gap), <span class="string">'Clipping'</span>, <span class="string">'on'</span>);
+        t.Position = [t.Position(1)-t.Extent(3)-5 t.Position(2) 0];  <span class="comment">% Align right precisely</span>
+        clear <span class="string">t</span>;
+    <span class="keyword">end</span>
+<span class="keyword">end</span> <span class="comment">% rectangle plot loop</span>
+
+<span class="comment">% plot horizontal grid lines, multiple of baseline height</span>
+x = [zeros(1, numel(GridBaseY)); CanvasW*ones(1, numel(GridBaseY))];
+y = [GridBaseY; GridBaseY];
+line(x, y, <span class="string">'Color'</span>, [.8 0 0 .3], <span class="string">'LineWidth'</span>, .5);
+
+<span class="comment">% Baseline tick and label</span>
+<span class="keyword">if</span> uBlockH ~= Baseline
+    line([0; -10], [Baseline; Baseline], <span class="string">'LineWidth'</span>, .5, <span class="string">'Color'</span>, [1 0 0], <span class="string">'Clipping'</span>, <span class="string">'off'</span>);
+    text(-30,Baseline-3, [<span class="string">'b'</span> num2str(Baseline)], <span class="string">'FontSize'</span>, 9*fR(1), <span class="string">'Color'</span>, [1 0 .6]);
+<span class="keyword">end</span>
+
+<span class="comment">% last X tick label</span>
+text(CanvasW, -23, num2str(CanvasW), <span class="string">'FontSize'</span>, 9*fR(1), <span class="string">'Color'</span>, [0 0 .6], <span class="string">'Rotation'</span>, XTickRotation); <span class="comment">%9</span>
+
+<span class="comment">% if grid failed, only 1 row fits</span>
+<span class="keyword">if</span> Opts.FailGrid
+   text(200, 220, <span class="string">'INVALID'</span>, <span class="keyword">...</span>
+        <span class="string">'Rotation'</span>, 30, <span class="string">'Color'</span>, [1 0 0], <span class="string">'FontSize'</span>, 76*fR(1), <span class="string">'FontWeight'</span>, <span class="string">'bold'</span>, <span class="keyword">...</span>
+        <span class="string">'EdgeColor'</span>, [1 0 0], <span class="string">'LineWidth'</span>, 2, <span class="string">'BackgroundColor'</span>, [1 1 1 .7], <span class="keyword">...</span>
+        <span class="string">'Clipping'</span>, <span class="string">'off'</span>);
+    FileName = [FileName <span class="string">'_X'</span>];
+<span class="keyword">end</span>
+
+<span class="comment">% plottools</span>
+hold <span class="string">off</span>;
+</pre><h2>SAVING FIGURE TO FILE(S)<a name="11"></a></h2><pre>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</pre><pre class="codeinput"><span class="keyword">if</span> ~Mode.Show
+    Fig2File(fig_h, FileName, Opts);
+    close(fig_h);
+    <span class="comment">% fig_h.Visible = 'on';</span>
+<span class="keyword">else</span>
+<span class="comment">%     pause;</span>
+<span class="comment">%     close(fig_h);</span>
+<span class="keyword">end</span>
+<span class="comment">% if Mode.SaveFull; system(fullfile(Opts.OutputDir, [Opts.Formats{1} '\dpi96_' FileName '.' Opts.Formats{1}])); end</span>
+<span class="comment">% fprintf('\n');</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>  <span class="comment">% uBlock biiig loop</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%%%%%%                                                                   %%%%%%</span>
+<span class="comment">%%%%%%    FUNCTION FOR DUMMY PLOT OF ZERO RHYTHM GRID, FOR CONSISTENCY   %%%%%%</span>
+<span class="comment">%%%%%%                                                                   %%%%%%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+<span class="keyword">function</span> fig_h = PlotZeroRhythmGrid(GridConf, Opts)
+</pre><pre class="codeinput">Ratio   = GridConf.Ratio;
+uBlockW = GridConf.uBlock.min_W;
+uBlockH = GridConf.uBlock.min_H;
+Baseline= GridConf.Baseline;
+ColumnsNum = GridConf.ColumnsNum;
+GutterW = GridConf.Gutter.W;
+CanvasW = GridConf.MaxCanvasWidth;
+
+GridW = (uBlockW+GutterW)*ColumnsNum - GutterW;
+GridH = uBlockH*4;
+CanvasH = GridH + 0;
+Cols  = floor( (CanvasW+GutterW)/(uBlockW+GutterW) );
+
+fprintf(<span class="string">'\t%smin. uBlock size is [%dx%d]. For %d columns it requires %dpx width and max. cavnas is %dpx\n'</span>, <span class="keyword">...</span>
+    <span class="string">'INVALID - '</span>, uBlockW, uBlockH, ColumnsNum, GridW, CanvasW);
+
+FileName = sprintf(<span class="string">'Width%d_Ratio%dx%d_Base%d_Cols%d_Gut%d_Block%dx%d'</span>, <span class="keyword">...</span>
+   CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, uBlockW, uBlockH);
+FileName = [FileName <span class="string">'_X'</span>];
+GridTitle  = sprintf( <span class="keyword">...</span>
+    [<span class="string">'     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Columns %d | Gutter %d\n'</span> <span class="keyword">...</span>
+     <span class="string">'Output: %sBlock %dx%d | no hip hop, no rhythm'</span>], <span class="keyword">...</span>
+    CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, <span class="keyword">...</span>
+    char(956), uBlockW, uBlockH);
+</pre><h2>AUXILIARY VARS<a name="15"></a></h2><pre class="codeinput">visibility = {<span class="string">'off'</span>, <span class="string">'on'</span>};
+<span class="comment">% current or secondary screen (display) size</span>
+scrn = get(groot, <span class="string">'ScreenSize'</span>);  <span class="comment">% get current display screen resolution</span>
+mp = get(0, <span class="string">'MonitorPositions'</span>);
+<span class="keyword">if</span> size(mp,1) == 1  <span class="comment">% if single screen</span>
+    ScreenW = scrn(3);
+    ScreenH = 768; <span class="comment">% in order to fit most popular 768 height %  scrn(4);</span>
+    ShiftX  = 0;
+<span class="keyword">else</span> <span class="comment">% if multiple screens</span>
+    ScreenW = mp(2,3);
+    ScreenH = mp(2,4);
+    ShiftX  = mp(2,1);
+<span class="keyword">end</span>
+
+Fig = struct(<span class="string">'LR'</span>, 110, <span class="string">'Top'</span>, 160, <span class="string">'Bot'</span>, 40); <span class="comment">% [left/right; top; bottom] margins</span>
+Fig.W = CanvasW + Fig.LR*2;
+Fig.H = ScreenH-50*strcmp(Opts.Mode, <span class="string">'show'</span>);
+Fig.TitleMargin = 60; <span class="comment">% margin between title and cavnas</span>
+</pre><h2>FIGURE<a name="16"></a></h2><pre class="codeinput">fig_h = figure(<span class="string">'Menubar'</span>, <span class="string">'none'</span>, <span class="keyword">...</span>
+               <span class="string">'Visible'</span>, visibility{strcmp(Opts.Mode, <span class="string">'show'</span>)+1});
+fig_h.Name          = FileName;
+fig_h.OuterPosition = [ShiftX + (ScreenW-Fig.W)/2, ScreenH-Fig.H, Fig.W, Fig.H];
+fig_h.NumberTitle   = <span class="string">'off'</span>;
+fig_h.DockControls  = <span class="string">'off'</span>;
+fig_h.GraphicsSmoothing = <span class="string">'off'</span>;
+
+ax = axes();
+hold <span class="string">on</span>; pan <span class="string">yon</span>;
+ax.Title.String     = GridTitle;
+ax.Title.FontSize   = 14;
+ax.Title.FontWeight = <span class="string">'normal'</span>;
+<span class="comment">% ax.Title.Margin = 8;</span>
+<span class="comment">% ax.Title.HorizontalAlignment = 'left';</span>
+TPos = ax.Title.Position; TExt = ax.Title.Extent;
+ax.Title.Position   = [Fig.LR+CanvasW*(1-TExt(3)) TPos(2)-Fig.TitleMargin 0];  <span class="comment">% disable anti-panning</span>
+
+ax.Units      = <span class="string">'pixels'</span>;
+ax.Position   = [Fig.LR -(CanvasH-Fig.H+Fig.Top) CanvasW CanvasH];
+ax.XLim       = [0 CanvasW];
+ax.YLim       = [0 CanvasH];
+ax.Layer      = <span class="string">'top'</span>;
+ax.TickDir    = <span class="string">'out'</span>;
+ax.FontSize   = 9;
+ax.TickLength = [10 / max([CanvasW CanvasH]) 0];  <span class="comment">% magic ratio :)</span>
+ax.GridAlpha  = 0.2;
+ax.GridColor  = [0 0 0];
+
+<span class="comment">% Y AXIS</span>
+ax.YTick      = [0, uBlockH];
+ax.YColor     = [0 0 .6];
+ax.YGrid      = <span class="string">'on'</span>;
+ax.YDir       = <span class="string">'reverse'</span>;
+
+<span class="comment">% X AXIS</span>
+GridLinesX = unique(sort([0, [1:Cols]*uBlockW + GutterW*[0:Cols-1], <span class="keyword">...</span>
+              [1:Cols]*uBlockW + GutterW*[0:Cols-1] + GutterW, CanvasW]));
+ax.XTick      = [GridLinesX];
+ax.XColor     = [0 0 .6];
+ax.XGrid      = <span class="string">'on'</span>;
+ax.XAxisLocation = <span class="string">'top'</span>;
+XTickRotation = 60*(GutterW&lt;28|uBlockW&lt;28);
+ax.XTickLabelRotation = XTickRotation;
+</pre><h2>PLOT BLOCKS<a name="17"></a></h2><pre class="codeinput"><span class="keyword">if</span> GutterW&gt;0;  RecLineStyle = <span class="string">'none'</span>; <span class="keyword">else</span> RecLineStyle = <span class="string">'-'</span>; <span class="keyword">end</span>
+<span class="keyword">for</span> c = 0:Cols
+    x_pos = (uBlockW+GutterW)*c;
+    rectangle(<span class="string">'Position'</span>, [x_pos, 0, uBlockW, uBlockH], <span class="keyword">...</span>
+          <span class="string">'FaceColor'</span>, [0 .6 0], <span class="string">'LineStyle'</span>, RecLineStyle, <span class="string">'Clipping'</span>, <span class="string">'on'</span>);
+
+<span class="keyword">end</span>
+
+<span class="comment">% out of canvas portion of block</span>
+uBlockRem =  (uBlockW+GutterW)*(Cols+1)-GutterW - CanvasW;
+rectangle(<span class="string">'Position'</span>, [x_pos + uBlockW-uBlockRem, 0, uBlockRem, uBlockH], <span class="keyword">...</span>
+    <span class="string">'FaceColor'</span>, [.5 1 .7], <span class="string">'LineStyle'</span>, RecLineStyle, <span class="string">'Clipping'</span>, <span class="string">'off'</span>);
+
+<span class="comment">% text: block size, uBlock ratio, columns</span>
+text(0+4, 0+7, <span class="keyword">...</span>
+     sprintf(<span class="string">'%s1  (%g x %g) X %d [of %d]'</span>, char(956), <span class="keyword">...</span>
+     uBlockW, uBlockH, Cols, ColumnsNum), <span class="keyword">...</span>
+     <span class="string">'FontSize'</span>, 10, <span class="string">'FontWeight'</span>, <span class="string">'Bold'</span>, <span class="keyword">...</span>
+     <span class="string">'Color'</span>, [1 1 0], <span class="string">'Clipping'</span>, <span class="string">'on'</span>);
+
+text(200, 220, <span class="string">'INVALID'</span>, <span class="keyword">...</span>
+    <span class="string">'Rotation'</span>, 30, <span class="string">'Color'</span>, [1 0 0], <span class="string">'FontSize'</span>, 76, <span class="string">'FontWeight'</span>, <span class="string">'bold'</span>, <span class="keyword">...</span>
+    <span class="string">'EdgeColor'</span>, [1 0 0], <span class="string">'LineWidth'</span>, 2, <span class="string">'BackgroundColor'</span>, [1 1 1 .7], <span class="keyword">...</span>
+    <span class="string">'Clipping'</span>, <span class="string">'off'</span>);
+
+    <span class="keyword">if</span> ~strcmp(Opts.Mode, <span class="string">'show'</span>)
+        Fig2File(fig_h, FileName, Opts);
+        close(fig_h);
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function fig_h = PlotGrid(GridConf, Opts)
+%PLOTGRID Plots harmonic grid based on given configuration. 
+%Possible multiple grids (if ShowGrid option is 'all') or none.
+%
+% GridConf  - grid configuration structure (see GenerateRhythmicGrid.m docs).
+%       
+% Options struct fields:
+%       OutputDir  : 'path';
+%       Formats    : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
+%       Mode       : 'show' | 'save' | 'savefull'
+%       ShowBlocks : 'fit'  | 'all'
+%       ShowGrid   : 'largest' | 'all'
+
+% except last, except first - lambda-f for the 1:n-1, 2:n elements of a vector
+elast  = @(x) x(1:end-1);
+efirst = @(x) x(2:end);
+
+% default Options
+if ~exist('Opts', 'var'); 
+    Opts = struct('OutputDir', '.\', ...
+                  'Formats', {},  ...
+                  'Mode', 'show', ...
+                  'ShowBlocks', 'fit', ...
+                  'ShowGrid', 'largest');
+end
+
+fprintf('Configuration: Width %dpx, Ratio %dx%d, Baseline %dpx, Columns %d, Gutter %dpx\n', ...
+         GridConf.MaxCanvasWidth, GridConf.Ratio.W, GridConf.Ratio.H, ...
+         GridConf.Baseline, GridConf.ColumnsNum, GridConf.Gutter.W);
+%fn_structdisp(GridConf);
+     
+%% MAIN QUANTITIES - DIMENSIONS, SIZES, MARGINS, DISPLAY MODES
+%  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% micro-block width & height (minimum possible for current canvas and ratio)
+min_uBlockW = GridConf.uBlock.min_W;
+min_uBlockH = GridConf.uBlock.min_H;
+
+CanvasW    = GridConf.MaxCanvasWidth;
+Ratio      = GridConf.Ratio;
+Baseline   = GridConf.Baseline;
+ColumnsNum = GridConf.ColumnsNum;
+GutterH    = GridConf.Gutter.H;
+GutterW    = GridConf.Gutter.W;
+
+fprintf('Min. uBlock %dx%d\n', min_uBlockW, min_uBlockH);
+fprintf('Number of candidates: %d\n', numel(GridConf.Grids));
+
+% plot dummy grid if 0 rhythms
+if numel(GridConf.Grids)==0; 
+    PlotZeroRhythmGrid(GridConf, Opts);
+    return;
+end
+
+% first element Grids cell array containts the biggest uBlock suitable, the 
+% rest are just fractions of it, s.t. provide the same proportion for the rest 
+% of blocks, hence they are redundant. But could be useful for proportion visualization.
+if strcmp(Opts.ShowGrid, 'largest')
+    grids = GridConf.Grids(1);
+else
+    grids = GridConf.Grids(1:end);
+end
+
+%% IF 'LARGEST' ShowGrid MODE, THEN THIS LOOP HAS ONLY 1 ITERATION.
+for grid = grids
+grid = grid{1};
+
+uBlockW = grid.uBlock.W;
+uBlockH = grid.uBlock.H;
+% grid width (<=canvas width) with current uBlockW
+GridW = grid.W;
+GridMargin = grid.Margin;
+
+% NB! grid acceptance criteria:
+%     - number of uBlocks factors (unique blocks) >= 2 
+Opts.FailGrid = ~(numel(grid.uFactors) >= 2);
+
+% in case gird has only 1 rhythmic block, then show full grid
+% in order to visualize the fitting proglem
+Mode.ShowFit  =  (numel(grid.uFactors) > 1);
+if strcmp(Opts.ShowBlocks, 'all')
+    Mode.ShowFit = false;
+end
+if Mode.ShowFit
+    % number of blocks
+    uFactorsNum = numel(grid.uFactors);
+    % each value is a factor for micro-block considerring gutter in between
+    uFactors  = grid.uFactors;
+    GridH = grid.H;
+    % usually, canvas height = grid height
+    CanvasH = grid.Canvas.H;
+    % all blocks sizes [W H]
+    Blocks = grid.Blocks;
+else
+    uFactorsNum = numel(grid.AllBlocks.uFactors);
+    uFactors  = grid.AllBlocks.uFactors;
+    GridH = grid.AllBlocks.H;
+    CanvasH = grid.AllBlocks.Canvas.H;
+    Blocks = grid.AllBlocks.Blocks;
+end
+
+% print out blocks info (and if invalid according to acceptance criteria)
+if Opts.FailGrid; RejMsg = 'INVALID - '; else RejMsg = ''; end;
+fprintf('\t%sblocks %d:[ %s], margins 2x%dpx\n', ...
+    RejMsg, uFactorsNum, sprintf('%gx%g ', Blocks'), GridMargin);
+clear RejMsg;
+
+%% DETERMINE AXES DIMENSIONS, TICKS, LABELS
+
+% X coordinates of all vertical gridlines (ticks) considerring canvas margins
+GridLinesX = unique( ...
+             [0, ...
+              GridMargin + [0 elast(cumsum(reshape( ...
+                                           [uBlockW;GutterW]*ones(1,ColumnsNum), ...
+                                           [1 ColumnsNum*2]  )))], ...
+              CanvasW]);
+
+% Y coordinates of baseline gridlines
+GridBaseY = [Baseline:Baseline:GridH];
+
+% block heights and Y coordinates for each fitting block and its sub-micro-blocks
+BlockHs = ((uBlockW+GutterW)*uFactors - GutterW) / Ratio.R;
+MacroRowY = cumsum(BlockHs)  + GutterH*[0:uFactorsNum-1];
+uFactorH  = BlockHs / uBlockH;
+uFactorY  = cellfun( @(y,f) y+uBlockH*([1:floor(f)]), ...
+                     num2cell(elast(MacroRowY+GutterH)), num2cell(efirst(uFactorH)), ...
+                     'UniformOutput', false);
+
+% Y coordinates of all horizontal uBlock gridlines (ticks)
+GridLinesY = unique(sort( [ MacroRowY, MacroRowY+GutterH, [uFactorY{:}] ]  ));
+
+% TODO GridLines mode 'adaptive' (current) vs 'linear' (to implement)
+% if  strcmp(Mode.GridLines, 'linear')
+% GridLinesY = uBlockH:uBlockH:GridH;  % monothonic uBlock Y gridlines
+
+% Y tick lables per uBlock height considerring gutter height.
+% ticks array indices on the top & bottom of each block
+if GutterW>0
+    MacroRowsY = unique(sort([[0:uFactorsNum-1] + cumsum(ceil(uFactorH)), ...
+                              [1:uFactorsNum] + cumsum(ceil(uFactorH)) ]));
+else
+    MacroRowsY = cumsum(uFactors);
+end
+
+% assigning those ticks string representation of their value 
+% (the rest are imlicitly asigned empty strings)
+GridLabelsY(MacroRowsY) = cellfun(@(x) num2str(x), ...
+                                  num2cell(GridLinesY(MacroRowsY)), ...
+                                  'UniformOutput', false);
+clear MacroRowY uFactorH uFactorY;
+
+%% TITLES, FILE NAMES, AUX. VARS
+%  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FileName = sprintf('Width%d_Ratio%dx%d_Base%d_Cols%d_Gut%d_Block%dx%d', ...
+                   CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, uBlockW, uBlockH);
+
+GridTitle  = sprintf( ...
+    ['     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Columns %d | Gutter %d\n' ...
+     'Output: %sBlock %dx%d | Blocks #%d | GridW %d | Margins 2x%d'], ...
+    CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, ...
+    char(956), uBlockW, uBlockH, uFactorsNum, GridW, GridMargin );
+                 
+if ~Mode.ShowFit; FileName = [FileName '_all'];  end
+
+visibility = {'off', 'on'};
+menubar    = {'none', 'figure'};
+
+Mode.Show     = strcmp(Opts.Mode, 'show');
+Mode.Save     = strcmp(Opts.Mode, 'save');
+Mode.SaveFull = strcmp(Opts.Mode, 'savefull');
+Mode.menuFlag = strcmp(menubar{Mode.Show+1}, 'figure');
+
+if numel(Opts.Formats) == 0
+    % skip generating figures if no formats specified in Options
+    continue;
+end
+
+k = [2.2 3.6]/3432/10 * CanvasH;  % empirical coeffs, 3432 reference canvas height
+FontRatios = [1 1; k(1) k(2)];
+fR = FontRatios(Mode.SaveFull+1, :);
+% fprintf('CanvasH=%d; k1=%f; k2=%f;\n', CanvasH, k(1), k(2));
+
+% current or secondary screen (display) size
+scrn = get(groot, 'ScreenSize');  % get current display screen resolution
+mp = get(0, 'MonitorPositions');
+if size(mp,1) == 1  % if single screen
+    ScreenW = scrn(3);
+    ScreenH = 768; % in order to fit most popular 768 height %  scrn(4);
+    ShiftX  = 0;
+else % if multiple screens
+    ScreenW = mp(2,3);
+    ScreenH = mp(2,4);
+    ShiftX  = mp(2,1);
+end
+
+clear scrn mp FontRatios k;
+
+%% INITIALIZE FIGURE      
+%  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% auxiliary margins between figure and canvas/plot (optional, matlab specific)
+Fig = struct('LR', 110, 'Top', 160, 'Bot', 60); % [left/right; top; bottom] margins
+Fig.W = min([ CanvasW + Fig.LR*2]);
+Fig.H = ScreenH-50*Mode.Show; 
+% Fig.H = min([ScreenH-50*Mode.Show, max(ScreenH/2, CanvasH+Fig.Top+Fig.Bot)]); 
+Fig.TitleMargin = 60; % margin between title and cavnas
+
+if Mode.SaveFull
+    Fig.H = CanvasH + Fig.Top + Fig.Bot; 
+end
+
+fig_h = figure('Menubar', menubar{Mode.Show+1}, ...
+               'Visible', visibility{Mode.Show+1});
+fig_h.Name          = FileName;
+fig_h.OuterPosition = [ShiftX + (ScreenW-Fig.W)/2, ScreenH-Fig.H, Fig.W, Fig.H];
+fig_h.NumberTitle   = 'off';
+fig_h.DockControls  = 'off';
+fig_h.GraphicsSmoothing = 'off';
+
+clear menubar visibility ShiftX ScreenW;
+
+%% INITIALIZE AXES
+%  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ax = axes();
+hold on; pan yon;
+ax.Title.String     = GridTitle;
+ax.Title.FontSize   = 14*fR(2);
+ax.Title.FontWeight = 'normal';
+% ax.Title.Margin = 8;
+% ax.Title.HorizontalAlignment = 'left';
+TPos = ax.Title.Position; TExt = ax.Title.Extent;
+ax.Title.Position   = [Fig.LR+CanvasW*(1-TExt(3)) TPos(2)-Fig.TitleMargin 0];  % disable anti-panning
+
+ax.Units      = 'pixels';
+ax.Position   = [Fig.LR -(CanvasH-Fig.H+Fig.Top + 50*Mode.menuFlag) CanvasW CanvasH];
+ax.XLim       = [0 CanvasW];
+ax.YLim       = [0 CanvasH];
+ax.Layer      = 'top'; 
+ax.TickDir    = 'out';
+ax.FontSize   = 9*fR(1);
+ax.TickLength = [10 / max([CanvasW CanvasH]) 0];  % magic ratio :)
+ax.GridAlpha  = 0.2;
+ax.GridColor  = [0 0 0];
+
+% Y AXIS
+ax.YLabel.String   = sprintf('%g px | %d x block types', CanvasH, uFactorsNum);
+ax.YLabel.FontSize = 14*fR(2);
+ax.YLabel.Color    = [0 0 0];
+ax.YLabel.Position = [-60 Fig.Top-40];  % disables anti-panning
+ax.YTick      = [GridLinesY(1:end-1)];
+ax.YTickLabel = GridLabelsY;
+ax.YColor     = [0 0 .6];
+ax.YGrid      = 'on';
+ax.YDir       = 'reverse';
+
+% X AXIS
+XTickRotation = 60*(GutterW<28|uBlockW<28);
+ax.XTickLabelRotation = XTickRotation;
+ax.XTick      = [GridLinesX];
+ax.XColor     = [0 0 .6];
+ax.XGrid      = 'on';
+ax.XAxisLocation = 'top';
+ax.XTickLabel(numel(ax.XTickLabel)) = {''};   
+% removes last X tick label, 'cause it overlaps previous tick if margin is small
+
+clear ax GridTitle TPos TExt;
+
+%%  PLOT BLOCKS, GUIDES AND MARGINS
+%  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% plot rectangles for canvas margins
+rectangle('Position' , [0 0 GridMargin GridH], ...
+          'FaceColor', [.97 .92 .92], 'LineStyle', 'none');
+rectangle('Position' , [GridMargin+GridW 0 GridMargin GridH], ...
+          'FaceColor', [.97 .92 .92], 'LineStyle', 'none');
+
+if GutterW>0;  RecLineStyle = 'none'; else RecLineStyle = '-'; end
+
+% plot all blocks
+for r=uFactors
+    ri = find(uFactors==r); % r index
+    
+    % MacroCol width == current macro blockW
+    blockW = -GutterW + (GutterW+uBlockW)*r;
+    blockH = blockW / Ratio.R;
+    MacroColsNum = floor( (GridW+GutterW) / (blockW+GutterW) ) + 0*logical(r);
+
+    fit = (blockW+GutterW)*MacroColsNum - GutterW == GridW  ...
+                          && mod(blockH,Baseline) == 0;
+    if fit % if columns fit grid evently
+        colors = [0 1 0]; else colors = [0 .6 0]; 
+    end
+
+    currRows= elast([0 uFactors(1:ri)]);
+    y_pos = sum((currRows*(uBlockW+GutterW)-GutterW*logical(currRows)) / Ratio.R) + (ri-1)*GutterH;
+    for c=0:MacroColsNum-1
+        x_pos = GridMargin + c*(blockW+GutterW);
+        rectangle('Position',  [x_pos, y_pos, blockW, blockH ], ...
+                  'FaceColor', colors, ...
+                  'LineStyle', RecLineStyle,  ...
+                  'Clipping', 'on'     ...
+                  );
+
+        % draw rectangle at the bottom of block, denoting baseline remainder
+        if mod(blockH,Baseline) || mod(blockW,1)
+            blockQuot = floor(blockH/Baseline) * Baseline;
+            rectangle('Position', [x_pos, y_pos+blockQuot, ...
+                                   blockW, blockH-blockQuot], ...
+                      'FaceColor', [0 1 1], ...
+                      'LineStyle', 'none', ...
+                      'Clipping', 'on');
+            % change text label color for non-integer blocks
+            blockLabelColor = [1 1 0];         
+        else
+            blockLabelColor = [0 0 0];
+        end
+    
+    end
+    
+    % text: block size, uBlock ratio, columns
+    text(GridMargin+4, y_pos+7, ...
+         sprintf('%s%d  (%g x %g) X %d', char(956), ...
+         r, blockW, blockH, MacroColsNum), ...
+         'FontSize', 10*fR(2), 'FontWeight', 'Bold', ...
+         'Color', blockLabelColor, 'Clipping', 'on');
+     
+    % annotations arrows for fitting gap
+    if ~fit
+        line([x_pos+blockW+2; GridMargin+GridW-3], [y_pos+blockH/2; y_pos+blockH/2], ...
+             'LineWidth', 2, 'Marker', 'd', 'MarkerSize', 5, 'MarkerFaceColor', [0 0 1]); 
+        gap = (GridMargin+GridW - (x_pos+blockW));
+        t=text(GridMargin+GridW, y_pos+blockH/2-10, sprintf('%dpx', gap), 'Clipping', 'on');
+        t.Position = [t.Position(1)-t.Extent(3)-5 t.Position(2) 0];  % Align right precisely
+        clear t;
+    end
+end % rectangle plot loop
+
+% plot horizontal grid lines, multiple of baseline height
+x = [zeros(1, numel(GridBaseY)); CanvasW*ones(1, numel(GridBaseY))];
+y = [GridBaseY; GridBaseY];
+line(x, y, 'Color', [.8 0 0 .3], 'LineWidth', .5);
+
+% Baseline tick and label
+if uBlockH ~= Baseline
+    line([0; -10], [Baseline; Baseline], 'LineWidth', .5, 'Color', [1 0 0], 'Clipping', 'off');
+    text(-30,Baseline-3, ['b' num2str(Baseline)], 'FontSize', 9*fR(1), 'Color', [1 0 .6]);
+end
+
+% last X tick label
+text(CanvasW, -23, num2str(CanvasW), 'FontSize', 9*fR(1), 'Color', [0 0 .6], 'Rotation', XTickRotation); %9
+
+% if grid failed, only 1 row fits
+if Opts.FailGrid
+   text(200, 220, 'INVALID', ...
+        'Rotation', 30, 'Color', [1 0 0], 'FontSize', 76*fR(1), 'FontWeight', 'bold', ...
+        'EdgeColor', [1 0 0], 'LineWidth', 2, 'BackgroundColor', [1 1 1 .7], ...
+        'Clipping', 'off');
+    FileName = [FileName '_X'];
+end
+
+% plottools
+hold off;
+
+
+%%  SAVING FIGURE TO FILE(S)
+%  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if ~Mode.Show
+    Fig2File(fig_h, FileName, Opts);
+    close(fig_h);    
+    % fig_h.Visible = 'on';
+else
+%     pause;
+%     close(fig_h);
+end    
+% if Mode.SaveFull; system(fullfile(Opts.OutputDir, [Opts.Formats{1} '\dpi96_' FileName '.' Opts.Formats{1}])); end
+% fprintf('\n');
+end  % uBlock biiig loop
+
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                                                                   %%%%%%
+%%%%%%    FUNCTION FOR DUMMY PLOT OF ZERO RHYTHM GRID, FOR CONSISTENCY   %%%%%%
+%%%%%%                                                                   %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function fig_h = PlotZeroRhythmGrid(GridConf, Opts)
+
+Ratio   = GridConf.Ratio;
+uBlockW = GridConf.uBlock.min_W;
+uBlockH = GridConf.uBlock.min_H;
+Baseline= GridConf.Baseline;
+ColumnsNum = GridConf.ColumnsNum;
+GutterW = GridConf.Gutter.W;
+CanvasW = GridConf.MaxCanvasWidth;
+
+GridW = (uBlockW+GutterW)*ColumnsNum - GutterW;
+GridH = uBlockH*4;
+CanvasH = GridH + 0;
+Cols  = floor( (CanvasW+GutterW)/(uBlockW+GutterW) );
+
+fprintf('\t%smin. uBlock size is [%dx%d]. For %d columns it requires %dpx width and max. cavnas is %dpx\n', ...
+    'INVALID - ', uBlockW, uBlockH, ColumnsNum, GridW, CanvasW);
+
+FileName = sprintf('Width%d_Ratio%dx%d_Base%d_Cols%d_Gut%d_Block%dx%d', ...
+   CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, uBlockW, uBlockH);
+FileName = [FileName '_X'];
+GridTitle  = sprintf( ...
+    ['     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Columns %d | Gutter %d\n' ...
+     'Output: %sBlock %dx%d | no hip hop, no rhythm'], ...
+    CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, ...
+    char(956), uBlockW, uBlockH);
+
+
+%% AUXILIARY VARS
+
+visibility = {'off', 'on'};
+% current or secondary screen (display) size
+scrn = get(groot, 'ScreenSize');  % get current display screen resolution
+mp = get(0, 'MonitorPositions');
+if size(mp,1) == 1  % if single screen
+    ScreenW = scrn(3);
+    ScreenH = 768; % in order to fit most popular 768 height %  scrn(4);
+    ShiftX  = 0;
+else % if multiple screens
+    ScreenW = mp(2,3);
+    ScreenH = mp(2,4);
+    ShiftX  = mp(2,1);
+end
+
+Fig = struct('LR', 110, 'Top', 160, 'Bot', 40); % [left/right; top; bottom] margins
+Fig.W = CanvasW + Fig.LR*2;
+Fig.H = ScreenH-50*strcmp(Opts.Mode, 'show'); 
+Fig.TitleMargin = 60; % margin between title and cavnas
+
+%% FIGURE
+
+fig_h = figure('Menubar', 'none', ...
+               'Visible', visibility{strcmp(Opts.Mode, 'show')+1});
+fig_h.Name          = FileName;
+fig_h.OuterPosition = [ShiftX + (ScreenW-Fig.W)/2, ScreenH-Fig.H, Fig.W, Fig.H];
+fig_h.NumberTitle   = 'off';
+fig_h.DockControls  = 'off';
+fig_h.GraphicsSmoothing = 'off';
+
+ax = axes();
+hold on; pan yon;
+ax.Title.String     = GridTitle;
+ax.Title.FontSize   = 14;
+ax.Title.FontWeight = 'normal';
+% ax.Title.Margin = 8;
+% ax.Title.HorizontalAlignment = 'left';
+TPos = ax.Title.Position; TExt = ax.Title.Extent;
+ax.Title.Position   = [Fig.LR+CanvasW*(1-TExt(3)) TPos(2)-Fig.TitleMargin 0];  % disable anti-panning
+
+ax.Units      = 'pixels';
+ax.Position   = [Fig.LR -(CanvasH-Fig.H+Fig.Top) CanvasW CanvasH];
+ax.XLim       = [0 CanvasW];
+ax.YLim       = [0 CanvasH];
+ax.Layer      = 'top'; 
+ax.TickDir    = 'out';
+ax.FontSize   = 9;
+ax.TickLength = [10 / max([CanvasW CanvasH]) 0];  % magic ratio :)
+ax.GridAlpha  = 0.2;
+ax.GridColor  = [0 0 0];
+
+% Y AXIS
+ax.YTick      = [0, uBlockH];
+ax.YColor     = [0 0 .6];
+ax.YGrid      = 'on';
+ax.YDir       = 'reverse';
+
+% X AXIS
+GridLinesX = unique(sort([0, [1:Cols]*uBlockW + GutterW*[0:Cols-1], ...
+              [1:Cols]*uBlockW + GutterW*[0:Cols-1] + GutterW, CanvasW]));
+ax.XTick      = [GridLinesX];
+ax.XColor     = [0 0 .6];
+ax.XGrid      = 'on';
+ax.XAxisLocation = 'top';
+XTickRotation = 60*(GutterW<28|uBlockW<28);
+ax.XTickLabelRotation = XTickRotation;
+
+%% PLOT BLOCKS
+
+if GutterW>0;  RecLineStyle = 'none'; else RecLineStyle = '-'; end
+for c = 0:Cols
+    x_pos = (uBlockW+GutterW)*c;
+    rectangle('Position', [x_pos, 0, uBlockW, uBlockH], ...
+          'FaceColor', [0 .6 0], 'LineStyle', RecLineStyle, 'Clipping', 'on');
+            
+end
+
+% out of canvas portion of block
+uBlockRem =  (uBlockW+GutterW)*(Cols+1)-GutterW - CanvasW;
+rectangle('Position', [x_pos + uBlockW-uBlockRem, 0, uBlockRem, uBlockH], ...
+    'FaceColor', [.5 1 .7], 'LineStyle', RecLineStyle, 'Clipping', 'off');
+
+% text: block size, uBlock ratio, columns
+text(0+4, 0+7, ...
+     sprintf('%s1  (%g x %g) X %d [of %d]', char(956), ...
+     uBlockW, uBlockH, Cols, ColumnsNum), ...
+     'FontSize', 10, 'FontWeight', 'Bold', ...
+     'Color', [1 1 0], 'Clipping', 'on');
+
+text(200, 220, 'INVALID', ...
+    'Rotation', 30, 'Color', [1 0 0], 'FontSize', 76, 'FontWeight', 'bold', ...
+    'EdgeColor', [1 0 0], 'LineWidth', 2, 'BackgroundColor', [1 1 1 .7], ...
+    'Clipping', 'off');
+
+    if ~strcmp(Opts.Mode, 'show')
+        Fig2File(fig_h, FileName, Opts);
+        close(fig_h);    
+    end
+
+end
+##### SOURCE END #####
+--></body></html>

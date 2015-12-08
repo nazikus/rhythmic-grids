@@ -95,8 +95,12 @@ uBlockW = bw;
 uBlockH = bw/Ratio.R;
 
 % number of max possible columns for current uBlock. For small enough uBlocks
-% this number could be smaller then ColumnsNum input. Not used.
+% this number could be smaller then ColumnsNum input. Usually not used.
 MaxColumnsNum = floor( (CanvasW + GutterW) / (uBlockW + GutterW) );
+
+% needed only if you need to generate max columns possible, not the number of
+% columnes entered in input
+% ColumnsNum = MaxColumnsNum; 
 
 % grid width (<=canvas width) with current uBlockW
 GridW = (uBlockW + GutterW) * ColumnsNum - GutterW;

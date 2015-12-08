@@ -10,22 +10,26 @@ MaxWidths = [960 1280 1440];        % [960 1280 1440];
 Ratios    = {'16x9', '1x1', '3x2'}; % {'1x1', '3x2', '16x9'};
 Baselines =  3:12;                  % 3:12;
 Columns   =  [5 6 9 12];            % [5 6 9 12];
-GutterToBaselineRatios = [0 1 2];   % [0 1 2];
+GutterToBaselineRatios = [0 1 2 3];   % [0 1 2];
 
 %% PLOT OPTIONS
-Options.Mode     = 'save';    % 'save', 'savefull' NB don't use 'show' - fill display hundreds of figures
-Options.ShowRows = 'fit';     % 'fit', 'all'
-Options.ShowGrid = 'largest'; % 'largest', 'all'
-Options.Formats  = {'png'};   % {'png', 'tiff', 'svg', 'pdf', 'eps', 'fig'}
-Options.OutputDir = '..\Grids\';
-
-% supress figure creation
-if ~GenerateImagesMode; Options.Formats = {}; end;
+Options.Mode       = 'save';    % 'save', 'savefull' NB don't use 'show' - will display hundreds of figures
+Options.ShowBlocks = 'fit';     % 'fit', 'all'
+Options.ShowGrid   = 'largest'; % 'largest', 'all' out of all fitting grids for current configuration
+Options.Formats    = {'png'};   % {'png', 'tiff', 'svg', 'pdf', 'eps', 'fig'}
+Options.OutputDir  = '..\Grids\';
 
 %% TRAVERSING GRIDS
-logfilename = strrep(strrep(datestr(now),':','-'), ' ', '_');
-diary([Options.OutputDir logfilename '.txt']);
 
+if GenerateImagesMode
+    % log output to file
+    logfilename = strrep(strrep(datestr(now),':','-'), ' ', '_');
+    diary([Options.OutputDir logfilename '.txt']);
+else 
+    % supress figure creation
+    Options.Formats = {};
+end
+    
 TotalCombinations = numel(MaxWidths)*numel(Ratios)*numel(Baselines)*numel(Columns)*numel(GutterToBaselineRatios);
 CTotal = 0; CZero = 0; CFailGrid = 0;
 tic;
@@ -42,7 +46,7 @@ for gutter = [GutterToBaselineRatios*baseline]
     
     CTotal = CTotal + 1;
     if numel(GridConfig.Grids)
-        CFailGrid = CFailGrid + ~(numel(GridConfig.RhythmicGrid.uFactors) >= 2);
+        CFailGrid = CFailGrid + ~(numel(GridConfig.RhythmicGrid.uFactors) > 1);
     else
         CZero = CZero + 1;
     end    
@@ -63,13 +67,14 @@ fprintf('\t%*s: %d (%.0f%%)\n\n', offs, 'Invalid', CInvalid, (CInvalid/CTotal)*1
 fprintf('\t%*s: %d\n', offs+4, 'Zero candidates', CZero);
 fprintf('\t%*s: %d\n', offs+4, sprintf('fitting rows less then %d', 2), CFailGrid);
 
-diary off;
-% log grep configurations with 0 uBlocks
-currDir = pwd; cd(Options.OutputDir)
-system(['grep -B3 -A1 "candidates\: 0" "' [logfilename '.txt" '] ['> "' logfilename '.candidates0.txt"'] ]);
-system(['grep -B4 -A2 "INVALID " "' [logfilename '.txt" '] ['> "' logfilename '.invalid.txt"'] ]);    
-cd(currDir);
-
+if GenerateImagesMode
+    diary off;
+    % log grep configurations with 0 uBlocks
+    currDir = pwd; cd(Options.OutputDir)
+    system(['grep -B3 -A1 "candidates\: 0" "' [logfilename '.txt" '] ['> "' logfilename '.candidates0.txt"'] ]);
+    system(['grep -B4 -A2 "INVALID " "' [logfilename '.txt" '] ['> "' logfilename '.invalid.txt"'] ]);    
+    cd(currDir);
+end
 % TODO gif animatino out of all possible grids (including smaller ones)
 
 clear offs currDir t;

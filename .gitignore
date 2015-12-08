@@ -1,14 +1,15 @@
 wiki
 Grids/**/*.txt
-_sandbox
 
 *.jpg
 *.png
 *.svg
 *.fig
 *.pdf
+*.psd
 
 *.zip
 
 *.asv
 *.log
+*.sublime-*
