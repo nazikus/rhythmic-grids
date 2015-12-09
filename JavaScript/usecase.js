@@ -21,7 +21,7 @@ var all_gc = rgg.generateAllRhytmicGrids(
 
 // filter only those rhythmic grids that have more than 1 blocks
 var valid_gc = all_gc.filter(
-    function(g,i){ return g.rhythmicGrid && g.rhythmicGrid.blocks.length > 1; }
+    function(g){ return g.rhythmicGrid && g.rhythmicGrid.blocks.length > 1; }
 );
 
 console.log('Grid configurations available:')
@@ -39,13 +39,11 @@ console.log('\nUser max width choice: ' + maxW_choice);
 
 // filter available rhythmic grids limiting by chosen canvas width
 var left_gc = valid_gc.filter( 
-    function(g, i) { return g.maxCanvasWidth == maxW_choice; }
+    function(g) { return g.maxCanvasWidth == maxW_choice; }
 );
 
 // extract available ratios
-var ratios_avail = left_gc.map(
-    function(g, i) { return g.ratio.str;  }
-).unique();
+var ratios_avail = left_gc.map( function(g){return g.ratio.str;} ).unique();
 
 console.log('grids left: ' + left_gc.length);
 console.log('ratios available: ' + ratios_avail);
@@ -57,14 +55,10 @@ var ratio_choice = '3x2';
 console.log('\nUser ratio choice: ' + ratio_choice);
 
 // filter rhythmic grids limiting further by chosen ratio
-left_gc = left_gc.filter( 
-    function(g, i) { return g.ratio.str == ratio_choice; }
-);
+left_gc = left_gc.filter( function(g){return g.ratio.str==ratio_choice;} );
 
 // extract available baselines
-var baselines_avail = left_gc.map(
-    function(g, i) { return g.baseline;  }
-).unique();
+var baselines_avail = left_gc.map( function(g){return g.baseline;}).unique();
 
 console.log('grids left: ' + left_gc.length);
 console.log('baselines available: ' + baselines_avail);
@@ -75,14 +69,10 @@ var baseline_choice = 8;
 console.log('\nUser baseline choice: ' + baseline_choice);
 
 // filter rhythmic grids limiting further by chosen baseline
-left_gc = left_gc.filter( 
-    function(g, i) { return g.baseline == baseline_choice; }
-);
+left_gc = left_gc.filter( function(g){return g.baseline==baseline_choice;} );
 
 // extract available column quantities
-var columns_avail = left_gc.map(
-    function(g, i) { return g.columnsNum;  }
-).unique();
+var columns_avail = left_gc.map( function(g){return g.columnsNum;} ).unique();
 
 console.log('grids left: ' + left_gc.length);
 console.log('columns available: ' + columns_avail);
@@ -94,14 +84,10 @@ var columns_choice = 9;
 console.log('\nUser columns choice: ' + columns_choice);
 
 // filter rhythmic grids limiting further by chosen columns
-left_gc = left_gc.filter( 
-    function(g, i) { return g.columnsNum == columns_choice; }
-);
+left_gc = left_gc.filter( function(g){return g.columnsNum==columns_choice;} );
 
 // extract available column quantities
-var gutters_avail = left_gc.map(
-    function(g, i) { return g.gutter.W;  }
-).unique();
+var gutters_avail = left_gc.map( function(g){return g.gutter.W;} ).unique();
 
 console.log('grids left: ' + left_gc.length);
 console.log('gutters available: ' + gutters_avail);

@@ -2,7 +2,7 @@
  * Rhythmic Grid Generator
  *
  * Algorithm generating all the necessary values, sizes & dimensions for
- * rhythmic grids and for drawing corresponding guides and blocks.
+ * rhythmic grids, intended for drawing corresponding guides and blocks.
  * 
  * @version 1.1
  * @date 2015-11-12
@@ -25,9 +25,9 @@
  * Project specific notation used in code and comments:
  *  > uBlock  - micro-block, the smallest integer block with height multiple of baseline.
  *  > H, W, R - Height, Width and Ratio (W/H) respectively.
- *  > rhytm   - micro-block factor (multiple) in consideration with gutter width.
- *  > "fit the rhythm" - denotes if grid-width devides by block-width taking
- *                       into consideration gutter width (!).
+ *  > rhytm   - micro-block factor (multiple) in consideration of gutter width.
+ *  > "fit the rhythm" - denotes if grid-width is divisible by block-width taking
+ *                       into consideration the gutter width (!).
  *
  * TODO wiki, formula documentation
  *
@@ -38,15 +38,16 @@
  *  @typedef GridConfObj
  *  @type {object}
  *  @prop {number} maxCanvasWidth  - max canvas width, px (user input)
- *  @prop {{RatioObj}} ratio  - aspect ratio (user input)
- *  @prop {number} baseline   - baseline height, px (user input)
- *  @prop {number} columnsNum - number (quantity) of columns (user input)
+ *  @prop {{RatioObj}} ratio       - aspect ratio (user input)
+ *  @prop {number} baseline        - baseline height, px (user input)
+ *  @prop {number} columnsNum      - number (quantity) of columns (user input)
  *  @prop {{W: number, H: number}} gutter - gutter width and height (user input)
- *  @prop {GridObj} rhythmicGrid  - generated rhythmic grid
+ *  @prop {GridObj} rhythmicGrid   - generated rhythmic grid
  */
 
 /** 
- *  @class Grid object containing more detailed information for grid blocks.
+ *  @class Grid object containing more detailed information of grid blocks.
+ *         Usually is a part of grid configuration object.
  *  @typedef GridObj
  *  @type {object}
  *  @prop {{W: number, H: number}} uBlock -  micro-block size 
@@ -54,18 +55,14 @@
  *  @prop {number} H  - grid height needed if all block sizes to be displayed
  *  @prop {number} margin - margin between canvas and grid
  *  @prop {{W: number, H: number}} - canvas dimensions for drawing
- *  @prop {number[]} - 0-element block width, 1-el. block height,
- *      2-el. block rhythm (micro-block multiplier considering gutter width)
+ *  @prop {number[][]} - 2D array of all rhythmic block sizes. Each sub-array
+ *                      contains an array of size 4 with the following values:
+ *                      [0] - block width;
+ *                      [1] - block height;
+ *                      [2] - number of blocks to fir the grid horizontally.
+ *                      [3] - block rhythm (think of it as micro-block factor 
+ *                            considerring gutter width)
  *  @see https://github.com/nazikus/rhythmic-grids/wiki
- */
-
-/** 
- *  @typedef RatioObj
- *  @type {object}
- *  @prop {number} W  - ratio width  in px
- *  @prop {number} H  - ratio height in px
- *  @prop {number} R  - ratio value (W/H)
- *  @prop {string} Str- string representation of ratio
  */
 
 /**
@@ -84,7 +81,7 @@ RhythmicGridGenerator = (function () {
      * @param {number} baseline - baseline value
      * @param {number} columnsNum-column number value
      * @param {number} gutterR  - gutter-to-baseline ratio value
-     * @return {GridConfObj}  - grid configuration object
+     * @return {GridConfObj}    - grid configuration object
      */
     this.generateRhythmicGrid = 
     function (canvasW, ratioStr, baseline, columnsNum, gutterW) {
@@ -106,7 +103,7 @@ RhythmicGridGenerator = (function () {
         gc = {};
 
         gc.maxCanvasWidth = canvasW;
-        gc.ratio        = ratio;
+        gc.ratio        = ratio; 
         gc.baseline     = baseline;
         gc.columnsNum   = columnsNum;
         gc.gutter       = {W: gutterW, H: gutterH};
@@ -120,15 +117,16 @@ RhythmicGridGenerator = (function () {
         //               maxW: max_uBlockW, maxH: max_uBlockH };
 
         // First element of 'blockWs' is the largest uBlock fitting the rhythm. 
-        // The rest uBlocks are fractions of the largest one and provide the same
-        // ratio for the rest of rhythmic blocks (but smaller), hence are redundant.
+        // The rest uBlocks are generated as fractions of the largest 
+        // micro-block and provide the same ratio for the rest of rhythmic 
+        // blocks (but smaller), hence are redundant.
         
         // Idiom below simulates range generator, e.g.:
         // [uBlockW, uBlock*2, ..., uBlockW*n] until <= max_uBlockW
         var uRangeLen = Math.floor(max_uBlockW / min_uBlockW);
         var blockWs = Array.apply(null, Array(uRangeLen)).map( 
             function(e,i){ return (i+1) * min_uBlockW; }
-        ).reverse(); // the largest comes first
+        ).reverse(); // so the largest comes first
 
         if (blockWs.length == 0)
             return gc;
@@ -208,7 +206,7 @@ RhythmicGridGenerator = (function () {
             grid.blocks   = blocksFit;
             // grid.uFactors = uFactorsFit;
 
-            /* Additional info: all rhythmic blocks including non-optimal (<largest) */
+            /* Additional info: all rhythmic blocks including non-optimal (less then largest) */
             // grid.allBlocks = {};
             // grid.allBlocks.H = gridH_All;
             // grid.allBlocks.blocks   = blocksAll;
@@ -220,9 +218,10 @@ RhythmicGridGenerator = (function () {
         } // loop over blockWs[i]
 
         gc.rhythmicGrid = gc.grids[0];
+
+        /* no real  need in all the grids in output, so deleting it. Might need 
+        it in other appliances in future */
         delete gc.grids;
-        /* not really need all the grids in output, so deleting it. Might need 
-        it in other appliances */
 
         return gc;
     };
@@ -243,7 +242,7 @@ RhythmicGridGenerator = (function () {
         var rg = [];
         
         for (var w = 0; w < canvasW_arr.length   ; w++)
-        for (var r = 0; r < ratio_arr.length  ; r++)
+        for (var r = 0; r < ratio_arr.length     ; r++)
         for (var b = 0; b < baseline_arr.length  ; b++)
         for (var c = 0; c < columnsNum_arr.length; c++)
         for (var g = 0; g < gutterR_arr.length   ; g++)
@@ -255,6 +254,7 @@ RhythmicGridGenerator = (function () {
         return rg;
     };
     
+
     /**
      * Least Common Multiple of two integers
      * @private
@@ -274,13 +274,21 @@ RhythmicGridGenerator = (function () {
         return gcd(b, a % b);
     };
 
+
     /**
-     * Helper method for converting ratio string to corresponding object.
+     * Helper method for converting ratio string to corresponding ratio object.
      * @private
      * @method ratioStr2Obj
-     * @param {String} ratioStr - string representing aspect ration (eg, '16x9')
+     * @param {String} ratioStr - string representing aspect ratio (eg, '16x9')
      * @return {RatioObj} A Ratio object
      * @throws an exception if invalid string is provided.
+     *
+     * @typedef RatioObj
+     * @type {object}
+     * @prop {number} W  - ratio width, int
+     * @prop {number} H  - ratio height, int
+     * @prop {number} R  - ratio value (W/H), real
+     * @prop {string} Str- string representation of ratio, e.g. '3x2'
      */
     var ratioStr2Obj = function(ratioStr) {
         // validate ratio string pattern: numXnum ('3x2', '16x9', etc)
@@ -307,7 +315,7 @@ RhythmicGridGenerator = (function () {
 /*********************************************************************
  * ES3 COMPATIBILITY ISSUES
  *
- * Encountered ECMA-compatability issues (s.t., cannot use in Photoshop):
+ * Encountered ECMA-compatability issues (s.t., cannot use in Photoshop ES3):
  *   Array.prototype.filter()   ECMA-262 5.1
  *   Array.prototype.map()      ECMA-262 5.1 
  *   Array.prototype.reduce()   ECMA-262 5.1
