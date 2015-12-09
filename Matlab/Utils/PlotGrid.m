@@ -71,13 +71,14 @@ uBlockH = grid.uBlock.H;
 GridW = grid.W;
 GridMargin = grid.Margin;
 
-% NB! grid acceptance criteria:
-%     - number of uBlocks factors (unique blocks) >= 2 
-Opts.FailGrid = ~(numel(grid.uFactors) >= 2);
+% NB! Validate grid. See GetGridValidator() criteria
+% Default criteria: number of uBlocks factors (unique blocks) > 1 
+IsValidGrid = GetGridValidator();
+Opts.FailGrid = ~IsValidGrid(grid);
 
 % in case gird has only 1 rhythmic block, then show full grid
 % in order to visualize the fitting proglem
-Mode.ShowFit  =  (numel(grid.uFactors) > 1);
+Mode.ShowFit = ~Opts.FailGrid;  %(numel(grid.uFactors) > 1);
 if strcmp(Opts.ShowBlocks, 'all')
     Mode.ShowFit = false;
 end

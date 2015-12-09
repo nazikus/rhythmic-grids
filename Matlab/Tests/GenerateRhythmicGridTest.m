@@ -35,6 +35,8 @@ fprintf('\t%*s:%s\b\n', off, 'Gutter factors', sprintf(' %d,', GutterToBaselineR
 
 GridConfs = {};
 CTotal = 0; CZero = 0; CFailGrid = 0;
+IsValidGrid = GetGridValidator();
+
 for width = MaxWidths
 for ratio = Ratios; ratio=ratio{1};
 for baseline = Baselines
@@ -45,7 +47,7 @@ for gutter = [GutterToBaselineRatios*baseline]
 
     CTotal = CTotal + 1;
     if numel(GridConf.Grids)
-        CFailGrid = CFailGrid + ~(numel(GridConf.RhythmicGrid.uFactors) > 1);
+        CFailGrid = CFailGrid + ~IsValidGrid(GridConf.RhythmicGrid);
     else
         CZero = CZero + 1;
     end    
@@ -60,10 +62,11 @@ CValid   = CTotal - CInvalid;
 offs = 0;
 fprintf('\n\n\nStatistics: \n');
 fprintf('\t%s: %d\n', 'Total models generated', CTotal);
-fprintf('\t%*s: %d (%.0f%%)\n', offs, 'Valid', CValid, (CValid/CTotal)*100);
+fprintf('\t%*s: %d (%.0f%%)\n',   offs, 'Valid', CValid, (CValid/CTotal)*100);
 fprintf('\t%*s: %d (%.0f%%)\n\n', offs, 'Invalid', CInvalid, (CInvalid/CTotal)*100);
 fprintf('\t%*s: %d\n', offs+4, 'Zero candidates', CZero);
-fprintf('\t%*s: %d\n', offs+4, sprintf('fitting rows less then %d', 2), CFailGrid);
+fprintf('\t%*s: %d\n', offs+4, 'Criteria fail', CFailGrid);
+fprintf('\t%*s: ', offs+4, 'Criteria'); disp(IsValidGrid);
 
 clear width ratio baseline column gutter GridConf offs;
 clear Options MaxWidths Ratios Baselines Columns GutterToBaselineRatios;

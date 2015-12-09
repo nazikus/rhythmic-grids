@@ -6,15 +6,15 @@ addpath('Utils');
 MaxCanvasWidth = 960;       % 960 1280 1440
 RatioStr = '3x2';           % '1x1' '3x2' '16x9'
 Baseline =  9;              % 3:12
-Columns  =  9;              % 5 6 9 12
-GutterToBaselineRatio = 2;  % 0 1 2 3
+Columns  =  11;             % 5 6 9 12
+GutterToBaselineRatio = 1;  % 0 1 2 3
 
 %% PLOT OPTIONS
-Options.Mode     = 'show';  % 'show', 'save', 'savefull'
-Options.ShowRows = 'fit';   % 'fit', 'all'
-Options.ShowGrid = 'largest'; % 'largest', 'all'
-Options.Formats  = {'png'}; %{'png', 'tiff', 'svg', 'pdf', 'eps', 'fig'}
-Options.OutputDir = '..\Grids\';
+Options.Mode       = 'show';  % 'show', 'save', 'savefull'
+Options.ShowBlocks = 'fit';     % 'fit', 'all'
+Options.ShowGrid   = 'largest'; % 'largest', 'all'
+Options.Formats    = {'png'}; %{'png', 'tiff', 'svg', 'pdf', 'eps', 'fig'}
+Options.OutputDir  = '..\Grids\';
 
 
 %% Plotting grids
