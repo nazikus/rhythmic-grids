@@ -41,7 +41,7 @@
   </head>
   <body>
     <div class="options">
-      <div id="placeholder"></div><button id="go">Generate</button>
+      <div id="placeholder"></div>
     </div>
 
     <div id="grid"></div>
@@ -57,20 +57,12 @@
       $('#placeholder')
         .append( createDropDown('width', width_arr) )
         .append( createDropDown('ratio', ratio_arr) )
-        .append( createDropDown('baseline', baseline_arr).change(onBaselineChange) )
+        .append( createDropDown('baseline', baseline_arr) )
         .append( createDropDown('columns', columns_arr) )
         .append( createDropDown('gutter', gutter2baselineRatio_arr) )
       
-      // trigger baseline onChange in order to populate gutter width values
+      // trigger onChange event in order to populate gutter values on startup
       $('#baseline').trigger('change');
-
-      function onBaselineChange() {
-        var base = $('#baseline').val()*1;
-
-        $('#gutter > option').each( function() {
-          $(this).text( $(this).val()*base );
-        });
-      };
 
 
       function createDropDown(id, values){
@@ -87,27 +79,37 @@
           d.append(o);
         });
 
+        // generate grid on each selection change (no need in 'generate' button anymore)
+        d.on('change', function() {
+          var gridConfig = RhythmicGridGenerator.generateRhythmicGrid(
+                              $('#width').val()*1,
+                              $('#ratio').val(),
+                              $('#baseline').val()*1,
+                              $('#columns').val()*1,
+                              $('#gutter').val()*1
+                            );
+          console.log(gridConfig.rhythmicGrid)
+          drawGrid(gridConfig)
+        });
+
+        // gutter selection values depend on current baseline choice
+        if (id === 'baseline'){
+          d.on('change', function(){
+              var baseline_h = $(this).val()*1;
+              $('#gutter > option').each( function() {
+                  $(this).text( $(this).val()*baseline_h );
+              });
+          });
+        }
+
         return container;
       }
 
-      $('#go').on('click', function(){
-        var width = $('#width').val();
-        var ratio = $('#ratio').val();
-        var baseline = $('#baseline').val();
-        var columns = $('#columns').val();
-        var gutter = $('#gutter').val();
+      function drawGrid(gridConfig){
+        var grid = gridConfig.rhythmicGrid;
+        var columns = gridConfig.columnsNum;
+        var gutter  = gridConfig.gutter.W;
 
-        if( !width || !ratio || !baseline || !columns || !gutter ){
-          alert('select all options');
-          return;
-        }
-
-        var grid = RhythmicGridGenerator.generateRhythmicGrid(width*1, ratio, baseline*1, columns*1, gutter*1);
-        console.log(grid.rhythmicGrid)
-        drawGrid(grid.rhythmicGrid, columns, baseline*gutter)
-      });
-
-      function drawGrid(grid, columns, gutter){
         var $base = $('#grid');
         $base.html('');
 
