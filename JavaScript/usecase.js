@@ -2,7 +2,7 @@ require('./RhythmicGridGenerator.js');
 var rgg = RhythmicGridGenerator;
 
 /**
-var gc  = rgg.generateRhythmicGrid(1200, '3x2', 8, 12, 24);
+var gc  = rgg.generateRhythmicGrid(1200, '3x2', 8, 12, 3);
 console.log(gc); console.log('\n');
 console.log(JSON.stringify(gc, null, '\t') );  /**/
 

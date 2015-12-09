@@ -79,13 +79,13 @@ RhythmicGridGenerator = (function () {
      * @param {number} canvasW  - max canvas width value
      * @param {string} ratio    - string representation of aspect ratio ('3x2')
      * @param {number} baseline - baseline value
-     * @param {number} columnsNum-column number value
-     * @param {number} gutterR  - gutter-to-baseline ratio value
+     * @param {number} columnsNum - number of columns
+     * @param {number} gutterR  - gutter-to-baseline ratio
      * @return {GridConfObj}    - grid configuration object
      */
     this.generateRhythmicGrid = 
-    function (canvasW, ratioStr, baseline, columnsNum, gutterW) {
-
+    function (canvasW, ratioStr, baseline, columnsNum, gutterR) {
+        var gutterW = baseline*gutterR;
         var ratio = ratioStr2Obj(ratioStr);
 
         // min possible uBlock size (for current baseline and ratio)
@@ -248,7 +248,7 @@ RhythmicGridGenerator = (function () {
         for (var g = 0; g < gutterR_arr.length   ; g++)
             rg.push(this.generateRhythmicGrid(
                 canvasW_arr[w],   ratio_arr[r], baseline_arr[b],
-                columnsNum_arr[c], gutterR_arr[g]* baseline_arr[b]
+                columnsNum_arr[c], gutterR_arr[g]
             ));
 
         return rg;
