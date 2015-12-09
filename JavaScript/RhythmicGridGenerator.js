@@ -59,8 +59,8 @@
  *                      contains an array of size 4 with the following values:
  *                      [0] - block width;
  *                      [1] - block height;
- *                      [2] - number of blocks to fir the grid horizontally.
- *                      [3] - block rhythm (think of it as micro-block factor 
+ *                      [2] - number of blocks to fit the grid horizontally.
+ *                      [3] - block rhythm (think of it as micro-block multiple 
  *                            considerring gutter width)
  *  @see https://github.com/nazikus/rhythmic-grids/wiki
  */
@@ -79,7 +79,7 @@ RhythmicGridGenerator = (function () {
      * @param {number} canvasW  - max canvas width value
      * @param {string} ratio    - string representation of aspect ratio ('3x2')
      * @param {number} baseline - baseline value
-     * @param {number} columnsNum - number of columns
+     * @param {number} canvasW  - number of columns
      * @param {number} gutterR  - gutter-to-baseline ratio
      * @return {GridConfObj}    - grid configuration object
      */
@@ -321,7 +321,8 @@ RhythmicGridGenerator = (function () {
             W: Number(split[0]),
             H: Number(split[1]),
             R: Number(split[0]) / Number(split[1]),
-            str: ratioStr.toLowerCase()
+            str: ratioStr.toLowerCase(),
+            toString: function() { return this.str; }
         };
     };
 
