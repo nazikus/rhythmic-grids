@@ -52,14 +52,26 @@
       var ratio_arr    = ['16x9', '3x2', '1x1'];
       var baseline_arr = [3,4,5,6,7,8,9,10,11,12];
       var columns_arr  = [5, 6, 9, 12];
-      var gutter2baselineRatio_arr = [0, 1, 2];
+      var gutter2baselineRatio_arr = [0, 1, 2, 3];
 
       $('#placeholder')
         .append( createDropDown('width', width_arr) )
         .append( createDropDown('ratio', ratio_arr) )
-        .append( createDropDown('baseline', baseline_arr) )
+        .append( createDropDown('baseline', baseline_arr).change(onBaselineChange) )
         .append( createDropDown('columns', columns_arr) )
         .append( createDropDown('gutter', gutter2baselineRatio_arr) )
+      
+      // trigger baseline onChange in order to populate gutter width values
+      $('#baseline').trigger('change');
+
+      function onBaselineChange() {
+        var base = $('#baseline').val()*1;
+
+        $('#gutter > option').each( function() {
+          $(this).text( $(this).val()*base );
+        });
+      };
+
 
       function createDropDown(id, values){
         var container = $('<div class="ib"></div>');
@@ -69,7 +81,7 @@
         container.append(l);
         container.append(d);
 
-        d.append( $('<option value="">--</option>') );
+        // d.append( $('<option value="">--</option>') );
         values.map(function(item){
           var o = $('<option value="'+item+'">'+item+'</option>')
           d.append(o);
@@ -96,23 +108,17 @@
       });
 
       function drawGrid(grid, columns, gutter){
-        var K = 1;
-        // if( grid.W > 15000 ){
-        //   K = 100;
-        //   gutter = gutter/10;
-        // }
-
         var $base = $('#grid');
         $base.html('');
 
-        $base.css('width', grid.W/K+'px');
-        $base.css('height', grid.H/K+'px');
+        $base.css('width', grid.W+'px');
+        $base.css('height', grid.H+'px');
 
         grid.blocks.map(function(block){
           var row = $('<div class="row" style="margin-bottom:'+gutter+'px;"></div>');
           var cnt = columns/block[2];
-          var w = block[0]/K;
-          var h = block[1]/K;
+          var w = block[0];
+          var h = block[1];
           var g = gutter;
           for(var i = 0;i<cnt;i++){
             if( i == cnt - 1 ){
