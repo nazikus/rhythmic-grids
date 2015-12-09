@@ -239,21 +239,42 @@ RhythmicGridGenerator = (function () {
      */
     this.generateAllRhytmicGrids = 
     function (canvasW_arr, ratio_arr, baseline_arr, columnsNum_arr, gutterR_arr){
-        var rg = [];
+        var gc_arr = [];
+        var gc = null;
         
         for (var w = 0; w < canvasW_arr.length   ; w++)
         for (var r = 0; r < ratio_arr.length     ; r++)
         for (var b = 0; b < baseline_arr.length  ; b++)
         for (var c = 0; c < columnsNum_arr.length; c++)
         for (var g = 0; g < gutterR_arr.length   ; g++)
-            rg.push(this.generateRhythmicGrid(
-                canvasW_arr[w],   ratio_arr[r], baseline_arr[b],
-                columnsNum_arr[c], gutterR_arr[g]
-            ));
-
-        return rg;
+        {
+            gc = this.generateRhythmicGrid(canvasW_arr[w], ratio_arr[r], 
+                        baseline_arr[b], columnsNum_arr[c], gutterR_arr[g]);
+            if (this.isValidGrid(gc.rhythmicGrid)){
+                gc_arr.push(gc);                
+            }
+        }
+        return gc_arr;
     };
     
+    /**
+     * Validates grid according to specified criteria.
+     * @public
+     * @method isValidGrid
+     * @param {GridObj} grid - grid to validate
+     * @return {boolean}     - valid/invalid boolean
+     */
+    this.isValidGrid = function(grid){
+        // by default it is the always-true-valitdator, so user is required to
+        // epxlicitly define his own validator. True-validator will return all 
+        // possible rhythmic grids (valid and invalid, whatever that means).
+        return true;
+
+        // possible validator: rhytmic grid that has at least two blocks (rows).
+        // return grid && grid.blocks.length > 1;
+    };
+
+
 
     /**
      * Least Common Multiple of two integers
