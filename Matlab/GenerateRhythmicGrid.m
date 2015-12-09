@@ -35,9 +35,9 @@ function GridConfig = GenerateRhythmicGrid(CanvasW, Ratio, Baseline, ColumnsNum,
 %            *uFactors: vector, each value is a factor of micro-block width,
 %                       formula: (uBw+Gw)*uFactors-Gw.
 %                       uBw - micro-block width, Gw - gutter width.
-%   (unusued) MaxColumnsNum : maximum columns num (>= input columns num)
+%  (unusued) MaxColumnsNum : maximum columns num (>= input columns num)
 %
-%             Full    : structure contianing all blocks, regardless if fitting the rhythm or not:
+%           AllBlocks : structure contianing all blocks, regardless if fitting the rhythm or not:
 %                H         : grid height needed to fit all the possible blocks
 %                CanvasH   : minimum canvas height to plot all the blocks
 %                uFactors  : vector, each value is a factor of micro-block
@@ -112,9 +112,8 @@ GridMargin = floor( (CanvasW - GridW)/2 );
 uFactorsAllNum = floor( (GridW+GutterW)/(uBlockW+GutterW) ) ;  
 
 % block factors with no filtering (if need to plot all possible blocks including 
-% those that don't fit the rhythm). But ingore blocks wider then GridW/2 - no 
-% sense to iterate through them.
-uFactorsAll = [1:ceil(uFactorsAllNum/2), uFactorsAllNum];
+% those that don't fit the rhythm). 
+uFactorsAll = [1:uFactorsAllNum];
 uFactorsAllNum = numel(uFactorsAll); % update total number correspondingly
 
 % filtering blocks (indices) only that fit grid proportions horizontally
@@ -124,8 +123,8 @@ uFactorsFit = [];  % uBlock factors for each block fitting the rhythm
 for r=uFactorsAll
     blockW = (uBlockW+GutterW)*r - GutterW;
     blockH = blockW / Ratio.R;
-    if mod(GridW+GutterW, blockW+GutterW) == 0 ...
-                  && mod(blockH, Baseline) == 0; ...
+    %if mod(GridW+GutterW, blockW+GutterW) == 0 && mod(blockH, Baseline) == 0;
+    if mod(blockH, Baseline) == 0;
         uFactorsFit(end+1) = r;
     end
     %fprintf('\t\tx%d: mod(%d,%d) == %d\n', r, GridW, blockW, mod(GridW+GutterW, blockW+GutterW));

@@ -287,10 +287,17 @@ for r=uFactors
     blockH = blockW / Ratio.R;
     MacroColsNum = floor( (GridW+GutterW) / (blockW+GutterW) ) + 0*logical(r);
 
-    fit = (blockW+GutterW)*MacroColsNum - GutterW == GridW  ...
+    grid_fit = (blockW+GutterW)*MacroColsNum - GutterW == GridW  ...
                           && mod(blockH,Baseline) == 0;
-    if fit % if columns fit grid evently
-        colors = [0 1 0]; else colors = [0 .6 0]; 
+    
+    baseline_fit = mod(blockH, Baseline) == 0;
+    
+    if grid_fit % if columns fit the grid evently
+        rect_colors = [0 1 0]; % light green
+    elseif baseline_fit  % if block height is divisible by baseline, but not fit
+        rect_colors = [0 .7 0]; 
+    else % does not fit in any way
+        rect_colors = [.6 .6 0]; 
     end
 
     currRows= elast([0 uFactors(1:ri)]);
@@ -298,7 +305,7 @@ for r=uFactors
     for c=0:MacroColsNum-1
         x_pos = GridMargin + c*(blockW+GutterW);
         rectangle('Position',  [x_pos, y_pos, blockW, blockH ], ...
-                  'FaceColor', colors, ...
+                  'FaceColor', rect_colors, ...
                   'LineStyle', RecLineStyle,  ...
                   'Clipping', 'on'     ...
                   );
@@ -327,7 +334,7 @@ for r=uFactors
          'Color', blockLabelColor, 'Clipping', 'on');
      
     % annotations arrows for fitting gap
-    if ~fit
+    if ~grid_fit && ~Mode.ShowFit
         line([x_pos+blockW+2; GridMargin+GridW-3], [y_pos+blockH/2; y_pos+blockH/2], ...
              'LineWidth', 2, 'Marker', 'd', 'MarkerSize', 5, 'MarkerFaceColor', [0 0 1]); 
         gap = (GridMargin+GridW - (x_pos+blockW));
