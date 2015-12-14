@@ -8,7 +8,7 @@ function fig_h = PlotGrid(GridConf, Opts)
 %       OutputDir  : 'path';
 %       Formats    : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
 %       Mode       : 'show' | 'save' | 'savefull'
-%       ShowBlocks : 'fit'  | 'all'
+%       ShowBlocks : 'rhythm'  | 'all'
 %       ShowGrid   : 'largest' | 'all'
 
 % except last, except first - lambda-f for the 1:n-1, 2:n elements of a vector
@@ -20,8 +20,9 @@ if ~exist('Opts', 'var');
     Opts = struct('OutputDir', '.\', ...
                   'Formats', {},  ...
                   'Mode', 'show', ...
-                  'ShowBlocks', 'fit', ...
-                  'ShowGrid', 'largest');
+                  'ShowBlocks', 'rhythm', ...
+                  'ShowGrid', 'largest', ...
+                  'IsOctave', (exist('OCTAVE_VERSION', 'builtin') ~= 0));
 end
 
 fprintf('Configuration: Width %dpx, Ratio %dx%d, Baseline %dpx, Columns %d, Gutter %dpx\n', ...
@@ -175,15 +176,14 @@ if numel(Opts.Formats) == 0
     % skip generating figures if no formats specified in Options
     continue;
 end
-
 k = [2.2 3.6]/3432/10 * CanvasH;  % empirical coeffs, 3432 reference canvas height
 FontRatios = [1 1; k(1) k(2)];
 fR = FontRatios(Mode.SaveFull+1, :);
 % fprintf('CanvasH=%d; k1=%f; k2=%f;\n', CanvasH, k(1), k(2));
 
 % current or secondary screen (display) size
-scrn = get(groot, 'ScreenSize');  % get current display screen resolution
-mp = get(0, 'MonitorPositions');
+scrn = get(0, 'ScreenSize');  % get current display screen resolution
+mp   = get(0, 'MonitorPositions');
 if size(mp,1) == 1  % if single screen
     ScreenW = scrn(3);
     ScreenH = scrn(4); % in order to fit most popular 768 height %  scrn(4);
@@ -212,18 +212,20 @@ end
 
 fig_h = figure('Menubar', menubar{Mode.Show+1}, ...
                'Visible', visibility{Mode.Show+1});
-fig_h.Name          = FileName;
-fig_h.OuterPosition = [ShiftX + (ScreenW-Fig.W)/2, ScreenH-Fig.H, Fig.W, Fig.H];
-fig_h.NumberTitle   = 'off';
-fig_h.DockControls  = 'off';
-fig_h.GraphicsSmoothing = 'off';
+set(fig_h, 'Name'         , FileName);
+set(fig_h, 'OuterPosition', [ShiftX + (ScreenW-Fig.W)/2, ScreenH-Fig.H, Fig.W, Fig.H]);
+set(fig_h, 'NumberTitle'  , 'off');
+set(fig_h, 'DockControls' , 'off');
+if ~(Opts.IsOctave)
+  set(fig_h, 'GraphicsSmoothing', 'off');
+end
 
 clear menubar visibility ShiftX ScreenW;
 
 %% INITIALIZE AXES
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ax = axes();
+ax = axes();   %TODO Octave 4.0 bug with axes(), graphics_toolkit == 'qt'
 hold on; pan yon;
 ax.Title.String     = GridTitle;
 ax.Title.FontSize   = 14*fR(2);
@@ -428,8 +430,8 @@ GridTitle  = sprintf( ...
 
 visibility = {'off', 'on'};
 % current or secondary screen (display) size
-scrn = get(groot, 'ScreenSize');  % get current display screen resolution
-mp = get(0, 'MonitorPositions');
+scrn = get(0, 'ScreenSize');  % get current display screen resolution
+mp   = get(0, 'MonitorPositions');
 if size(mp,1) == 1  % if single screen
     ScreenW = scrn(3);
     ScreenH = 768; % in order to fit most popular 768 height %  scrn(4);
@@ -446,6 +448,11 @@ Fig.H = ScreenH-50*strcmp(Opts.Mode, 'show');
 Fig.TitleMargin = 60; % margin between title and cavnas
 
 %% FIGURE
+
+if numel(Opts.Formats) == 0
+    % skip generating figures if no formats specified in Options
+    return;
+end
 
 fig_h = figure('Menubar', 'none', ...
                'Visible', visibility{strcmp(Opts.Mode, 'show')+1});

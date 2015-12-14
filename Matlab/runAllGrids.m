@@ -2,24 +2,33 @@ clc; clear variables;
 close all;
 addpath('Utils');
 
-%% OUTPUT MODE
-GenerateImagesMode = false;  % if False, show statistics only, without images
-
 %% INPUT RANGES
 MaxWidths = [960 1280 1440];        % [960 1280 1440];
-Ratios    = {'16x9', '1x1', '3x2'}; % {'1x1', '3x2', '16x9'};
+Ratios    = {'3x2', '16x9', '1x1'}; % {'1x1', '3x2', '16x9'};
 Baselines =  3:12;                  % 3:12;
 Columns   =  [5 6 9 12];            % [5 6 9 12];
 GutterToBaselineRatios = [0 1 2 3]; % [0 1 2];
 
+%% OUTPUT MODE
+GenerateImagesMode = false;  % if False, show statistics only, without images
+
 %% PLOT OPTIONS
-Options.Mode       = 'save';    % 'save', 'savefull' NB don't use 'show' - will display hundreds of figures
-Options.ShowBlocks = 'fit';     % 'fit', 'all'
-Options.ShowGrid   = 'largest'; % 'largest', 'all' out of all fitting grids for current configuration
-Options.Formats    = {'png'};   % {'png', 'tiff', 'svg', 'pdf', 'eps', 'fig'}
+Options.Mode       = 'save';     % 'save', 'savefull'.  NB! do NOT use 'show' - will display hundreds of figures
+Options.ShowBlocks = 'rhythm';   % 'rhythm', 'all'
+Options.ShowGrid   = 'largest';  % 'largest', 'all' - out of all fitting grids for current configuration
+Options.Formats    = {'png'};    % currently supports 'png' only
 Options.OutputDir  = '..\Grids\';
 
+Options.IsOctave   = exist('OCTAVE_VERSION', 'builtin') ~= 0; % Octave/Matlab detection
+
 %% TRAVERSING GRIDS
+
+if Options.IsOctave % if Octave - force false, Octave does not support GridPlot() yet
+    GenerateImagesMode = false;  
+    hline = repelems('-', [1; 60]);
+else
+    hline = repelem('-', 60);
+end
 
 if GenerateImagesMode
     % log output to file
@@ -29,7 +38,7 @@ else
     % supress figure creation
     Options.Formats = {};
 end
-    
+
 TotalCombinations = numel(MaxWidths)*numel(Ratios)*numel(Baselines)*numel(Columns)*numel(GutterToBaselineRatios);
 CTotal = 0; CZero = 0; CFailGrid = 0;
 IsValidGrid = GetGridValidator();
@@ -41,11 +50,15 @@ for baseline = Baselines
 for column = Columns
 for gutter = [GutterToBaselineRatios*baseline]
     GridConfig = GenerateRhythmicGrid(width, ratio, baseline, column, gutter);
+
+    if strcmp(Options.ShowBlocks, 'all') || ...
+     ( numel(GridConfig.Grids) && IsValidGrid(GridConfig.RhythmicGrid) )
+        fprintf('(%d/%d) ', CTotal+1, TotalCombinations);
+        PlotGrid(GridConfig, Options);
+        fprintf('\n%s\n', hline);
+    end
     
-    fprintf('(%d/%d) ', CTotal+1, TotalCombinations);
-    PlotGrid(GridConfig, Options);
-    fprintf('\n%s\n', repelem('-', 60));
-    
+    % counting stats
     CTotal = CTotal + 1;
     if numel(GridConfig.Grids)
         CFailGrid = CFailGrid + ~IsValidGrid(GridConfig.RhythmicGrid);

@@ -6,6 +6,6 @@ function f_handle = GetGridValidator()
 %  value.
     
     % a valid rhythmic grid contains more than n blocks (rows)
-    f_handle = @(grid) numel(grid.uFactors) > 0;
+    f_handle = @(grid) numel(grid.uFactors) > 1;
 end
 

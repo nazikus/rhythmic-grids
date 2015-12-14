@@ -50,7 +50,7 @@ function GridConfig = GenerateRhythmicGrid(CanvasW, Ratio, Baseline, ColumnsNum,
 %       OutputDir  : 'path';
 %       Formats    : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
 %       Mode       : 'show' | 'save' | 'savefull'
-%       ShowBlocks : 'fit'  | 'all'
+%       ShowBlocks : 'rhythm'  | 'all'
 %       ShowGrid   : 'largest' | 'all'
 
 Ratio = RatioStr2Struct(Ratio);
