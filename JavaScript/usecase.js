@@ -23,12 +23,12 @@ var totalCombinations = width_arr.length * ratio_arr.length * baseline_arr.lengt
 // Note: you can define your own grid validator here
 // rgg.isValidGrid = function(grid){ return <boolean condition> }
 
-var all_gc = rgg.generateAllRhytmicGrids(
+var allGConfigs = rgg.generateAllRhytmicGrids(
     width_arr, ratio_arr, baseline_arr, columns_arr, gutter2baselineRatio_arr);
 
 console.log('Grid configurations available:')
 console.log(' - total possible: %d', totalCombinations);
-console.log(' - valid: %d (%d%%) ', all_gc.length, Math.floor(all_gc.length/totalCombinations*100));
+console.log(' - valid: %d (%d%%) ', allGConfigs.length, Math.floor(allGConfigs.length/totalCombinations*100));
 console.log();
 
 // simulate user's random selection
@@ -57,5 +57,8 @@ var selection_arr = [
 
 console.log(selection_arr); console.log();
 
-opts = rgg.getValidConfigValues (all_gc, selection_arr);
-console.log(opts)
+// opts = rgg.getValidConfigValues (all_gc, selection_arr);
+// console.log(opts)
+
+var g = rgg.selectGrid(allGConfigs, 1280, '3x2', 8, 12, 3)
+console.log(g)

@@ -268,6 +268,26 @@ RhythmicGridGenerator = (function () {
 
 
     /**
+     * Select single grid
+     * @public
+     * @method selectGrid
+     * @param {GridConf[]} grid - array of grid configurations
+     * @param ... grid config params, see generateRhythmicGrid() params.
+     *
+     * @return {Grid} - grid object or null
+     */
+    this.selectGrid = 
+    function(gridConfigsArr, canvasW, ratioStr, baseline, columnsNum, gutterR){
+        return gridConfigsArr.filter( function(g){
+            return g.maxCanvasWidth === canvasW &&
+                   g.ratio.str  === ratioStr &&
+                   g.baseline   === baseline &&
+                   g.columnsNum === columnsNum &&
+                   g.gutter.W   === gutterR*baseline;
+        });
+    }
+
+    /**
      * Filters grids array for valid selection options based on provided selected input.
      * @public
      * @method getValidConfigValues
