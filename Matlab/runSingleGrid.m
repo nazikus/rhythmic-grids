@@ -11,7 +11,7 @@ GutterToBaselineRatio = 1;  % 0 1 2 3
 
 %% PLOT OPTIONS
 Options.Mode       = 'show';    % 'show', 'save', 'savefull'
-Options.ShowBlocks = 'rhythm';  % 'rhythm', 'all'
+Options.ShowBlocks = 'rhythm';  % 'rhythm', 'sub-rhythm', 'all'
 Options.ShowGrid   = 'largest'; % 'largest', 'all'
 Options.Formats    = {'png'};   % {'png', 'tiff', 'svg', 'pdf', 'eps', 'fig'}
 Options.OutputDir  = '..\Grids\';

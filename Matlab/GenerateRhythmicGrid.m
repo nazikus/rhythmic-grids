@@ -1,4 +1,4 @@
-function GridConfig = GenerateRhythmicGrid(CanvasW, Ratio, Baseline, ColumnsNum, GutterW)
+function GridConfig = GenerateRhythmicGrid(CanvasW, Ratio, Baseline, ColumnsNum, GutterW, SubRhythm)
 %GENERATERHYTHMICGRID Generate rhythmic grid(s) based on input configuration.
 %Possible return of multiple grids (including non-optimal) or none.
 %
@@ -50,9 +50,10 @@ function GridConfig = GenerateRhythmicGrid(CanvasW, Ratio, Baseline, ColumnsNum,
 %       OutputDir  : 'path';
 %       Formats    : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
 %       Mode       : 'show' | 'save' | 'savefull'
-%       ShowBlocks : 'rhythm'  | 'all'
+%       ShowBlocks : 'rhythm'  | 'sub-rhythm' | 'all'
 %       ShowGrid   : 'largest' | 'all'
 
+if ~exist('SubRhythm', 'var'); SubRhythm = false; end;
 Ratio = RatioStr2Struct(Ratio);
 
 % micro-block width & height (minimum possible for current canvas and ratio)
@@ -123,9 +124,13 @@ uFactorsFit = [];  % uBlock factors for each block fitting the rhythm
 for r=uFactorsAll
     blockW = (uBlockW+GutterW)*r - GutterW;
     blockH = blockW / Ratio.R;
-    %if mod(GridW+GutterW, blockW+GutterW) == 0 && mod(blockH, Baseline) == 0;
-    if mod(blockH, Baseline) == 0;
-        uFactorsFit(end+1) = r;
+    
+    if mod(blockH, Baseline) == 0
+        if SubRhythm
+            uFactorsFit(end+1) = r;
+        elseif mod(GridW+GutterW, blockW+GutterW) == 0
+            uFactorsFit(end+1) = r;
+        end
     end
     %fprintf('\t\tx%d: mod(%d,%d) == %d\n', r, GridW, blockW, mod(GridW+GutterW, blockW+GutterW));
     %fprintf('\t\tx%d: mod(%g,%g) == %g\n\n', r, blockH, Baseline, mod(blockH, Baseline));

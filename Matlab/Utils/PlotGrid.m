@@ -8,7 +8,7 @@ function fig_h = PlotGrid(GridConf, Opts)
 %       OutputDir  : 'path';
 %       Formats    : {'fig', 'png', 'svg', 'pdf', 'eps', 'tiff'};
 %       Mode       : 'show' | 'save' | 'savefull'
-%       ShowBlocks : 'rhythm'  | 'all'
+%       ShowBlocks : 'rhythm'  | 'sub-rhythm' | 'all'
 %       ShowGrid   : 'largest' | 'all'
 
 % except last, except first - lambda-f for the 1:n-1, 2:n elements of a vector
@@ -75,15 +75,17 @@ GridMargin = grid.Margin;
 % NB! Validate grid. See GetGridValidator() criteria
 % Default criteria: number of uBlocks factors (unique blocks) > 1 
 IsValidGrid = GetGridValidator();
-Opts.FailGrid = ~IsValidGrid(grid);
+Opts.ValidGrid = IsValidGrid(grid);
 
-% in case gird has only 1 rhythmic block, then show full grid
-% in order to visualize the fitting proglem
-Mode.ShowFit = ~Opts.FailGrid;  %(numel(grid.uFactors) > 1);
-if strcmp(Opts.ShowBlocks, 'all')
-    Mode.ShowFit = false;
+% criteria whether to plot or not all blocks
+% Mode.RhythmOnly = Opts.ValidGrid;
+if strcmp(Opts.ShowBlocks, 'all') || size(grid.Blocks, 1) == 1
+    Mode.RhythmOnly = false;
+else
+    Mode.RhythmOnly = true;
 end
-if Mode.ShowFit
+
+if Mode.RhythmOnly
     % number of blocks
     uFactorsNum = numel(grid.uFactors);
     % each value is a factor for micro-block considerring gutter in between
@@ -102,7 +104,7 @@ else
 end
 
 % print out blocks info (and if invalid according to acceptance criteria)
-if Opts.FailGrid; RejMsg = 'INVALID - '; else RejMsg = ''; end;
+if ~Opts.ValidGrid; RejMsg = 'INVALID - '; else RejMsg = ''; end;
 fprintf('\t%sblocks %d:[ %s], margins 2x%dpx\n', ...
     RejMsg, uFactorsNum, sprintf('%gx%g ', Blocks'), GridMargin);
 clear RejMsg;
@@ -154,7 +156,8 @@ clear MacroRowY uFactorH uFactorY;
 %% TITLES, FILE NAMES, AUX. VARS
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FileName = sprintf('Width%d_Ratio%dx%d_Base%d_Cols%d_Gut%d_Block%dx%d', ...
-                   CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, uBlockW, uBlockH);
+                   CanvasW, Ratio.W, Ratio.H, Baseline, ...
+                   ColumnsNum, GutterW, uBlockW, uBlockH);
 
 GridTitle  = sprintf( ...
     ['     Input: CanvasW %d | ARatio %d:%d | Baseline %d | Columns %d | Gutter %d\n' ...
@@ -162,7 +165,7 @@ GridTitle  = sprintf( ...
     CanvasW, Ratio.W, Ratio.H, Baseline, ColumnsNum, GutterW, ...
     char(956), uBlockW, uBlockH, uFactorsNum, GridW, GridMargin );
                  
-if ~Mode.ShowFit; FileName = [FileName '_all'];  end
+if ~Mode.RhythmOnly; FileName = [FileName '_all'];  end
 
 visibility = {'off', 'on'};
 menubar    = {'none', 'figure'};
@@ -278,6 +281,7 @@ rectangle('Position' , [0 0 GridMargin GridH], ...
 rectangle('Position' , [GridMargin+GridW 0 GridMargin GridH], ...
           'FaceColor', [.97 .92 .92], 'LineStyle', 'none');
 
+% outline block borders if gutter == 0
 if GutterW>0;  RecLineStyle = 'none'; else RecLineStyle = '-'; end
 
 % plot all blocks
@@ -309,7 +313,8 @@ for r=uFactors
         rectangle('Position',  [x_pos, y_pos, blockW, blockH ], ...
                   'FaceColor', rect_colors, ...
                   'LineStyle', RecLineStyle,  ...
-                  'Clipping', 'on'     ...
+                  'LineWidth', 0.8, ...
+                  'Clipping', 'on' ...
                   );
 
         % draw rectangle at the bottom of block, denoting baseline remainder
@@ -336,7 +341,7 @@ for r=uFactors
          'Color', blockLabelColor, 'Clipping', 'on');
      
     % annotations arrows for fitting gap
-    if ~grid_fit && ~Mode.ShowFit
+    if ~grid_fit && ~Mode.RhythmOnly
         line([x_pos+blockW+2; GridMargin+GridW-3], [y_pos+blockH/2; y_pos+blockH/2], ...
              'LineWidth', 2, 'Marker', 'd', 'MarkerSize', 5, 'MarkerFaceColor', [0 0 1]); 
         gap = (GridMargin+GridW - (x_pos+blockW));
@@ -360,13 +365,13 @@ end
 % last X tick label
 text(CanvasW, -23, num2str(CanvasW), 'FontSize', 9*fR(1), 'Color', [0 0 .6], 'Rotation', XTickRotation); %9
 
-% if grid failed, only 1 row fits
-if Opts.FailGrid
+% invalid grid
+if ~Opts.ValidGrid
    text(200, 220, 'INVALID', ...
         'Rotation', 30, 'Color', [1 0 0], 'FontSize', 76*fR(1), 'FontWeight', 'bold', ...
         'EdgeColor', [1 0 0], 'LineWidth', 2, 'BackgroundColor', [1 1 1 .7], ...
         'Clipping', 'off');
-    FileName = [FileName '_X'];
+   FileName = [FileName '_X'];
 end
 
 % plottools

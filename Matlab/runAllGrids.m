@@ -10,11 +10,12 @@ Columns   =  [5 6 9 12];            % [5 6 9 12];
 GutterToBaselineRatios = [0 1 2 3]; % [0 1 2];
 
 %% OUTPUT MODE
-GenerateImagesMode = false;  % if False, show statistics only, without images
+GenerateImagesMode = true;  % if False, show statistics only, without images
 
 %% PLOT OPTIONS
 Options.Mode       = 'save';     % 'save', 'savefull'.  NB! do NOT use 'show' - will display hundreds of figures
-Options.ShowBlocks = 'rhythm';   % 'rhythm', 'all'
+Options.ShowBlocks = 'rhythm';   % 'rhythm', 'sub-rhythm', 'all'
+Options.Output     = 'all';      % 'valid', 'all' (valid+invalid)
 Options.ShowGrid   = 'largest';  % 'largest', 'all' - out of all fitting grids for current configuration
 Options.Formats    = {'png'};    % currently supports 'png' only
 Options.OutputDir  = '..\Grids\';
@@ -33,6 +34,7 @@ end
 if GenerateImagesMode
     % log output to file
     logfilename = strrep(strrep(datestr(now),':','-'), ' ', '_');
+    diary off;
     diary([Options.OutputDir logfilename '.txt']);
 else 
     % supress figure creation
@@ -51,7 +53,7 @@ for column = Columns
 for gutter = [GutterToBaselineRatios*baseline]
     GridConfig = GenerateRhythmicGrid(width, ratio, baseline, column, gutter);
 
-    if strcmp(Options.ShowBlocks, 'all') || ...
+    if strcmp(Options.Output, 'all') || ...
      ( numel(GridConfig.Grids) && IsValidGrid(GridConfig.RhythmicGrid) )
         fprintf('(%d/%d) ', CTotal+1, TotalCombinations);
         PlotGrid(GridConfig, Options);
