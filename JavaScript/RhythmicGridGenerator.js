@@ -4,8 +4,8 @@
  * Algorithm generating all the necessary values, sizes & dimensions for
  * rhythmic grids, intended for drawing corresponding guides and blocks.
  * 
- * @version 1.1
- * @date 2015-11-12
+ * @version 1.2
+ * @date 2015-12-15
  * @author Nazariy Hrabovskyy nazariy.hrabovskyy@gmail.com
  *
  * Repository:
@@ -35,27 +35,27 @@
 
 /** 
  *  @class Grid configuration. Contains all the necessary info for drawing grids.
- *  @typedef GridConfObj
+ *  @typedef GridConf
  *  @type {object}
  *  @prop {number} maxCanvasWidth  - max canvas width, px (user input)
- *  @prop {{RatioObj}} ratio       - aspect ratio (user input)
+ *  @prop {Ratio}  ratio           - aspect ratio (user input)
  *  @prop {number} baseline        - baseline height, px (user input)
  *  @prop {number} columnsNum      - number (quantity) of columns (user input)
  *  @prop {{W: number, H: number}} gutter - gutter width and height (user input)
- *  @prop {GridObj} rhythmicGrid   - generated rhythmic grid
+ *  @prop {Grid}   rhythmicGrid   - generated rhythmic grid
  */
 
 /** 
  *  @class Grid object containing more detailed information of grid blocks.
  *         Usually is a part of grid configuration object.
- *  @typedef GridObj
+ *  @typedef Grid
  *  @type {object}
  *  @prop {{W: number, H: number}} uBlock -  micro-block size 
  *  @prop {number} W  - grid width needed to fit micro-blocks evenly
  *  @prop {number} H  - grid height needed if all block sizes to be displayed
  *  @prop {number} margin - margin between canvas and grid
- *  @prop {{W: number, H: number}} - canvas dimensions for drawing
- *  @prop {number[][]} - 2D array of all rhythmic block sizes. Each sub-array
+ *  @prop {{W: number, H: number}} canvas - canvas dimensions for drawing
+ *  @prop {number[][]} blocks - 2D array of all rhythmic block sizes. Each sub-array
  *                      contains an array of size 4 with the following values:
  *                      [0] - block width;
  *                      [1] - block height;
@@ -67,11 +67,20 @@
 
 /**
  * @class
- * Rhythmic grid generator class. Nothing special, just two public methods to
- * generate rhythmic grids.
+ * Rhythmic grid generator object, consists of several methods for 
+ * generating grids and processing them. No attributes, except few constants.
  */
 RhythmicGridGenerator = (function () {
+    
+    // public constats, grid configuration property names
+    this.WIDTH_PROP    = 'maxCanvasWidth';
+    this.RATIO_PROP    = 'ratio';
+    this.BASELINE_PROP = 'baseline';
+    this.COLUMNS_PROP  = 'columnsNum';
+    this.GUTTER_PROP   = 'gutter';
 
+
+    // this.getW = function() { return this.WIDTH_PROP; }
     /**
      * Generates rhytmic grid(s) based on a provided configuration.
      * @public
@@ -81,7 +90,7 @@ RhythmicGridGenerator = (function () {
      * @param {number} baseline - baseline value
      * @param {number} canvasW  - number of columns
      * @param {number} gutterR  - gutter-to-baseline ratio
-     * @return {GridConfObj}    - grid configuration object
+     * @return {GridConf}       - grid configuration object
      */
     this.generateRhythmicGrid = 
     function (canvasW, ratioStr, baseline, columnsNum, gutterR) {
@@ -102,11 +111,11 @@ RhythmicGridGenerator = (function () {
         // initialize Grid Configuration object
         gc = {};
 
-        gc.maxCanvasWidth = canvasW;
-        gc.ratio        = ratio; 
-        gc.baseline     = baseline;
-        gc.columnsNum   = columnsNum;
-        gc.gutter       = {W: gutterW, H: gutterH};
+        gc[this.WIDTH_PROP] = canvasW;
+        gc[this.RATIO_PROP] = ratio; 
+        gc[this.BASELINE_PROP] = baseline;
+        gc[this.COLUMNS_PROP ] = columnsNum;
+        gc[this.GUTTER_PROP  ] = {W: gutterW, H: gutterH};
         // gc.gutterBaselineRatio = gutterW / baseline;
         
         gc.rhythmicGrid = null;
@@ -235,13 +244,13 @@ RhythmicGridGenerator = (function () {
      * @param {number[]} baseline_arr - array of baseline value
      * @param {number[]} columnsNum_arr-array of column number values
      * @param {number[]} gutterR_arr  - array of gutter-to-baseline ratio values
-     * @return {GridConfObj[]} - array of grid configuration objects.
+     * @return {GridConf[]}  - array of grid configuration objects.
      */
     this.generateAllRhytmicGrids = 
     function (canvasW_arr, ratio_arr, baseline_arr, columnsNum_arr, gutterR_arr){
         var gc_arr = [];
         var gc = null;
-        
+
         for (var w = 0; w < canvasW_arr.length   ; w++)
         for (var r = 0; r < ratio_arr.length     ; r++)
         for (var b = 0; b < baseline_arr.length  ; b++)
@@ -256,22 +265,97 @@ RhythmicGridGenerator = (function () {
         }
         return gc_arr;
     };
+
+
+    /**
+     * Filters grids array for valid selection options based on provided selected input.
+     * @public
+     * @method getValidConfigValues
+     * @param {GridConf[]} grid - grids to filter for available valid options.
+     * @param {Selection[]} filterArr - array of selection objects. Each object 
+     *                        contains selection name (MUST BE THE SAME as 
+     *                        corresponding GridConfig property) as object key 
+     *                        and a corresponding value to compare with.
+     *                        NB! ORDERING OF FILTER ARRAY MATTERS.
+     *
+     * @return {Options[]}  - options object {'PropertyName': [[optionValue, isOptionValid], ...]}
+     */
+    this.getValidConfigValues = function(gridConfigsArr, filterArr){
+        var filteredGC = gridConfigsArr;
+        
+        var opts = filterArr.map( function(s, i, arr) {
+            var key = Object.keys(s)[0], nextKey = null;
+            var validValues = null, allValues;
+
+            // matching grid with the option selected
+            filteredGC = filteredGC.filter( function(g){ return g[key] == s[key]; } );
+
+            // lookup ahead a key  after filtration (but if its not the last one, gutter-key)
+            if (i < arr.length-1){
+                nextKey = Object.keys(arr[i+1])[0];
+                
+                // available valid values for the next key
+                validValues = filteredGC.map( function(g) { 
+                    return nextKey === 'ratio' ? g[nextKey].toString() : g[nextKey]; 
+                }).unique();
+
+                // all available values for the next key
+                allValues = gridConfigsArr.map( function(g) { 
+                    return nextKey === 'ratio' ? g[nextKey].toString() : g[nextKey]; 
+                }).unique();
+
+            } else {
+                // the last gutter property (no need to filter last selection)
+                validValues = filteredGC.map( function(g){ 
+                    return g.gutter.W/g.baseline
+                }).unique();
+                allValues = gridConfigsArr.map( function(g){
+                    return g.gutter.W/g.baseline;
+                }).unique();
+            }
+            
+            // console.log(key + ': ' + s[key] + ' == left ' + filteredGC.length);
+            // console.log(nextKey + ' left:' + validValues.sort() + '\n');
+            // console.log('All: %s', allValues.sort());
+
+            return allValues.map( function(val) {
+                // marks if val contains valid/invalid value, therefore is a
+                // hint for user option to be enabled/disabled
+                return [val, validValues.indexOf(val) >= 0];
+            });
+            // return validValues;
+        });
+        
+        // prepend width options, they are always valid
+        var allWidths = gridConfigsArr
+                        .map( function(g){ return g['maxCanvasWidth']; })
+                        .unique()
+                        .map( function(w){ return [w, true] });
+        opts = [allWidths].concat(opts);
+
+        return opts;
+    }
     
     /**
      * Validates grid according to specified criteria.
      * @public
      * @method isValidGrid
-     * @param {GridObj} grid - grid to validate
+     * @param {Grid} grid    - grid to validate
      * @return {boolean}     - valid/invalid boolean
      */
     this.isValidGrid = function(grid){
-        // by default it is the always-true-valitdator, so user is required to
+        // dummy the always-true-valitdator, so user is required to
         // epxlicitly define his own validator. True-validator will return all 
         // possible rhythmic grids (valid and invalid, whatever that means).
-        return true;
+        // return true;
 
         // possible validator: rhytmic grid that has at least two blocks (rows).
         // return grid && grid.blocks.length > 1;
+
+        // default validation condition:
+        return grid &&  // if grid is a rhythmic grid at all
+               grid.blocks.length > 1 && // if grid has more than 1 row
+               grid.blocks[1][0] < grid.W; // if second row is not the biggest block (block width must be less then grid width)
     };
 
 
@@ -301,7 +385,7 @@ RhythmicGridGenerator = (function () {
      * @private
      * @method ratioStr2Obj
      * @param {String} ratioStr - string representing aspect ratio (eg, '16x9')
-     * @return {RatioObj} A Ratio object
+     * @return {Ratio} A Ratio object
      * @throws an exception if invalid string is provided.
      *
      * @typedef RatioObj
