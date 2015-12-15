@@ -14,16 +14,19 @@
       .ib,
       #placeholder {
         display: inline-block;
+        vertical-align: top;
       }
-        .ib label {
-          margin-right: 5px;
-        }
-        .ib select {
-          margin-right: 15px;
-        }
 
       #grid {
         border: 1px solid #000;
+      }
+
+      .ib {
+        margin-right: 35px;
+      }
+
+      .ib input:disabled + span {
+        color: #D26969
       }
 
       .row {
@@ -38,9 +41,6 @@
         float: left;
       }
 
-      select > option[disabled] {
-        color: #D26969;
-      }
     </style>
   </head>
   <body>
@@ -81,20 +81,24 @@
       
       function createDropDown(id, values){
         var container = $('<div class="ib"></div>');
-        var l = $('<label>'+id+':</label>')
-        var d = $('<select id="'+id+'"></select>');
+        var l = $('<label>').css('font-weight', 'bold').text(id);
+        var d = $('<form>').prop('id', id);
+
 
         container.append(l);
         container.append(d);
 
-        // d.append( $('<option value="">--</option>') );
-        values.map(function(item){
-          var o = $('<option value="'+item+'">'+item+'</option>')
-          d.append(o);
+        values.map(function(item, i){
+          var o = $('<input>').prop({ type: "radio",
+                                      name: id+'_radio',
+                                      value: item});
+          if (!i) o.prop('checked', true);
+          
+          d.append(o).append( $('<span>').text(item) ); //.append('<br/>');
         });
 
         // generate grid on each selection change (no need in 'generate' button anymore)
-        d.on('change', function() {
+        d.on('change', function(e) {
           var selectedOpts = getSelectedOptionsArr();
           refreshInputSelections(selectedOpts);
 
@@ -114,39 +118,39 @@
       }
 
       function getSelectedOptionsArr(){
-          return [ $('#width').val()*1,
-                   $('#ratio').val(), 
-                   $('#baseline').val()*1,
-                   $('#columns').val()*1, 
-                   $('#gutter').val()*1 
+          return [ $('#width > input:checked').val()*1,
+                   $('#ratio > input:checked').val(), 
+                   $('#baseline > input:checked').val()*1,
+                   $('#columns > input:checked').val()*1, 
+                   $('#gutter > input:checked').val()*1 
                  ];
       }
 
       function refreshInputSelections(selectedOpts){
-        var vals = rgg.getValidConfigValues(allValidGrids, selectedOpts);
-        // console.log(vals);
+        console.log(selectedOpts);
+        var validOptions = rgg.getValidConfigValues(allValidGrids, selectedOpts);
+        console.log(validOptions);
 
         var ids = ['width', 'ratio', 'baseline', 'columns', 'gutter'];
-        if (ids.length !== vals.length) throw 'ID arr error in refreshInputSelections()';
+        if (ids.length !== validOptions.length) throw 'IDs arr error in refreshInputSelections()';
 
-        vals.forEach( function(v, i) {
+        validOptions.forEach( function(v, i) {
 
-            $('#'+ids[i]+' > option').each(function(k, opt){
-                $(this).attr('disabled', !v[k][1] || null );
+            $('#'+ids[i]+' > input').each(function(k, opt){
+                $(this).prop('disabled', !v[k][1] || null );
                 
                 // update gutter value according to baseline value
                 if (ids[i] === ids[ids.length-1]){ // if 'gutter'-id
-                    $(this).text( v[k][0]*selectedOpts[2] );  // gutter*baseline
+                    $(this).next().text( v[k][0]*selectedOpts[2] );  // gutter*baseline
                 }
             });
 
-            // change selected option if current option became disabled
-            var selectedOp = $('#'+ids[i]+' > option:selected');
-            if ( selectedOp.attr('disabled') ){
-                var enabled = $('#'+ ids[i] +' > option:enabled');
+            // change selected element if current option became disabled
+            var selectedOp = $('#'+ids[i]+' > input:checked');
+            if ( selectedOp.prop('disabled') ) {
+                var enabled = $('#'+ ids[i] +' > input:enabled:last');
                 if (enabled.length){
-                    selectedOp.removeAttr('selected')
-                    enabled.filter(':last').attr('selected', true);
+                    enabled.prop('checked', true);
                 }
             }
 
