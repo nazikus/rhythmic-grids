@@ -37,6 +37,10 @@
         box-sizing: border-box;
         float: left;
       }
+
+      select > option[disabled] {
+        color: #D26969;
+      }
     </style>
   </head>
   <body>
@@ -48,11 +52,25 @@
 
 
     <script type="text/javascript">
+      var rgg = RhythmicGridGenerator;
+      var srt = function(a,b){ return parseInt(a) > parseInt(b) ? 1 : -1; };
+
       var width_arr    = [960, 1280, 1440];
       var ratio_arr    = ['16x9', '3x2', '1x1'];
       var baseline_arr = [3,4,5,6,7,8,9,10,11,12];
       var columns_arr  = [5, 6, 9, 12];
       var gutter2baselineRatio_arr = [0, 1, 2, 3];
+
+      console.log('Current grid validator:\n' + 
+                    rgg.isValidGrid.toString().replace(/$\s*\/\/.*/gm, '') + '\n');
+
+      var allValidGrids = rgg.generateAllRhytmicGrids(
+        width_arr, ratio_arr, baseline_arr, columns_arr, gutter2baselineRatio_arr);
+
+      // required to re-evaluate input arrays, some values (like columns=5, are not valid for any grids)
+      baseline_arr = allValidGrids.map(function(g){ return g.baseline }).unique().sort(srt);
+      columns_arr  = allValidGrids.map(function(g){ return g.columnsNum }).unique().sort(srt);
+      gutter2baselineRatio_arr  = allValidGrids.map(function(g){ return g.gutter.W/g.baseline }).unique().sort(srt);
 
       $('#placeholder')
         .append( createDropDown('width', width_arr) )
@@ -61,10 +79,6 @@
         .append( createDropDown('columns', columns_arr) )
         .append( createDropDown('gutter', gutter2baselineRatio_arr) )
       
-      // trigger onChange event in order to populate gutter values on startup
-      $('#baseline').trigger('change');
-
-
       function createDropDown(id, values){
         var container = $('<div class="ib"></div>');
         var l = $('<label>'+id+':</label>')
@@ -81,28 +95,63 @@
 
         // generate grid on each selection change (no need in 'generate' button anymore)
         d.on('change', function() {
-          var gridConfig = RhythmicGridGenerator.generateRhythmicGrid(
-                              $('#width').val()*1,
-                              $('#ratio').val(),
-                              $('#baseline').val()*1,
-                              $('#columns').val()*1,
-                              $('#gutter').val()*1
-                            );
-          console.log(gridConfig.rhythmicGrid)
-          drawGrid(gridConfig)
+          var selectedOpts = getSelectedOptionsArr();
+          refreshInputSelections(selectedOpts);
+
+          selectedOpts = getSelectedOptionsArr();
+          var gridConfig = rgg.selectGrid(allValidGrids, selectedOpts);
+
+          if (gridConfig){
+              console.log('Grid object: '); 
+              console.log(gridConfig.rhythmicGrid);
+              drawGrid(gridConfig);
+          }
+          else
+              $('#grid').empty();
         });
 
-        // gutter selection values depend on current baseline choice
-        if (id === 'baseline'){
-          d.on('change', function(){
-              var baseline_h = $(this).val()*1;
-              $('#gutter > option').each( function() {
-                  $(this).text( $(this).val()*baseline_h );
-              });
-          });
-        }
-
         return container;
+      }
+
+      function getSelectedOptionsArr(){
+          return [ $('#width').val()*1,
+                   $('#ratio').val(), 
+                   $('#baseline').val()*1,
+                   $('#columns').val()*1, 
+                   $('#gutter').val()*1 
+                 ];
+      }
+
+      function refreshInputSelections(selectedOpts){
+        var vals = rgg.getValidConfigValues(allValidGrids, selectedOpts);
+        // console.log(vals);
+
+        var ids = ['width', 'ratio', 'baseline', 'columns', 'gutter'];
+        if (ids.length !== vals.length) throw 'ID arr error in refreshInputSelections()';
+
+        vals.forEach( function(v, i) {
+
+            $('#'+ids[i]+' > option').each(function(k, opt){
+                $(this).attr('disabled', !v[k][1] || null );
+                
+                // update gutter value according to baseline value
+                if (ids[i] === ids[ids.length-1]){ // if 'gutter'-id
+                    $(this).text( v[k][0]*selectedOpts[2] );  // gutter*baseline
+                }
+            });
+
+            // change selected option if current option became disabled
+            var selectedOp = $('#'+ids[i]+' > option:selected');
+            if ( selectedOp.attr('disabled') ){
+                var enabled = $('#'+ ids[i] +' > option:enabled');
+                if (enabled.length){
+                    selectedOp.removeAttr('selected')
+                    enabled.filter(':last').attr('selected', true);
+                }
+            }
+
+        });
+
       }
 
       function drawGrid(gridConfig){
@@ -131,8 +180,11 @@
           }
           $base.append(row);
         });
-
       }
+
+    // trigger onChange event to initialize selection options and plot grid at startup
+    $('#width').trigger('change');
+
     </script>
   </body>
 </html>

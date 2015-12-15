@@ -1,12 +1,13 @@
 require('./RhythmicGridGenerator.js');
 var rgg = RhythmicGridGenerator;
 
-/**
-var gc  = rgg.generateRhythmicGrid(1200, '3x2', 8, 12, 3);
-console.log(gc); console.log('\n');
-console.log(JSON.stringify(gc, null, '\t') );  /**/
 
-/***** GENERATE GRID CONFIGURATIONS FIRST *****/
+/***** GENERATE SINGLE GRID *****/
+var gc  = rgg.generateRhythmicGrid(1200, '3x2', 8, 12, 3);
+// console.log(gc); console.log('\n');
+// console.log(JSON.stringify(gc, null, '\t') );
+
+/***** GENERATE ALL GRIDS *****/
 
 // picks a random element from array
 var randElement = function(arr) { return arr[Math.round( Math.random()*(arr.length-1) )]; }
@@ -47,7 +48,7 @@ var selection_arr = [selected_width, selected_ratio, selected_baseline,
 console.log('Selection: [%s]\n', selection_arr);
 
 opts = rgg.getValidConfigValues (allGConfigs, selection_arr);
-// console.log(opts)
+console.log(opts); console.log();
 
 var g = rgg.selectGrid(allGConfigs, [1280, '3x2', 8, 12, 3]);
-// console.log(g.rhythmicGrid)
+console.log(g.rhythmicGrid)
