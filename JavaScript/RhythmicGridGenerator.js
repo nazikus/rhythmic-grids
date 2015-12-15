@@ -72,15 +72,6 @@
  */
 RhythmicGridGenerator = (function () {
     
-    // public constats, grid configuration property names
-    this.WIDTH_PROP    = 'maxCanvasWidth';
-    this.RATIO_PROP    = 'ratio';
-    this.BASELINE_PROP = 'baseline';
-    this.COLUMNS_PROP  = 'columnsNum';
-    this.GUTTER_PROP   = 'gutter';
-
-
-    // this.getW = function() { return this.WIDTH_PROP; }
     /**
      * Generates rhytmic grid(s) based on a provided configuration.
      * @public
@@ -94,6 +85,12 @@ RhythmicGridGenerator = (function () {
      */
     this.generateRhythmicGrid = 
     function (canvasW, ratioStr, baseline, columnsNum, gutterR) {
+        if (typeof canvasW  !== 'number') throw 'Wrong 1st argument (width), must be a number';
+        if (typeof ratioStr !== 'string') throw 'Wrong 2nd argument (ratio), must be a string';
+        if (typeof baseline !== 'number') throw 'Wrong 3rd argument (baseline), must be a number';
+        if (typeof columnsNum !== 'number') throw 'Wrong 4th argument (columns), must be a number';
+        if (typeof gutterR  !== 'number') throw 'Wrong 5th argument (gutter), must be a number';
+
         var gutterW = baseline*gutterR;
         var ratio = ratioStr2Obj(ratioStr);
 
@@ -111,11 +108,11 @@ RhythmicGridGenerator = (function () {
         // initialize Grid Configuration object
         gc = {};
 
-        gc[this.WIDTH_PROP] = canvasW;
-        gc[this.RATIO_PROP] = ratio; 
-        gc[this.BASELINE_PROP] = baseline;
-        gc[this.COLUMNS_PROP ] = columnsNum;
-        gc[this.GUTTER_PROP  ] = {W: gutterW, H: gutterH};
+        gc.maxCanvasWidth = canvasW;
+        gc.ratio = ratio; 
+        gc.baseline = baseline;
+        gc.columnsNum = columnsNum;
+        gc.gutter = {W: gutterW, H: gutterH};
         // gc.gutterBaselineRatio = gutterW / baseline;
         
         gc.rhythmicGrid = null;
@@ -271,20 +268,28 @@ RhythmicGridGenerator = (function () {
      * Select single grid
      * @public
      * @method selectGrid
-     * @param {GridConf[]} grid - array of grid configurations
-     * @param ... grid config params, see generateRhythmicGrid() params.
+     * @param {GridConf[]} grid - array of grid configurations to search
+     * @param {[]} inputArr - grid input params, see generateRhythmicGrid() params for reference:
+     *                        [canvasW, ratioStr, baseline, columnsNum, gutterR]
      *
-     * @return {Grid} - grid object or null
+     * @return {Grid} - grid object
      */
     this.selectGrid = 
-    function(gridConfigsArr, canvasW, ratioStr, baseline, columnsNum, gutterR){
+    function(gridConfigsArr, gridInputArr){
+        if (gridInputArr.length !== 5) throw ('Wrong number of gridInputArr args: ' + gridInputArr.length);
+        if (typeof gridInputArr[0] !== 'number') throw ('Wrong value for width: ' + gridInputArr[0]);
+        if (typeof gridInputArr[1] !== 'string') throw ('Wrong value for ratio: ' + gridInputArr[1]);
+        if (typeof gridInputArr[2] !== 'number') throw ('Wrong value for baseline: '+ gridInputArr[2]);
+        if (typeof gridInputArr[3] !== 'number') throw ('Wrong value for columns: ' + gridInputArr[3]);
+        if (typeof gridInputArr[4] !== 'number') throw ('Wrong value for gutter: '  + gridInputArr[4]);
+
         return gridConfigsArr.filter( function(g){
-            return g.maxCanvasWidth === canvasW &&
-                   g.ratio.str  === ratioStr &&
-                   g.baseline   === baseline &&
-                   g.columnsNum === columnsNum &&
-                   g.gutter.W   === gutterR*baseline;
-        });
+            return g.maxCanvasWidth === gridInputArr[0] &&
+                   g.ratio.str  === gridInputArr[1] &&
+                   g.baseline   === gridInputArr[2] &&
+                   g.columnsNum === gridInputArr[3] &&
+                   g.gutter.W   === gridInputArr[4]*g.baseline;
+        })[0];
     }
 
     /**
@@ -292,61 +297,61 @@ RhythmicGridGenerator = (function () {
      * @public
      * @method getValidConfigValues
      * @param {GridConf[]} grid - grids to filter for available valid options.
-     * @param {Selection[]} filterArr - array of selection objects. Each object 
-     *                        contains selection name (MUST BE THE SAME as 
-     *                        corresponding GridConfig property) as object key 
-     *                        and a corresponding value to compare with.
-     *                        NB! ORDERING OF FILTER ARRAY MATTERS.
+     * @param {[]} filterArr - array of user selected options.  NB! ORDERING OF
+     *                         ARRAY VALUES MATTERS. Keep it the same as in 
+     *                         selectGrid(): [canvasW, ratioStr, baseline, columnsNum, gutterR]
      *
      * @return {Options[]}  - options object {'PropertyName': [[optionValue, isOptionValid], ...]}
      */
     this.getValidConfigValues = function(gridConfigsArr, filterArr){
         var filteredGC = gridConfigsArr;
-        
-        var opts = filterArr.map( function(s, i, arr) {
-            var key = Object.keys(s)[0], nextKey = null;
+        var props = ['maxCanvasWidth', 'ratio', 'baseline', 'columnsNum', 'gutter'];
+
+        if (props.length !== filterArr.length) 
+            throw 'Exception: something wrong with filterArr ['+filterArr+']';
+
+        var opts = [];
+        for (var i=0; i<props.length-1; i++) { // -1 to skip the last prop 'gutter'
+            var key = props[i];
+            var val = filterArr[i];
             var validValues = null, allValues;
-
-            // matching grid with the option selected
-            filteredGC = filteredGC.filter( function(g){ return g[key] == s[key]; } );
-
-            // lookup ahead a key  after filtration (but if its not the last one, gutter-key)
-            if (i < arr.length-1){
-                nextKey = Object.keys(arr[i+1])[0];
-                
-                // available valid values for the next key
-                validValues = filteredGC.map( function(g) { 
-                    return nextKey === 'ratio' ? g[nextKey].toString() : g[nextKey]; 
-                }).unique();
-
-                // all available values for the next key
-                allValues = gridConfigsArr.map( function(g) { 
-                    return nextKey === 'ratio' ? g[nextKey].toString() : g[nextKey]; 
-                }).unique();
-
-            } else {
-                // the last gutter property (no need to filter last selection)
-                validValues = filteredGC.map( function(g){ 
-                    return g.gutter.W/g.baseline
-                }).unique();
-                allValues = gridConfigsArr.map( function(g){
-                    return g.gutter.W/g.baseline;
-                }).unique();
-            }
             
-            // console.log(key + ': ' + s[key] + ' == left ' + filteredGC.length);
-            // console.log(nextKey + ' left:' + validValues.sort() + '\n');
-            // console.log('All: %s', allValues.sort());
+            // matching grid with the option selected
+            filteredGC = filteredGC.filter( 
+                function(g){ return g[key] == val; 
+            });
 
-            return allValues.map( function(val) {
+            // lookahead values after filtering
+            nextKey = props[i+1];
+
+            // available valid values for the next key
+            validValues = filteredGC.map( function(g) { 
+                return nextKey === 'ratio'  ? g.ratio.toString() : 
+                       nextKey === 'gutter' ? g.gutter.W/g.baseline : 
+                       g[nextKey] ;
+            }).unique();
+
+            // all available values for the next key
+            allValues = gridConfigsArr.map( function(g) { 
+                return nextKey === 'ratio'  ? g.ratio.toString() : 
+                       nextKey === 'gutter' ? g.gutter.W/g.baseline : 
+                       g[nextKey] ;
+            }).unique()
+              .sort(function(a,b){ return parseInt(a) > parseInt(b) ? 1 : -1; });
+
+            // console.log(key + ': ' + s[key] + ' == left ' + filteredGC.length);
+            // console.log(nextKey + ' left:' + validValues + '\n');
+            // console.log('All: %s', allValues);
+
+            opts.push( allValues.map( function(value) {
                 // marks if val contains valid/invalid value, therefore is a
                 // hint for user option to be enabled/disabled
-                return [val, validValues.indexOf(val) >= 0];
-            });
-            // return validValues;
-        });
-        
-        // prepend width options, they are always valid
+                return [value, validValues.indexOf(value) >= 0];
+            }));
+        }
+
+        // prepend width options that were skippeed because of lookeahed,
+        // width options are always valid
         var allWidths = gridConfigsArr
                         .map( function(g){ return g['maxCanvasWidth']; })
                         .unique()
