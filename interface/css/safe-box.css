@@ -1,0 +1,24 @@
+.dd {
+    display: inline-block;
+    margin: 0 20px;
+}
+
+.dd > label {
+    margin-right: 5px;
+}
+
+#font-metrics-ph {
+    /*border: thin solid green;*/
+}
+
+#text-sample {
+    margin: 30px 0;
+    width: 700px;
+    height: 150px;
+}
+ 
+#metrics-canvas {
+    width: 800px;
+    height: 200px;
+    /*border: thin solid red;*/
+} 
