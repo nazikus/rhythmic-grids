@@ -4,8 +4,9 @@ var lineheight_arr = [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]; // 
 
 var metrics_sample = 'Munchy';
 
-var canvas = $('#metrics-canvas')[0];
-var ctx = canvas.getContext('2d');
+var canvas = $('#metrics-canvas')[0],
+    ctx = canvas.getContext('2d'),
+    curr_typeface = typeface_arr[0];
 
 // set canvas width attribute same as css width style
 canvas.width = parseInt( $('#metrics-canvas').css('width'), 10);
@@ -56,18 +57,21 @@ function drawText(typeface, text) {
   // EM BOX lines
   var em_gap = Math.round((metrics_fontsize - (ascent+descent)) / 2);
   ctx.beginPath();
-  ctx.strokeStyle = 'rgba(255,0,0,.3)';
+  ctx.strokeStyle = 'rgba(255,0,0,.4)';
   ctx.lineWidth = 1;
   ctx.strokeRect(1, baseline_y-ascent-em_gap, 
-                 line_length+xoff+40, metrics_fontsize);
+                 line_length+xoff+30, metrics_fontsize);
   // console.log('Baseline = %s; Ascent = %s; Descent = %s; Em gap = %s', 
                // baseline_y, ascent, descent, em_gap);
-
-  ctx.fillStyle = 'rgba(255,0,0,.5)';
+  
+  ctx.save();
+  ctx.rotate(Math.PI/2); // rotate coordinates by 90° clockwise
+  ctx.fillStyle = 'rgba(255,0,0,.8)';
   ctx.textBaseline = 'bottom';
-  ctx.textAlign = 'start';
-  ctx.fillText('em box', 2, baseline_y-ascent-em_gap);
-  // ctx.rotate(Math.PI*2/(i*6));
+  ctx.textAlign = 'right';
+  // ctx.fillText('em box', 2, baseline_y-ascent-em_gap); // for horizontal label 
+  ctx.fillText('em box', baseline_y+descent+em_gap-5, -2); // for vertical label
+  ctx.restore();
 
   // SAFEBOX rectangle
   ctx.beginPath();
@@ -107,13 +111,21 @@ function drawText(typeface, text) {
   ctx.fillText('x-height', line_length, baseline_y-x_height+1);
 
   // deviation in %
-  ctx.textBaseline = 'top';
+  ctx.textBaseline = 'bottom';
   ctx.textAlign = 'left';
-  ctx.font = "12px sans";
+  ctx.font = "11px sans";
   ctx.fillStyle = 'rgba(0, 107, 255, .9)';
   if (xdev != 0) {
-    // ctx.fillText((xdev>=0?'+':'-') + Math.round(xdev*1000)/10 + '%', line_length, baseline_y-x_height+1);
-    ctx.fillText((xdev>=0?'+':'-') + Math.round(xdev*500) + 'UPM', line_length+3, baseline_y-x_height+5);
+    if (false){ // rotate flag
+      ctx.save();
+      ctx.rotate(Math.PI/2); // retote coordinates by 90° clockwise
+      ctx.fillText((xdev>=0?'+ ':'– ') + Math.abs(Math.round(xdev*500)) + ' UPM', 
+                   baseline_y-x_height-3, -line_length); // UPM, vertical label
+      ctx.restore();
+    } else {
+      // ctx.fillText((xdev>=0?'+':'-') + Math.round(xdev*1000)/10 + '%', line_length, baseline_y-x_height+1); // %, horizontal label
+      ctx.fillText((xdev>=0?'+':'') + Math.round(xdev*500) + ' UPM', line_length+3, baseline_y-x_height+5); // UPM, horizontal label
+    }
   }
   ctx.font = metrics_label_font;
 
@@ -126,7 +138,7 @@ function drawText(typeface, text) {
   ctx.lineTo(line_length, baseline_y - cap_height);
   ctx.stroke();
 
-  ctx.textBaseline = 'bottom';
+  ctx.textBaseline = 'top';
   ctx.textAlign = 'right';
   ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
 
@@ -148,14 +160,14 @@ function drawText(typeface, text) {
   ctx.textAlign = 'left';
   ctx.fillText('ascent', xoff, baseline_y-ascent-2);
 
-  ctx.textBaseline = 'hanging';
+  ctx.textBaseline = 'bottom';
   ctx.textAlign = 'left';
   ctx.fillText('descent', xoff, baseline_y+descent);
 
   // draw sample text
   ctx.restore();
   ctx.fillText(text, xoff+b, baseline_y);
-
+  ctx.font = '16px sans';
   console.log('------------- rendering finished.')
 };
 
@@ -190,7 +202,8 @@ $(document).ready(function() {
            );
 
   var text_sample = $('#metrics-text-dd').val() || localStorage.getItem('metrics-text-dd') || metrics_sample;
-  drawText( $('#typeface-dd').val(),  text_sample);
+  var text_typeface = $('#typeface-dd').val() || localStorage.getItem('typeface-dd') || typeface_arr[0];
+  drawText(text_typeface,  text_sample);
 });
 
 
@@ -222,6 +235,8 @@ function createDropDown(label, id, values) {
   return container;
 }
 
+
+
 // update canvas text drawing when input text field edited
 function onTextChange(e){
   var id = $(this).attr('id');
@@ -231,8 +246,10 @@ function onTextChange(e){
 
   // for some reason hangs when no text in canvas, so stubbed with 'x'
   var text = $('#metrics-text-dd').val() || 'x';
-  drawText( $('#typeface-dd').val(), text);
+  drawText( curr_typeface, text);
 }
+
+
 
 // dropdown event handler
 function onDropDownChange(e) {
@@ -255,7 +272,8 @@ function onDropDownChange(e) {
       $('#text-sample').css('font-family', this.value+ ', monospace');
       // draw font metrics
       var text_sample = $('#metrics-text-dd').val() || localStorage.getItem('metrics-text-dd') || metrics_sample;
-      drawText( $('#typeface-dd').val(),  text_sample);
+      curr_typeface = $('#typeface-dd').val()
+      drawText(curr_typeface, text_sample);
 
       // DEBUG - compare layout engine rendering to canvas rendering //
       // $('#test-metrics').text(metrics_sample);
@@ -325,7 +343,7 @@ function getAvailableFontList() {
     "Goudy Old Style", "Goudy Stout", "GoudyHandtooled BT", "GoudyOLSt BT", 
     "Gujarati Sangam MN", "Gulim", "GulimChe", "Gungsuh", "GungsuhChe", 
     "Gurmukhi MN", "Haettenschweiler", "Harlow Solid Italic", "Harrington", 
-    "Heather", "Heiti SC", "Heiti TC", "HELV", "Herald", "High Tower Text", 
+    "Heather", "Heiti SC", "Heiti TC", "HELV", "Helvetica", "Herald", "High Tower Text", 
     "Hiragino Kaku Gothic ProN", "Hiragino Mincho ProN", "Hoefler Text", 
     "Humanst 521 Cn BT", "Humanst521 BT", "Humanst521 Lt BT", 
     "Imprint MT Shadow", "Incised901 Bd BT", "Incised901 BT", 
@@ -391,6 +409,11 @@ function getAvailableFontList() {
 
   console.log('Available fonts %s/%s', availableFonts.length, flist.length);
   return availableFonts;
-
 };
 
+
+canvas.onmouseup = function(e){
+  var evt = e || event;
+  dragging_state = true;
+  lastX = evt.offsetX;
+}
