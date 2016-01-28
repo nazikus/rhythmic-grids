@@ -1,29 +1,117 @@
 var typeface_arr = ['Helvetica', 'Verdana', 'Times New Roman'];
 var fontsize_arr = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]; // px
-var lineheight_arr = [11, 22]; // px
+var lineheight_arr = [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]; // px
 
-// var metrics_sample = 'abcdefghijklmnopqstuvwxyzABCDEFGHIJKLMNOPQSTUVWXYZ';
 var metrics_sample = 'Munchy';
 var metrics_fontsize = 150; // px
 
 var canvas = $('#metrics-canvas')[0];
 var ctx = canvas.getContext('2d');
 
+// set canvas width attribute same as css width style
 canvas.width = parseInt( $('#metrics-canvas').css('width'), 10);
 canvas.height = parseInt( $('#metrics-canvas').css('height'), 10);
+
 console.log('Canvas %sx%s', canvas.width, canvas.height);
   
-detective = new Detector();
-font.setup();
-typeface_arr = getAvailableFontList();
-$('#options')
-  .append(createDropDown('Typeface', 'typeface-dd', typeface_arr))
-  .append(createDropDown('Font size', 'fontsize-dd', fontsize_arr))
-  .append(createDropDown('Line height', 'lineheight-dd', lineheight_arr));
-
-
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
+// text rendering with font metrics
+function drawText(typeface, text) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  var baseline_y = canvas.height/3*2,
+      xoff = 30,   // x offset from left
+      b = 15;     // size of metric lines "brackets" (extending outside bounding box)
+
+
+  // Text sample
+  ctx.font = metrics_fontsize + "px " + typeface;
+  canvas.style.font = ctx.font;
+  var metrics = ctx.measureText(text);  // fontmetrics.js
+  var line_length = canvas.width - 100; //metrics.width+b*2-xoff;
+  
+  // console.log('Baseline Y: %sx', baseline_y);
+  console.log(metrics);
+
+  // TODO metric lines labels
+  // Baseline line
+  ctx.beginPath();
+  ctx.strokeStyle = 'lightseagreen';
+  ctx.lineWidth = 3;
+  ctx.moveTo(xoff, baseline_y + Math.floor(ctx.lineWidth/2));
+  ctx.lineTo(line_length, baseline_y + Math.floor(ctx.lineWidth/2));
+  ctx.stroke();
+
+  // Ascent line
+  ctx.beginPath();
+  ctx.strokeStyle = 'lightgray';
+  ctx.lineWidth = 2;
+  ctx.moveTo(xoff, baseline_y-metrics.ascent);
+  ctx.lineTo(line_length, baseline_y-metrics.ascent);
+  ctx.stroke();
+
+  // Descent line
+  ctx.beginPath();
+  ctx.strokeStyle = 'lightgray';
+  ctx.lineWidth = 2;
+  ctx.moveTo(xoff, baseline_y+metrics.descent);
+  ctx.lineTo(line_length, baseline_y+metrics.descent);
+  ctx.stroke();
+
+  // Safebox rectanble
+  // var safe_h = Math.round(metrics.height/2);
+  var safe_h = metrics_fontsize / 2;
+  console.log('Safe-box h: %s', safe_h);
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(255, 107, 255, .8)';
+  ctx.fillStyle = 'rgba(0, 107, 255, .3)';
+  ctx.lineWidth = 2;
+  ctx.fillRect(xoff, baseline_y-safe_h, line_length-xoff, safe_h);
+  ctx.stroke();
+
+  // draw text
+  ctx.fillStyle = 'black';
+  ctx.fillText(text, xoff+b, baseline_y);
+
+  console.log('-------------------------------------')
+};
+
+
+
+// it is recommended to initialize Detector on document ready
+$(document).ready(function() {
+  // TODO some fonts that are detected are rendered incorrectly
+  //      see Bodoni*, Bookshelf
+  detective = new Detector();
+  font.setup();
+
+  // since detector is initialized just above,
+  // system fonts can be extract only after document is loaded.
+  typeface_arr = getAvailableFontList();
+  var metrics_text = localStorage.getItem('metrics-text-dd') || metrics_sample;
+
+  // populate dropdown controls
+  $('#options')
+    .append(createDropDown('Typeface', 'typeface-dd', typeface_arr))
+    .append(createDropDown('Font size', 'fontsize-dd', fontsize_arr))
+    .append(createDropDown('Line height', 'lineheight-dd', lineheight_arr))
+    .append( $('<div>').attr('class', 'dd')
+                       .append( $('<label>').text(' Text:') )
+                       .append( $('<input>')
+                                  .attr('id', 'metrics-text-dd')
+                                  .attr('type', 'text')
+                                  .attr('value', metrics_text)
+                                  .width(70)
+                                  .on('keyup', onTextChange)
+                        )
+           );
+});
+
+
+
+// populates option selects (dropdown list)
 function createDropDown(label, id, values) {
   var container = $('<div>').addClass('dd');
   var l = $('<label>').text(label);
@@ -50,21 +138,25 @@ function createDropDown(label, id, values) {
   return container;
 }
 
+// update canvas text drawing when input text field edited
+function onTextChange(e){
+  var id = $(this).attr('id');
 
-function getSelectedOptionsArr() {
-  return $('.dd :selected')
-             .map( function(i) { return this.value })
-             .toArray()
-             .map( function(e, i) { return  i ? ~~e : e;  });
+  localStorage.setItem(id, this.value);
+  // console.log('onChange: %s %s', id, this.value);
+
+  // for some reason hangs when no text in canvas, so stubbed with 'x'
+  var text = $('#metrics-text-dd').val() || 'x';
+  drawText( $('#typeface-dd').val(), text);
 }
 
-
+// dropdown event handler
 function onDropDownChange(e) {
   var id = $(this).attr('id');
-  console.log("onChange: %s %s", id, this.value );
 
   // store selections between sessions
   localStorage.setItem(id, this.value);
+  console.log("onChange: %s %s", id, this.value );
 
   // update text sample
   switch(id){
@@ -78,6 +170,10 @@ function onDropDownChange(e) {
 
       $('#text-sample').css('font-family', this.value+ ', monospace');
 
+      // DEBUG - compare layout engine rendering to canvas rendering //
+      // $('#test-metrics').text(metrics_sample);
+      // $('#test-metrics').css('font-family', this.value+ ', monospace');
+      // DEBUG - end//
       break;
 
     case 'fontsize-dd':
@@ -90,74 +186,13 @@ function onDropDownChange(e) {
   }
 
   // draw font metrics
-  drawText( $('#typeface-dd').val() );
+  var text_sample = $('#metrics-text-dd').val() || localStorage.getItem('metrics-text-dd') || metrics_sample;
+  drawText( $('#typeface-dd').val(),  text_sample);
 };
 
 
-function drawText(typeface) {
-  // TODO metric lines labels
 
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  var baseline_y = canvas.height/3*2,
-      xoff = 30,   // x offset from left
-      b = 15;     // size of metric lines "brackets" (extending outside bounding box)
-
-
-  // Text sample
-  ctx.font= metrics_fontsize + "px " + typeface;
-  canvas.style.font = ctx.font;
-  var metrics = ctx.measureText(metrics_sample); // fontmetrics.js
-  var line_length = canvas.width - 100;//metrics.width+b*2-xoff;
-  
-  console.log('Baseline Y: %s', baseline_y);
-  console.log(metrics);
-
-  // Baseline 
-  ctx.beginPath();
-  ctx.strokeStyle = 'lightseagreen';
-  ctx.lineWidth = 3;
-  ctx.moveTo(xoff, baseline_y + Math.floor(ctx.lineWidth/2));
-  ctx.lineTo(line_length, baseline_y + Math.floor(ctx.lineWidth/2));
-  ctx.stroke();
-
-  // Ascent
-  ctx.beginPath();
-  ctx.strokeStyle = 'lightgray';
-  ctx.lineWidth = 2;
-  ctx.moveTo(xoff, baseline_y-metrics.ascent);
-  ctx.lineTo(line_length, baseline_y-metrics.ascent);
-  ctx.stroke();
-
-  // Descent
-  ctx.beginPath();
-  ctx.strokeStyle = 'lightgray';
-  ctx.lineWidth = 2;
-  ctx.moveTo(xoff, baseline_y+metrics.descent);
-  ctx.lineTo(line_length, baseline_y+metrics.descent);
-  ctx.stroke();
-
-  // Safebox
-  var safe_h = Math.round(metrics_fontsize/2);
-  ctx.beginPath();
-  ctx.strokeStyle = 'rgba(255, 107, 255, .8)';
-  ctx.fillStyle = 'rgba(0, 107, 255, .3)';
-  ctx.lineWidth = 2;
-  ctx.fillRect(xoff, baseline_y-safe_h, line_length-xoff, safe_h);
-  ctx.stroke();
-
-  // draw text
-  ctx.fillStyle = 'black';
-  ctx.fillText(metrics_sample, xoff+b, baseline_y);
-};
-
-$(document).ready(function() {
-    detective = new Detector();
-    font.setup();
-
-});
-
-
+// detect available system fonts out of pre-defined font list (~500 fonts)
 function getAvailableFontList() {
   var flist = [
     "Abadi MT Condensed Light", "Academy Engraved LET", "ADOBE CASLON PRO", 
@@ -257,6 +292,8 @@ function getAvailableFontList() {
     "ZapfHumnst BT", "ZapfHumnst Dm BT", "Zapfino", "Zurich BlkEx BT",
     "Zurich Ex BT", "ZWAdobeF"
   ];
+  detective = new Detector();
+  font.setup();
 
   var availableFonts = [];
   var currFont = null;
