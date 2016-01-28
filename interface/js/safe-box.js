@@ -56,8 +56,8 @@ function drawText(typeface, text) {
   ctx.lineWidth = 1;
   ctx.strokeRect(1, baseline_y-ascent-em_gap, 
                  line_length+xoff, metrics_fontsize);
-  console.log('Baseline = %s; Ascent = %s; Descent = %s; Em gap = %s', 
-               baseline_y, ascent, descent, em_gap);
+  // console.log('Baseline = %s; Ascent = %s; Descent = %s; Em gap = %s', 
+               // baseline_y, ascent, descent, em_gap);
 
   // SAFEBOX rectangle
   ctx.beginPath();
@@ -167,6 +167,9 @@ $(document).ready(function() {
                                   .on('keyup', onTextChange)
                         )
            );
+
+  var text_sample = $('#metrics-text-dd').val() || localStorage.getItem('metrics-text-dd') || metrics_sample;
+  drawText( $('#typeface-dd').val(),  text_sample);
 });
 
 
