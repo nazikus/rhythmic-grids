@@ -1,12 +1,13 @@
-var typeface_arr = ['Helvetica', 'Verdana', 'Times New Roman'];
-var fontsize_arr = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]; // px
-var lineheight_arr = [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]; // px
+var typeface_arr   = ['Helvetica', 'Verdana', 'Times New Roman'];
+var fontsize_arr   = Array.apply(0, Array(40-7)).map(function(v,i) { return i+8; }); // 8..40 px
+var lineheight_arr = Array.apply(0, Array(30-2)).map(function(v,i) { return i+3; }); // 3..30 px
 
-var metrics_sample = 'Munchy';
 
 var canvas = $('#metrics-canvas')[0],
     ctx = canvas.getContext('2d'),
-    curr_typeface = typeface_arr[0];
+    curr_typeface = null,
+    curr_mtext = null,
+    metrics_default_sample = 'Munchy';
 
 // set canvas width attribute same as css width style
 canvas.width = parseInt( $('#metrics-canvas').css('width'), 10);
@@ -18,6 +19,45 @@ console.log('Canvas %sx%s', canvas.width, canvas.height);
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
+// all the inputs are initialized after document has been loaded.
+// It is also recommended to initialize font Detector on document ready
+$(document).ready(function() {
+  // TODO some fonts that are detected and rendered incorrectly
+  //      see Bodoni*, Bookshelf, Universe CE 55 medium, ...
+  detective = new Detector();
+  font.setup();
+
+  // since detector is initialized here,
+  // system fonts can be extract only after document is loaded.
+  typeface_arr = getAvailableFontList();
+
+  // populate dropdown controls
+  $('#options')
+    .append(createDropDown('Typeface', 'typeface-dd', typeface_arr))
+    .append(createDropDown('Font size', 'fontsize-dd', fontsize_arr))
+    .append(createDropDown('Line height', 'lineheight-dd', lineheight_arr))
+    .append( $('<div>').attr('class', 'dd')
+                       .append( $('<label>').text(' Text:') )
+                       .append( $('<input>')
+                                  .attr('id', 'metrics-text-eb')
+                                  .attr('type', 'text')
+                                  .attr('value', '')
+                                  .width(70)
+                                  .on('keyup', onTextChange)
+                        )
+           );
+
+  curr_typeface   = $('#typeface-dd').val();
+  $('#metrics-text-eb').val( localStorage.getItem('metrics-text-eb') || metrics_default_text );
+  
+  $('#typeface-dd').trigger('change');
+  $('#fontsize-dd').trigger('change');
+  $('#lineheight-dd').trigger('change');
+});
+
+
+
+
 // text rendering with font metrics visualized
 function drawText(typeface, text) {
   var metrics_alphabet = '\\/\'`?<>;{}!@#$%^&*()abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -28,13 +68,13 @@ function drawText(typeface, text) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.font = metrics_fontsize + "px " + typeface;
   canvas.style.font = ctx.font;
-  ctx.save();
+  ctx.save(); // save #1
 
   var metrics  = ctx.measureText(metrics_alphabet),  // fontmetrics.js
-      x_height = ctx.measureText('x').ascent,
-      cap_height=ctx.measureText('H').ascent,
       ascent  = metrics.ascent,
       descent = metrics.descent,
+      x_height = ctx.measureText('x').ascent,
+      cap_height=ctx.measureText('H').ascent,
       safebox_h = Math.round(metrics_fontsize / 2), // safe-box height
       xdev = x_height / safebox_h - 1;  // x-height deviation from safe-box height
 
@@ -57,21 +97,25 @@ function drawText(typeface, text) {
   // EM BOX lines
   var em_gap = Math.round((metrics_fontsize - (ascent+descent)) / 2);
   ctx.beginPath();
-  ctx.strokeStyle = 'rgba(255,0,0,.4)';
+  ctx.strokeStyle = 'rgba(255, 0, 0, .3)';
   ctx.lineWidth = 1;
   ctx.strokeRect(1, baseline_y-ascent-em_gap, 
                  line_length+xoff+30, metrics_fontsize);
   // console.log('Baseline = %s; Ascent = %s; Descent = %s; Em gap = %s', 
                // baseline_y, ascent, descent, em_gap);
   
-  ctx.save();
-  ctx.rotate(Math.PI/2); // rotate coordinates by 90° clockwise
-  ctx.fillStyle = 'rgba(255,0,0,.8)';
+  ctx.fillStyle = 'rgba(255, 0, 0, .8)';
   ctx.textBaseline = 'bottom';
-  ctx.textAlign = 'right';
-  // ctx.fillText('em box', 2, baseline_y-ascent-em_gap); // for horizontal label 
-  ctx.fillText('em box', baseline_y+descent+em_gap-5, -2); // for vertical label
-  ctx.restore();
+  if (false) {  // rotate flag
+    ctx.save();
+    ctx.textAlign = 'right';
+    ctx.rotate(Math.PI/2); // rotate coordinates by 90° clockwise
+    ctx.fillText('em box', baseline_y+descent+em_gap-5, -2); // for vertical label
+    ctx.restore();
+  } else {
+    ctx.textAlign = 'left';
+    ctx.fillText('em box', 2, baseline_y-ascent-em_gap); // for horizontal label 
+  }
 
   // SAFEBOX rectangle
   ctx.beginPath();
@@ -165,50 +209,17 @@ function drawText(typeface, text) {
   ctx.fillText('descent', xoff, baseline_y+descent);
 
   // draw sample text
-  ctx.restore();
+  ctx.restore(); // save #1
   ctx.fillText(text, xoff+b, baseline_y);
-  ctx.font = '16px sans';
-  console.log('------------- rendering finished.')
+
+  // ctx.font = '16px sans';  // fallback font in case non-valid typeface is passed
+  console.log('------------- rendering finished.');
 };
 
 
 
-// it is recommended to initialize Detector on document ready
-$(document).ready(function() {
-  // TODO some fonts that are detected are rendered incorrectly
-  //      see Bodoni*, Bookshelf, Universe CE 55 medium
-  detective = new Detector();
-  font.setup();
 
-  // since detector is initialized here,
-  // system fonts can be extract only after document is loaded.
-  typeface_arr = getAvailableFontList();
-  var metrics_text = localStorage.getItem('metrics-text-dd') || metrics_sample;
-
-  // populate dropdown controls
-  $('#options')
-    .append(createDropDown('Typeface', 'typeface-dd', typeface_arr))
-    .append(createDropDown('Font size', 'fontsize-dd', fontsize_arr))
-    .append(createDropDown('Line height', 'lineheight-dd', lineheight_arr))
-    .append( $('<div>').attr('class', 'dd')
-                       .append( $('<label>').text(' Text:') )
-                       .append( $('<input>')
-                                  .attr('id', 'metrics-text-dd')
-                                  .attr('type', 'text')
-                                  .attr('value', metrics_text)
-                                  .width(70)
-                                  .on('keyup', onTextChange)
-                        )
-           );
-
-  var text_sample = $('#metrics-text-dd').val() || localStorage.getItem('metrics-text-dd') || metrics_sample;
-  var text_typeface = $('#typeface-dd').val() || localStorage.getItem('typeface-dd') || typeface_arr[0];
-  drawText(text_typeface,  text_sample);
-});
-
-
-
-// populates option selects (dropdown list)
+// create option's selections (dropdown list)
 function createDropDown(label, id, values) {
   var container = $('<div>').addClass('dd');
   var l = $('<label>').text(label);
@@ -219,7 +230,7 @@ function createDropDown(label, id, values) {
 
   values.forEach(function(value, i) {
     var o = $('<option>').prop('value', value).text(value);
-    if (!i) o.prop('selected', true);  // init with the first value
+    if (!i) o.prop('selected', true);  // init with the 1st value
     d.append(o);
   });
 
@@ -227,7 +238,7 @@ function createDropDown(label, id, values) {
   d.on('keyup', function(){  $(this).trigger('change');  });
 
   // initialize dropdown values (from previous session if any)
-  d.find('option[value="'+localStorage.getItem(id)+'"]')
+  d.find('option[value="'+(localStorage.getItem(id) || 21)+'"]')
    .attr('selected','selected')
    .parent()
    .trigger('change');
@@ -237,16 +248,21 @@ function createDropDown(label, id, values) {
 
 
 
-// update canvas text drawing when input text field edited
+// update canvas text drawing when input text field is edited
 function onTextChange(e){
-  var id = $(this).attr('id');
+  var code = (e.keyCode || e.which);
+  // do nothing if pressed key is an arrow key (left, up, right, down), shift, ctrl, alt
+  if( [37, 38, 39, 40, 16, 17, 18].indexOf(code) > -1 ) {
+      return;
+  }
 
+  var id = $(this).attr('id');
   localStorage.setItem(id, this.value);
   // console.log('onChange: %s %s', id, this.value);
 
-  // for some reason hangs when no text in canvas, so stubbed with 'x'
-  var text = $('#metrics-text-dd').val() || 'x';
-  drawText( curr_typeface, text);
+  // for some reason browser hangs when no text is rendered, so stubbed with 'x'
+  curr_mtext = $('#metrics-text-eb').val() || 'x';
+  drawText(curr_typeface, curr_mtext);
 }
 
 
@@ -255,38 +271,26 @@ function onTextChange(e){
 function onDropDownChange(e) {
   var id = $(this).attr('id');
 
-  // store selections between sessions
+  // in order to remember selections between sessions
   localStorage.setItem(id, this.value);
-  console.log("onChange: %s %s", id, this.value );
+  // console.log("onChange: %s %s", id, this.value );
 
-  // update text sample
+  // update text sample according to the selected item
   switch(id){
     case 'typeface-dd':
+      $('#text-paragraph').css('font-family', '"'+this.value+ '", monospace');
+      curr_typeface = this.value;
 
-      // test if typeface is supported in browser
-      if (typeof detective !== 'undefined'){
-        // console.log("Lalit detector: %s", detective.detect(this.value));
-        // console.log("Font detector: %s", font.isInstalled(this.value));
-      }
-
-      $('#text-sample').css('font-family', this.value+ ', monospace');
-      // draw font metrics
-      var text_sample = $('#metrics-text-dd').val() || localStorage.getItem('metrics-text-dd') || metrics_sample;
-      curr_typeface = $('#typeface-dd').val()
-      drawText(curr_typeface, text_sample);
-
-      // DEBUG - compare layout engine rendering to canvas rendering //
-      // $('#test-metrics').text(metrics_sample);
-      // $('#test-metrics').css('font-family', this.value+ ', monospace');
-      // DEBUG - end//
+      // re-draw font metrics
+      drawText(curr_typeface, $('#metrics-text-eb').val() );
       break;
 
     case 'fontsize-dd':
-      $('#text-sample').css('font-size', this.value+'px');
+      $('#text-paragraph').css('font-size', this.value+'px');
       break;
     
     case 'lineheight-dd':
-      $('#text-sample').css('line-height', this.value+'px');
+      $('#text-paragraph').css('line-height', this.value+'px');
       break;
   }
 
@@ -411,9 +415,3 @@ function getAvailableFontList() {
   return availableFonts;
 };
 
-
-canvas.onmouseup = function(e){
-  var evt = e || event;
-  dragging_state = true;
-  lastX = evt.offsetX;
-}
