@@ -27,24 +27,29 @@ function drawText(typeface, text) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.font = metrics_fontsize + "px " + typeface;
   canvas.style.font = ctx.font;
+  ctx.save();
+
   var metrics  = ctx.measureText(metrics_alphabet),  // fontmetrics.js
       x_height = ctx.measureText('x').ascent,
       cap_height=ctx.measureText('H').ascent,
       ascent  = metrics.ascent,
-      descent = metrics.descent;
+      descent = metrics.descent,
+      safebox_h = Math.round(metrics_fontsize / 2), // safe-box height
+      xdev = x_height / safebox_h - 1;  // x-height deviation from safe-box height
+
 
   // coordinates values for drawing metric lines
   var baseline_y = Math.round( canvas.height/3*2 ),
-      xoff = 30,   // x offset from left
+      xoff = 25,   // x offset from left
       b = 15,     // size of metric lines "brackets" (extending outside bounding box)
-      line_length = canvas.width - 100, //metrics.width+b*2-xoff;
-      safebox_h = Math.round(metrics_fontsize / 2); // Math.round(height/2)
+      line_length = canvas.width - 100; //metrics.width+b*2-xoff;
 
   // console.log('Baseline Y: %sx', baseline_y);
   // console.log('Safe-box height: %s', safebox_h);
   // console.log(metrics);
+  // console.log('x-height deviation: %.1f%%', xdev*100)
 
-  // metrics labels font init
+  // font init for metrics labels
   ctx.font = metrics_label_font;
   canvas.style.font = ctx.font;
 
@@ -52,18 +57,28 @@ function drawText(typeface, text) {
   var em_gap = Math.round((metrics_fontsize - (ascent+descent)) / 2);
   ctx.beginPath();
   ctx.strokeStyle = 'rgba(255,0,0,.3)';
-  ctx.fillStyle = ctx.strokeStyle;
   ctx.lineWidth = 1;
   ctx.strokeRect(1, baseline_y-ascent-em_gap, 
-                 line_length+xoff, metrics_fontsize);
+                 line_length+xoff+40, metrics_fontsize);
   // console.log('Baseline = %s; Ascent = %s; Descent = %s; Em gap = %s', 
                // baseline_y, ascent, descent, em_gap);
+
+  ctx.fillStyle = 'rgba(255,0,0,.5)';
+  ctx.textBaseline = 'bottom';
+  ctx.textAlign = 'start';
+  ctx.fillText('em box', 2, baseline_y-ascent-em_gap);
+  // ctx.rotate(Math.PI*2/(i*6));
 
   // SAFEBOX rectangle
   ctx.beginPath();
   ctx.fillStyle = 'rgba(0, 107, 255, .3)';
   ctx.lineWidth = 2;
   ctx.fillRect(xoff, baseline_y-safebox_h, line_length-xoff, safebox_h);
+
+  ctx.fillStyle = 'rgba(0, 107, 255, .8)';
+  ctx.textBaseline = 'hanging';
+  ctx.textAlign = 'left';
+  // ctx.fillText('500UPM', line_length+5, baseline_y-safebox_h);
 
   // BASELINE line
   ctx.beginPath();
@@ -74,7 +89,7 @@ function drawText(typeface, text) {
   ctx.lineTo(line_length, baseline_y + Math.floor(ctx.lineWidth/2));
   ctx.stroke();
 
-  ctx.textBaseline = 'bottom';
+  ctx.textBaseline = 'hanging';
   ctx.textAlign = 'right';
   ctx.fillText('baseline', line_length, baseline_y+2);
 
@@ -90,6 +105,17 @@ function drawText(typeface, text) {
   ctx.textBaseline = 'hanging';
   ctx.textAlign = 'right';
   ctx.fillText('x-height', line_length, baseline_y-x_height+1);
+
+  // deviation in %
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'left';
+  ctx.font = "12px sans";
+  ctx.fillStyle = 'rgba(0, 107, 255, .9)';
+  if (xdev != 0) {
+    // ctx.fillText((xdev>=0?'+':'-') + Math.round(xdev*1000)/10 + '%', line_length, baseline_y-x_height+1);
+    ctx.fillText((xdev>=0?'+':'-') + Math.round(xdev*500) + 'UPM', line_length+3, baseline_y-x_height+5);
+  }
+  ctx.font = metrics_label_font;
 
   // CAP HEIGHT line
   ctx.beginPath();
@@ -126,16 +152,11 @@ function drawText(typeface, text) {
   ctx.textAlign = 'left';
   ctx.fillText('descent', xoff, baseline_y+descent);
 
-  // draw text
-  ctx.font = metrics_fontsize + "px " + typeface;
-  canvas.style.font = ctx.font;
-  ctx.textBaseline = 'alphabetic';
-  ctx.textAlign = 'start';
-  ctx.fillStyle = 'black';
+  // draw sample text
+  ctx.restore();
   ctx.fillText(text, xoff+b, baseline_y);
 
-
-  console.log('-------------------------------------')
+  console.log('------------- rendering finished.')
 };
 
 
