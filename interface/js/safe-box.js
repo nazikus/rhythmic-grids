@@ -20,7 +20,8 @@ console.log('Canvas %sx%s', canvas.width, canvas.height);
 // text rendering with font metrics visualized
 function drawText(typeface, text) {
   var metrics_alphabet = '\\/\'`?<>;{}!@#$%^&*()abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-      metrics_fontsize = 150; // px
+      metrics_fontsize = 150, // px
+      metrics_label_font = '16px serif';
 
   // Initialize text font and extract its metrics
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -33,7 +34,7 @@ function drawText(typeface, text) {
       descent = metrics.descent;
 
   // coordinates values for drawing metric lines
-  var baseline_y = canvas.height/3*2,
+  var baseline_y = Math.round( canvas.height/3*2 ),
       xoff = 30,   // x offset from left
       b = 15,     // size of metric lines "brackets" (extending outside bounding box)
       line_length = canvas.width - 100, //metrics.width+b*2-xoff;
@@ -41,60 +42,98 @@ function drawText(typeface, text) {
 
   // console.log('Baseline Y: %sx', baseline_y);
   // console.log('Safe-box height: %s', safebox_h);
-  console.log(metrics);
+  // console.log(metrics);
 
+  // metrics labels font init
+  ctx.font = metrics_label_font;
+  canvas.style.font = ctx.font;
 
-  // TODO metric lines labels
-  // Safebox rectangle
+  // EM BOX lines
+  var em_gap = Math.round((metrics_fontsize - (ascent+descent)) / 2);
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(255,0,0,.3)';
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(1, baseline_y-ascent-em_gap, 
+                 line_length+xoff, metrics_fontsize);
+  console.log('Baseline = %s; Ascent = %s; Descent = %s; Em gap = %s', 
+               baseline_y, ascent, descent, em_gap);
+
+  // SAFEBOX rectangle
   ctx.beginPath();
   ctx.fillStyle = 'rgba(0, 107, 255, .3)';
   ctx.lineWidth = 2;
   ctx.fillRect(xoff, baseline_y-safebox_h, line_length-xoff, safebox_h);
-  ctx.stroke();
 
-  // Baseline line
+  // BASELINE line
   ctx.beginPath();
   ctx.strokeStyle = 'lightseagreen';
+  ctx.fillStyle = ctx.strokeStyle;
   ctx.lineWidth = 3;
   ctx.moveTo(xoff, baseline_y + Math.floor(ctx.lineWidth/2));
   ctx.lineTo(line_length, baseline_y + Math.floor(ctx.lineWidth/2));
   ctx.stroke();
 
-  // x-height line
+  ctx.textBaseline = 'bottom';
+  ctx.textAlign = 'right';
+  ctx.fillText('baseline', line_length, baseline_y+2);
+
+  // X-HEIGHT line
   ctx.beginPath();
   ctx.strokeStyle = 'red';
+  ctx.fillStyle = ctx.strokeStyle;
   ctx.lineWidth = 1;
   ctx.moveTo(xoff, baseline_y - x_height);
   ctx.lineTo(line_length, baseline_y - x_height);
   ctx.stroke();
 
-  // cap-height line
+  ctx.textBaseline = 'hanging';
+  ctx.textAlign = 'right';
+  ctx.fillText('x-height', line_length, baseline_y-x_height+1);
+
+  // CAP HEIGHT line
   ctx.beginPath();
   ctx.strokeStyle = 'orange';
+  ctx.fillStyle = ctx.strokeStyle;
   ctx.lineWidth = 1;
   ctx.moveTo(xoff, baseline_y - cap_height);
   ctx.lineTo(line_length, baseline_y - cap_height);
   ctx.stroke();
 
-  // Ascent line
+  ctx.textBaseline = 'bottom';
+  ctx.textAlign = 'right';
+  ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
+
+  // ASCENT & DESCENT lines
   ctx.beginPath();
   ctx.strokeStyle = 'lightgray';
+  ctx.fillStyle = 'gray';
   ctx.lineWidth = 2;
   ctx.moveTo(xoff, baseline_y-ascent);
   ctx.lineTo(line_length, baseline_y-ascent);
   ctx.stroke();
 
-  // Descent line
   ctx.beginPath();
-  ctx.strokeStyle = 'lightgray';
-  ctx.lineWidth = 2;
   ctx.moveTo(xoff, baseline_y+descent);
   ctx.lineTo(line_length, baseline_y+descent);
   ctx.stroke();
 
+  ctx.textBaseline = 'hanging';
+  ctx.textAlign = 'left';
+  ctx.fillText('ascent', xoff, baseline_y-ascent-2);
+
+  ctx.textBaseline = 'hanging';
+  ctx.textAlign = 'left';
+  ctx.fillText('descent', xoff, baseline_y+descent);
+
   // draw text
+  ctx.font = metrics_fontsize + "px " + typeface;
+  canvas.style.font = ctx.font;
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'start';
   ctx.fillStyle = 'black';
   ctx.fillText(text, xoff+b, baseline_y);
+
 
   console.log('-------------------------------------')
 };
@@ -104,11 +143,11 @@ function drawText(typeface, text) {
 // it is recommended to initialize Detector on document ready
 $(document).ready(function() {
   // TODO some fonts that are detected are rendered incorrectly
-  //      see Bodoni*, Bookshelf
+  //      see Bodoni*, Bookshelf, Universe CE 55 medium
   detective = new Detector();
   font.setup();
 
-  // since detector is initialized just above,
+  // since detector is initialized here,
   // system fonts can be extract only after document is loaded.
   typeface_arr = getAvailableFontList();
   var metrics_text = localStorage.getItem('metrics-text-dd') || metrics_sample;
@@ -190,6 +229,9 @@ function onDropDownChange(e) {
       }
 
       $('#text-sample').css('font-family', this.value+ ', monospace');
+      // draw font metrics
+      var text_sample = $('#metrics-text-dd').val() || localStorage.getItem('metrics-text-dd') || metrics_sample;
+      drawText( $('#typeface-dd').val(),  text_sample);
 
       // DEBUG - compare layout engine rendering to canvas rendering //
       // $('#test-metrics').text(metrics_sample);
@@ -206,9 +248,6 @@ function onDropDownChange(e) {
       break;
   }
 
-  // draw font metrics
-  var text_sample = $('#metrics-text-dd').val() || localStorage.getItem('metrics-text-dd') || metrics_sample;
-  drawText( $('#typeface-dd').val(),  text_sample);
 };
 
 
