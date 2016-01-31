@@ -2,13 +2,14 @@ var typeface_arr   = ['Helvetica', 'Verdana', 'Times New Roman'];
 var fontsize_arr   = Array.apply(0, Array(40-7)).map(function(v,i) { return i+8; }); // 8..40 px
 var lineheight_arr = Array.apply(0, Array(30-2)).map(function(v,i) { return i+3; }); // 3..30 px
 
+var metrics_alphabet = 'xMHhy|$   (){}!?/\\\'`.,:;@#%^&*<>abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    metrics_fontsize = 170, // px
+    metrics_default_sample = metrics_alphabet, //'Munchy',
+    curr_typeface = null,
+    curr_mtext = null;
 
 var canvas = $('#metrics-canvas')[0],
-    ctx = canvas.getContext('2d'),
-    curr_typeface = null,
-    curr_mtext = null,
-    metrics_default_sample = 'Munchy';
-
+    ctx = canvas.getContext('2d');
 // set canvas width attribute same as css width style
 canvas.width = parseInt( $('#metrics-canvas').css('width'), 10);
 canvas.height = parseInt( $('#metrics-canvas').css('height'), 10);
@@ -49,6 +50,7 @@ $(document).ready(function() {
 
   curr_typeface   = $('#typeface-dd').val();
   $('#metrics-text-eb').val( localStorage.getItem('metrics-text-eb') || metrics_default_text );
+  curr_mtext = $('#metrics-text-eb').val();
   
   $('#typeface-dd').trigger('change');
   $('#fontsize-dd').trigger('change');
@@ -60,9 +62,8 @@ $(document).ready(function() {
 
 // text rendering with font metrics visualized
 function drawText(typeface, text) {
-  var metrics_alphabet = '\\/\'`?<>;{}!@#$%^&*()abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-      metrics_fontsize = 150, // px
-      metrics_label_font = '16px serif';
+  var startTime = performance.now();
+  var metrics_label_font = '16px serif';
 
   // Initialize text font and extract its metrics
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -80,7 +81,7 @@ function drawText(typeface, text) {
 
 
   // coordinates values for drawing metric lines
-  var baseline_y = Math.round( canvas.height/3*2 ),
+  var baseline_y = Math.round( canvas.height*.70 ),
       xoff = 25,   // x offset from left
       b = 15,     // size of metric lines "brackets" (extending outside bounding box)
       line_length = canvas.width - 100; //metrics.width+b*2-xoff;
@@ -210,10 +211,12 @@ function drawText(typeface, text) {
 
   // draw sample text
   ctx.restore(); // save #1
-  ctx.fillText(text, xoff+b, baseline_y);
+  ctx.fillText(text, xoff+b+translated, baseline_y);
 
   // ctx.font = '16px sans';  // fallback font in case non-valid typeface is passed
-  console.log('------------- rendering finished.');
+
+  var timing = performance.now() - startTime;
+  console.log('------------- rendering finished (%.1fms).', timing);
 };
 
 
@@ -415,3 +418,44 @@ function getAvailableFontList() {
   return availableFonts;
 };
 
+
+// CANVAS PANNING
+var launchState = false,
+    dragging = false,
+    lastX = 0,
+    translated = 0; //localStorage.getItem('drag-translation') || 0;
+
+window.onmousemove = function(e){
+  var evt = e || event;
+
+  if (dragging){
+    var delta = evt.offsetX - lastX;
+    translated += delta;
+    lastX = evt.offsetX;
+    // console.log('Dragging... lastX: %s; delta: %s; translated: %s', lastX, delta, translated);
+
+    // TODO optimize rendering lags via multi-layer canvas
+    if (!launchState){
+        launchState = true;
+        window.setTimeout(function(){
+            drawText(curr_typeface, curr_mtext);
+            launchState = false;
+            return ;        
+        }, 100);
+    }
+  }
+
+}
+
+canvas.onmousedown = function(e){
+  console.log('Mouse down');
+  var evt = e || event;
+  dragging = true;
+  lastX = evt.offsetX;
+}
+
+window.onmouseup = function(){
+  console.log('Mouse up');
+  dragging = false;
+  localStorage.setItem('drag-translation', translated);
+}

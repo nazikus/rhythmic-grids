@@ -19,6 +19,12 @@
  
 #metrics-canvas {
     width: 800px;
-    height: 200px;
-    /*border: thin solid red;*/
+    height: 250px;
+    border: thin solid red;
+    cursor: col-resize;
+    /*cursor: grab;*/
+}
+
+#metrics-canvas:active {
+    /*cursor: grabbing;*/
 } 

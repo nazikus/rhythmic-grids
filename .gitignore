@@ -1,4 +1,5 @@
-wiki
+_temp/
+*.wiki
 Grids/**/*.txt
 
 *.jpg
