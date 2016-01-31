@@ -457,14 +457,33 @@ window.onmousemove = function(e){
 }
 
 canvasT.onmousedown = function(e){
-  console.log('Mouse down');
+  // console.log('Mouse down');
   var evt = e || event;
   dragging = true;
   lastX = evt.offsetX;
 }
 
 window.onmouseup = function(){
-  console.log('Mouse up');
+  // console.log('Mouse up');
   dragging = false;
   localStorage.setItem('drag-translation', translated);
 }
+
+
+// SCROLL PANNING
+// TODO drag cursor for Chrome
+// TODO block further wheel event propagation
+// TODO kinectic scrolling: http://ariya.ofilabs.com/2013/11/javascript-kinetic-scrolling-part-2.html
+// TODO horizontal scroll-panning
+canvasT.addEventListener('mousewheel', function(e){
+    console.log(e);
+    translated += e.deltaX || e.deltaY;
+    drawText(curr_typeface, curr_mtext);
+
+    // mouseController.wheel(e);
+    return false; 
+}, false);
+
+// canvasT.onmousewheel = function(e) {
+//   console.log(e);
+// }

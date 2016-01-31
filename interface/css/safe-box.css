@@ -26,11 +26,15 @@
 
 #text-canvas {
     /*border: thin solid red;*/
-    cursor: grab;
     z-index: 100;
+    cursor: col-resize;
+    /*cursor: grab;*/
+    /*#eA { cursor: -webkit-grab; cursor: -moz-grab; }*/
 }
 
 #text-canvas:active {
-    /*cursor: col-resize;*/
-    cursor: grabbing;
+    cursor: col-resize;
+    /*cursor: grabbing;*/
+    /*#eA:active { cursor: -webkit-grabbing; cursor:-moz-grabbing; }*/
 } 
+
