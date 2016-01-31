@@ -17,14 +17,20 @@
     height: 150px;
 }
  
-#metrics-canvas {
+#metrics-canvas, #text-canvas {
+    position: absolute;
     width: 800px;
     height: 250px;
-    border: thin solid red;
-    cursor: col-resize;
-    /*cursor: grab;*/
+    z-index: 10;
 }
 
-#metrics-canvas:active {
-    /*cursor: grabbing;*/
+#text-canvas {
+    /*border: thin solid red;*/
+    cursor: grab;
+    z-index: 100;
+}
+
+#text-canvas:active {
+    /*cursor: col-resize;*/
+    cursor: grabbing;
 } 
