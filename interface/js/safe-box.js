@@ -2,8 +2,9 @@ var typeface_arr   = ['Helvetica', 'Verdana', 'Times New Roman'];
 var fontsize_arr   = Array.apply(0, Array(40-7)).map(function(v,i) { return i+8; }); // 8..40 px
 var lineheight_arr = Array.apply(0, Array(30-2)).map(function(v,i) { return i+3; }); // 3..30 px
 
-var metrics_alphabet = 'xMHy|$    (){}!?/\\\'`.,:;@#%^&*<>abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+var metrics_alphabet = 'xMHy|$ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ (){}!?/\\\'`.,:;@#%^&*<>',
     metrics_fontsize = 170, // px
+    metrics_fallback = '30px sans', // in case font detector give false positive
     metrics_default_text = metrics_alphabet, //'Munchy',
     curr_typeface = null,
     curr_mtext = null,
@@ -25,8 +26,8 @@ $('#text-canvas').css('margin-left', xoff);
 canvasT.width  = parseInt( $('#text-canvas').css('width'),  10);
 canvasT.height = parseInt( $('#text-canvas').css('height'), 10);
 
-console.log('Canvas %sx%s',  canvas.width,  canvas.height);
-console.log('CanvasT %sx%s', canvasT.width, canvasT.height);
+console.log('Metrics canvas %sx%s',  canvas.width,  canvas.height);
+console.log('Text canvasT %sx%s', canvasT.width, canvasT.height);
   
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -39,7 +40,7 @@ $(document).ready(function() {
   //      see Bodoni*, Bookshelf, Universe CE 55 medium, ...
   detective = new Detector();
   font.setup();
-  localStorage.clear();
+  // localStorage.clear();
 
   // since detector is initialized here,
   // system fonts can be extract only after document is loaded.
@@ -49,20 +50,28 @@ $(document).ready(function() {
   $('#options')
     .append(createDropDown('Typeface',   'typeface-dd', typeface_arr))
     .append(createDropDown('Font size',  'fontsize-dd', fontsize_arr))
-    .append(createDropDown('Line height','lineheight-dd', lineheight_arr))
-    .append( $('<div>').attr('class', 'dd')
-                       .append( $('<label>').text(' Text:') )
-                       .append( $('<input>')
-                                  .attr('id', 'metrics-text-eb')
-                                  .attr('type', 'text')
-                                  .attr('value', '')
-                                  .width(70)
-                                  .on('keyup', onTextChange)
-                        )
-           );
+    .append(createDropDown('Line height','lineheight-dd', lineheight_arr));
+  $('#metrics-options').append( $('<div>').attr('class', 'dd')
+                                          .append( $('<label>').text(' Text:') )
+                                          .append( $('<input>')
+                                                     .attr('id', 'metrics-text-eb')
+                                                     .attr('type', 'text')
+                                                     .attr('value', '')
+                                                     .width(600)
+                                                     .on('keyup', onTextChange) 
+                                                  )
+                              )
+                        .append( $('<input>').attr('id', 'alphabet-btn')
+                                             .attr('type', 'button')
+                                             .attr('value', 'Alphabet')
+                                             .on('click', function(){ 
+                                                  $('#metrics-text-eb').val( metrics_alphabet).trigger('keyup');  
+                                              })
+                               );
 
   curr_typeface = $('#typeface-dd').val();
   curr_mtext = localStorage.getItem('metrics-text-eb') || metrics_default_text;
+  curr_mtext_width = Math.round(ctxT.measureText(curr_mtext).width);
   $('#metrics-text-eb').val( curr_mtext );
   
   $('#typeface-dd').trigger('change');
@@ -110,13 +119,15 @@ function drawText(typeface, text)
 
   // Initialize text font and extract its metrics
   ctxT.clearRect(0, 0, canvasT.width, canvasT.height);
+  ctxT.font = metrics_fallback;  // fallback font in case non-valid typeface is passed
   ctxT.font = metrics_fontsize + "px " + typeface;
   canvasT.style.font = ctxT.font;
+  if (ctxT.font==metrics_fallback)
+    return;
 
   // draw sample text
   // NOTE. canvasT must have higher css z-index for proper overlay rendering
   ctxT.fillText(text, translated, baseline_y);
-  // ctxT.font = '16px sans';  // fallback font in case non-valid typeface is passed
 
   var timing = performance.now() - startTime;
   // console.log('------------- text rendering finished (%.1fms).', timing);
@@ -126,12 +137,16 @@ function drawText(typeface, text)
 // text rendering with font metrics visualized
 function drawMetrics(typeface, text) {
   var startTime = performance.now();
-  var metrics_label_font = '16px serif';
+  var error_font = false;
 
   // Initialize text font and extract its metrics
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = metrics_fallback;
   ctx.font = metrics_fontsize + "px " + typeface;
   canvas.style.font = ctx.font;
+
+  if (ctx.font == metrics_fallback)
+      error_font = true;
   
   var metrics  = ctx.measureText(metrics_alphabet),  // fontmetrics.js
       ascent  = metrics.ascent,
@@ -141,7 +156,7 @@ function drawMetrics(typeface, text) {
       safebox_h = Math.round(metrics_fontsize / 2), // safe-box height
       xdev = x_height / safebox_h - 1;  // x-height deviation from safe-box height
 
-  curr_mtext_width = Math.round(metrics.width); // NB! global var
+  curr_mtext_width = Math.round(ctx.measureText(curr_mtext).width); // NB! global var
   var baseline_y = Math.round( canvas.height*.70 ),
       line_length = canvas.width - xoff; //metrics.width+b*2-xoff;
 
@@ -151,6 +166,7 @@ function drawMetrics(typeface, text) {
   // console.log('x-height deviation: %.1f%%', xdev*100)
 
   // font init for metrics labels
+  var metrics_label_font = '16px serif';
   ctx.font = metrics_label_font;
   canvas.style.font = ctx.font;
 
@@ -176,6 +192,9 @@ function drawMetrics(typeface, text) {
     ctx.textAlign = 'left';
     ctx.fillText('em box', 2, baseline_y-ascent-em_gap); // for horizontal label 
   }
+
+  if (error_font)
+      return ;
 
   // SAFEBOX rectangle
   ctx.beginPath();
@@ -289,12 +308,12 @@ function onTextChange(e){
   curr_mtext = this.value || 'x';
   curr_mtext_width = Math.round(ctxT.measureText(curr_mtext).width);
   
-  console.log('onChange: id=%s; value=%s; width: %spx', id, this.value, curr_mtext_width);
+  // console.log('onChange: id=%s; value=%s; width: %spx', id, this.value, curr_mtext_width);
   drawText(curr_typeface, curr_mtext);
 
   // TODO trigger wheel events, in order to auto-scroll when text is deleted 
-  // $(window).trigger( jQuery.Event('DOMMouseScroll') );
-  // $(window).trigger( jQuery.Event('mousewheel') );
+  // $(canvasT).trigger( jQuery.Event('DOMMouseScroll') );
+  // $(canvasT).trigger( jQuery.Event('mousewheel') );
 }
 
 
@@ -452,18 +471,18 @@ function getAvailableFontList() {
      CANVAS PANNING 
 ***********************/
 
-var launchState = false,
-    dragging = false,
+var dragging = false,
     lastX = 0,
     translated = 0; //localStorage.getItem('drag-translation') || 0;
 
+// stops scrolling if text goes outside the canvas
 function restrictRange(transdelta){
   // console.log('Scrolling lastX: %s; delta: %s; translated: %s; width: %s', 
-    // lastX, transdelta-translated, translated, curr_mtext_width);
-  if (curr_mtext_width < canvasT.width)
+  //              lastX, transdelta-translated, translated, curr_mtext_width);
+  if (curr_mtext_width < canvasT.width) // if text fits within canvas width completely
     return transdelta > canvasT.width-curr_mtext_width ? canvasT.width-curr_mtext_width :
            transdelta < 0 ? 0 : transdelta;
-  else
+  else // if text is wider then the canvas width
     return transdelta > 0 ? 0 :
            transdelta < -curr_mtext_width+canvasT.width ? -curr_mtext_width+canvasT.width : 
            transdelta;
@@ -528,8 +547,6 @@ function mouseWheelEvent(e){
     return false; 
 };
 
-// stop wheel event propagation to main window
+// disable wheel events in main window, but still accessible in canvas
+// FIX works in chrome but not in FF
 // window.onwheel = function() { return false; }
-// canvasT.onmousewheel = function(e) {
-//   console.log(e);
-// }
