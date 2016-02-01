@@ -7,7 +7,8 @@ var metrics_alphabet = 'xMHy|$    (){}!?/\\\'`.,:;@#%^&*<>abcdefghijklmnopqrstuv
     metrics_default_text = metrics_alphabet, //'Munchy',
     curr_typeface = null,
     curr_mtext = null,
-    xoff = 25;   // x offset from left
+    curr_mtext_width = 0,
+    xoff = 50;   // horixontal (x) offset (defines left and right margins)
 
 var canvas  = $('#metrics-canvas')[0],
     canvasT = $('#text-canvas')[0],
@@ -18,6 +19,9 @@ var canvas  = $('#metrics-canvas')[0],
 // set canvas width attribute same as css width style
 canvas.width   = parseInt( $('#metrics-canvas').css('width'),  10);
 canvas.height  = parseInt( $('#metrics-canvas').css('height'), 10);
+
+$('#text-canvas').css('width', canvas.width-xoff*2);
+$('#text-canvas').css('margin-left', xoff);
 canvasT.width  = parseInt( $('#text-canvas').css('width'),  10);
 canvasT.height = parseInt( $('#text-canvas').css('height'), 10);
 
@@ -43,9 +47,9 @@ $(document).ready(function() {
 
   // populate dropdown controls
   $('#options')
-    .append(createDropDown('Typeface', 'typeface-dd', typeface_arr))
-    .append(createDropDown('Font size', 'fontsize-dd', fontsize_arr))
-    .append(createDropDown('Line height', 'lineheight-dd', lineheight_arr))
+    .append(createDropDown('Typeface',   'typeface-dd', typeface_arr))
+    .append(createDropDown('Font size',  'fontsize-dd', fontsize_arr))
+    .append(createDropDown('Line height','lineheight-dd', lineheight_arr))
     .append( $('<div>').attr('class', 'dd')
                        .append( $('<label>').text(' Text:') )
                        .append( $('<input>')
@@ -57,14 +61,45 @@ $(document).ready(function() {
                         )
            );
 
-  curr_typeface   = $('#typeface-dd').val();
-  $('#metrics-text-eb').val( localStorage.getItem('metrics-text-eb') || metrics_default_text );
-  curr_mtext = $('#metrics-text-eb').val();
+  curr_typeface = $('#typeface-dd').val();
+  curr_mtext = localStorage.getItem('metrics-text-eb') || metrics_default_text;
+  $('#metrics-text-eb').val( curr_mtext );
   
   $('#typeface-dd').trigger('change');
   $('#fontsize-dd').trigger('change');
   $('#lineheight-dd').trigger('change');
 });
+
+
+
+// create option's selections (dropdown list)
+function createDropDown(label, id, values) {
+  var container = $('<div>').addClass('dd');
+  var l = $('<label>').text(label);
+  var d = $('<select>').prop('id', id);
+
+  container.append(l);
+  container.append(d);
+
+  values.forEach(function(value, i) {
+    var o = $('<option>').prop('value', value).text(value);
+    if (!i) o.prop('selected', true);  // init with the 1st value
+    d.append(o);
+  });
+
+  d.on('change', onDropDownChange);
+  d.on('keyup', function(){  $(this).trigger('change');  });
+
+  // initialize dropdown values (from previous session if any)
+  d.find('option[value="'+(localStorage.getItem(id) || 21)+'"]')
+   .attr('selected','selected')
+   .parent()
+   .trigger('change');
+
+  return container;
+}
+
+
 
 
 function drawText(typeface, text)
@@ -80,7 +115,7 @@ function drawText(typeface, text)
 
   // draw sample text
   // NOTE. canvasT must have higher css z-index for proper overlay rendering
-  ctxT.fillText(text, xoff+translated, baseline_y);
+  ctxT.fillText(text, translated, baseline_y);
   // ctxT.font = '16px sans';  // fallback font in case non-valid typeface is passed
 
   var timing = performance.now() - startTime;
@@ -106,8 +141,9 @@ function drawMetrics(typeface, text) {
       safebox_h = Math.round(metrics_fontsize / 2), // safe-box height
       xdev = x_height / safebox_h - 1;  // x-height deviation from safe-box height
 
+  curr_mtext_width = Math.round(metrics.width); // NB! global var
   var baseline_y = Math.round( canvas.height*.70 ),
-      line_length = canvas.width - 100; //metrics.width+b*2-xoff;
+      line_length = canvas.width - xoff; //metrics.width+b*2-xoff;
 
   // console.log('Baseline Y: %sx', baseline_y);
   // console.log('Safe-box height: %s', safebox_h);
@@ -124,7 +160,7 @@ function drawMetrics(typeface, text) {
   ctx.strokeStyle = 'rgba(255, 0, 0, .7)';
   ctx.lineWidth = 1;
   ctx.strokeRect(1, baseline_y-ascent-em_gap, 
-                 line_length+xoff+30, metrics_fontsize);
+                 line_length+xoff-1, metrics_fontsize);
   // console.log('Baseline = %s; Ascent = %s; Descent = %s; Em gap = %s', 
                // baseline_y, ascent, descent, em_gap);
   
@@ -237,34 +273,6 @@ function drawMetrics(typeface, text) {
 };
 
 
-// create option's selections (dropdown list)
-function createDropDown(label, id, values) {
-  var container = $('<div>').addClass('dd');
-  var l = $('<label>').text(label);
-  var d = $('<select>').prop('id', id);
-
-  container.append(l);
-  container.append(d);
-
-  values.forEach(function(value, i) {
-    var o = $('<option>').prop('value', value).text(value);
-    if (!i) o.prop('selected', true);  // init with the 1st value
-    d.append(o);
-  });
-
-  d.on('change', onDropDownChange);
-  d.on('keyup', function(){  $(this).trigger('change');  });
-
-  // initialize dropdown values (from previous session if any)
-  d.find('option[value="'+(localStorage.getItem(id) || 21)+'"]')
-   .attr('selected','selected')
-   .parent()
-   .trigger('change');
-
-  return container;
-}
-
-
 
 // update canvas text drawing when input text field is edited
 function onTextChange(e){
@@ -276,11 +284,17 @@ function onTextChange(e){
 
   var id = $(this).attr('id');
   localStorage.setItem(id, this.value);
-  // console.log('onChange: %s %s', id, this.value);
 
   // for some reason browser hangs when no text is rendered, so stubbed with 'x'
-  curr_mtext = $('#metrics-text-eb').val() || 'x';
+  curr_mtext = this.value || 'x';
+  curr_mtext_width = Math.round(ctxT.measureText(curr_mtext).width);
+  
+  console.log('onChange: id=%s; value=%s; width: %spx', id, this.value, curr_mtext_width);
   drawText(curr_typeface, curr_mtext);
+
+  // TODO trigger wheel events, in order to auto-scroll when text is deleted 
+  // $(window).trigger( jQuery.Event('DOMMouseScroll') );
+  // $(window).trigger( jQuery.Event('mousewheel') );
 }
 
 
@@ -443,15 +457,26 @@ var launchState = false,
     lastX = 0,
     translated = 0; //localStorage.getItem('drag-translation') || 0;
 
+function restrictRange(transdelta){
+  // console.log('Scrolling lastX: %s; delta: %s; translated: %s; width: %s', 
+    // lastX, transdelta-translated, translated, curr_mtext_width);
+  if (curr_mtext_width < canvasT.width)
+    return transdelta > canvasT.width-curr_mtext_width ? canvasT.width-curr_mtext_width :
+           transdelta < 0 ? 0 : transdelta;
+  else
+    return transdelta > 0 ? 0 :
+           transdelta < -curr_mtext_width+canvasT.width ? -curr_mtext_width+canvasT.width : 
+           transdelta;
+}
+
 window.onmousemove = function(e){
   var evt = e || event;
 
   if (dragging){
     var delta = evt.offsetX - lastX;
-    translated += delta;
+    translated = restrictRange(translated+delta);
     lastX = evt.offsetX;
     drawText(curr_typeface, curr_mtext);
-    // console.log('Dragging... lastX: %s; delta: %s; translated: %s', lastX, delta, translated);
   }
 
 }
@@ -474,16 +499,37 @@ window.onmouseup = function(){
 // TODO drag cursor for Chrome
 // TODO block further wheel event propagation
 // TODO kinectic scrolling: http://ariya.ofilabs.com/2013/11/javascript-kinetic-scrolling-part-2.html
-// TODO horizontal scroll-panning
-canvasT.addEventListener('mousewheel', function(e){
-    console.log(e);
-    translated += e.deltaX || e.deltaY;
-    drawText(curr_typeface, curr_mtext);
+// TODO horizontal scroll-panning (currently only in FireFox)
+canvasT.addEventListener('DOMMouseScroll', mouseWheelEvent);
+canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
 
+function mouseWheelEvent(e){
+    var delta = 0;
+
+    // console.log(e);
+    switch (e.type){
+      case 'DOMMouseScroll': // FireFox
+        delta = Math.round(e.wheelDelta || e.detail*10);
+        break;
+
+      case 'mousewheel': // Chrome (e.deltaY),  IE & Opera (e.wheelDelta)
+        delta = Math.round(e.deltaX || e.deltaY || e.wheelDelta);
+        break; 
+      
+      default:
+        console.log('Currently "%s" type is not supported.', e.type);
+        return false;
+    }
+    translated = restrictRange(translated+delta);
+    // translated += delta;
+
+    drawText(curr_typeface, curr_mtext);
     // mouseController.wheel(e);
     return false; 
-}, false);
+};
 
+// stop wheel event propagation to main window
+// window.onwheel = function() { return false; }
 // canvasT.onmousewheel = function(e) {
 //   console.log(e);
 // }
