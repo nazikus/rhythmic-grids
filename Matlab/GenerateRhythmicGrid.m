@@ -52,6 +52,10 @@ function GridConfig = GenerateRhythmicGrid(CanvasW, Ratio, Baseline, ColumnsNum,
 %       Mode       : 'show' | 'save' | 'savefull'
 %       ShowBlocks : 'rhythm'  | 'sub-rhythm' | 'all'
 %       ShowGrid   : 'largest' | 'all'
+%        
+%       'sub-rhythm' is not implemented yet.
+%       'savefull' does not crop output to screenheight, but save full
+%        image (some rendering problems in matlab)
 
 if ~exist('SubRhythm', 'var'); SubRhythm = false; end;
 Ratio = RatioStr2Struct(Ratio);

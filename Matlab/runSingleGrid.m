@@ -4,14 +4,14 @@ addpath('Utils');
 
 %% INPUT
 MaxCanvasWidth = 1280;      % 960 1280 1440
-RatioStr = '3x2';           % '1x1' '3x2' '16x9'
+RatioStr = '1x1';           % '1x1' '3x2' '16x9'
 Baseline =  9;              % 3:12
-Columns  =  11;             % 5 6 9 12
+Columns  =  10;             % 5 6 9 12
 GutterToBaselineRatio = 1;  % 0 1 2 3
 
 %% PLOT OPTIONS
 Options.Mode       = 'show';    % 'show', 'save', 'savefull'
-Options.ShowBlocks = 'rhythm';  % 'rhythm', 'sub-rhythm', 'all'
+Options.ShowBlocks = 'sub-rhythm';  % 'rhythm', 'sub-rhythm', 'all' (sub-rhythm not implemented yet)
 Options.ShowGrid   = 'largest'; % 'largest', 'all'
 Options.Formats    = {'png'};   % {'png', 'tiff', 'svg', 'pdf', 'eps', 'fig'}
 Options.OutputDir  = '..\Grids\';

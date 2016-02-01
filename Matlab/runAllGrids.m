@@ -14,17 +14,17 @@ GenerateImagesMode = true;  % if False, show statistics only, without images
 
 %% PLOT OPTIONS
 Options.Mode       = 'save';     % 'save', 'savefull'.  NB! do NOT use 'show' - will display hundreds of figures
-Options.ShowBlocks = 'rhythm';   % 'rhythm', 'sub-rhythm', 'all'
+Options.ShowBlocks = 'rhythm';   % 'rhythm', 'sub-rhythm', 'all' (sub-rhythm not implemented yet)
 Options.Output     = 'all';      % 'valid', 'all' (valid+invalid)
 Options.ShowGrid   = 'largest';  % 'largest', 'all' - out of all fitting grids for current configuration
 Options.Formats    = {'png'};    % currently supports 'png' only
-Options.OutputDir  = '..\Grids\';
+Options.OutputDir  = sprintf('..\\Grids\\%s\\', datestr(now, 'yyyy-mm-dd HH-MM'));
 
 Options.IsOctave   = exist('OCTAVE_VERSION', 'builtin') ~= 0; % Octave/Matlab detection
 
-%% TRAVERSING GRIDS
+%% INITIALIZING
 
-if Options.IsOctave % if Octave - force false, Octave does not support GridPlot() yet
+if Options.IsOctave % if Octave - force GenerateImageMode false, Octave does not support GridPlot() yet
     GenerateImagesMode = false;  
     hline = repelems('-', [1; 60]);
 else
@@ -32,20 +32,28 @@ else
 end
 
 if GenerateImagesMode
+    fprintf('%s', Options.OutputDir)
+    logdir = [Options.OutputDir 'logs\'];
+    if ~exist(logdir, 'dir'); 
+        mkdir(logdir); 
+    end
+
     % log output to file
     logfilename = strrep(strrep(datestr(now),':','-'), ' ', '_');
     diary off;
-    diary([Options.OutputDir logfilename '.txt']);
+    diary([logdir logfilename '.txt']);
 else 
     % supress figure creation
     Options.Formats = {};
 end
 
+%% TRAVERSING GRIDS
+
 TotalCombinations = numel(MaxWidths)*numel(Ratios)*numel(Baselines)*numel(Columns)*numel(GutterToBaselineRatios);
 CTotal = 0; CZero = 0; CFailGrid = 0;
 IsValidGrid = GetGridValidator();
 
-tic;
+maintic = tic;
 for width = MaxWidths
 for ratio = Ratios; ratio=ratio{1};
 for baseline = Baselines
@@ -75,7 +83,7 @@ end
 
 CInvalid = CFailGrid + CZero;
 CValid   = CTotal - CInvalid;
-offs = 0; t = round(toc);
+offs = 0; t = round(toc(maintic));
 fprintf('\n\nTime elapsed: %dm %02ds', floor(t/60), mod(t,60));
 fprintf('\n\nStatistics: \n');
 fprintf('\t%s: %d\n', 'Total models generated', CTotal);
@@ -88,7 +96,7 @@ fprintf('\t%*s: ', offs+4, 'Criteria'); disp(IsValidGrid);
 if GenerateImagesMode
     diary off;
     % log grep configurations with 0 uBlocks
-    currDir = pwd; cd(Options.OutputDir)
+    currDir = pwd; cd(logdir)
     system(['grep -B3 -A1 "candidates\: 0" "' [logfilename '.txt" '] ['> "' logfilename '.candidates0.txt"'] ]);
     system(['grep -B4 -A2 "INVALID " "' [logfilename '.txt" '] ['> "' logfilename '.invalid.txt"'] ]);    
     cd(currDir);
