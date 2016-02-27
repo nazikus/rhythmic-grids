@@ -23,6 +23,5 @@
     "gulp-run-sequence": "0.3.2",
     "gulp-watch": "4.3.5"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
