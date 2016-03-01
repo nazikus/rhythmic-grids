@@ -1,6 +1,52 @@
-body {
+html, body {
 	font-family: @font-regular, Helvetica, Arial;
+	-webkit-font-smoothing: antialiased;
+	font-size: 16px;
+	line-height: 1.375;
 }
+a, a:active, a:focus {
+	outline: none;
+}
+h2 {
+	font-size: 24px;
+	line-height: 1.08333;
+	margin-top: 85px;
+	margin-bottom: 100px;
+}
+
+// Header
+.logo {
+	font-size: 24px;
+	font-family: @font-medium;
+	display: inline-block;
+	position: relative;
+	padding-right: 5px;
+	&:after {
+		content: " ";
+		display: block;
+		background-color: @color-blue;
+		width: 107px;
+		height: 4px;
+		position: absolute;
+    	right: -100%;
+    	bottom: 15px;
+	}
+}
+.header {
+	padding-top: 42px;
+}
+.app-name, .credits {
+	margin-top: 9px;
+}
+.credits {
+	text-decoration: none;
+	color: #fff;
+	outline: none;
+	letter-spacing: 0.88px;
+}
+
+// END Header
+
 section {
 	// Banner styles
 	&.banner {
@@ -11,6 +57,22 @@ section {
 		a {
 			color: #fff;
 		}
+		h1 {
+			font-size: 64px;
+			font-weight: 400;
+			line-height: 1.09375;
+			margin: 160px 0;
+		}
+		.subtitle {
+			font-size: 21px;
+			line-height: 1.2857;
+			margin-bottom: 10px;
+		}
 	}
 	// END Banner styles
 }
+
+
+
+
+
