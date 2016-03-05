@@ -3,9 +3,12 @@ html, body {
 	-webkit-font-smoothing: antialiased;
 	font-size: 16px;
 	line-height: 1.375;
+	background-color: @body-bg;
 }
-a, a:active, a:focus {
+a, a:active, a:focus, a:visited {
 	outline: none;
+	color: @color-blue;
+	text-decoration: none;
 }
 h2 {
 	font-size: 24px;
@@ -50,7 +53,8 @@ h2 {
 section {
 	// Banner styles
 	&.banner {
-		min-height: 100vh;
+		height: 100vh;
+		min-height: 600px;
 		background: url('../img/background-img.jpg') no-repeat 0 0;
 		background-size: cover;
 		color: #fff;
@@ -61,16 +65,49 @@ section {
 			font-size: 64px;
 			font-weight: 400;
 			line-height: 1.09375;
-			margin: 160px 0;
+			margin: 0;
 		}
 		.subtitle {
 			font-size: 21px;
 			line-height: 1.2857;
 			margin-bottom: 10px;
+			position: absolute;
+			bottom: 0;
+			margin-bottom: 120px;
 		}
 	}
 	// END Banner styles
 }
+
+// styles for font forms section
+.font-source-separator {
+	display: inline-block;
+	margin: 0 5px;
+}
+.font-controls {
+
+}
+.font-select-wrapper,
+.input-fontsize,
+.input-lineheight {
+	display: inline-block;
+}
+.font-select-wrapper {
+	width: 48%;
+	select {
+		width: 100%;
+		max-width: 150px;
+	}
+}
+.input-fontsize,
+.input-lineheight {
+	width: 25%;
+	input {
+		max-width: 67px;
+	}
+}
+// END styles for font forms section
+
 
 
 

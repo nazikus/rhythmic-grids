@@ -14,8 +14,8 @@
 		
 		<section class="banner">
 
-			<div class="container flex-column height-full">
-				<header class="flex-child">
+			<div class="container height-full p-rel">
+				<header>
 					<div class="flex-row header">
 						<div class="flex-child">
 							<!-- logo -->
@@ -40,12 +40,12 @@
 						</div>
 					</div>
 				</header>
-				<div class="flex-child text-center">
+				<div class="text-center text-vertical-center">
 					<h1>
 						No rhythm <br>no hip-hop
 					</h1>
 				</div>
-				<div class="flex-child">
+				<div>
 					<div class="subtitle">
 						Calculate complex modular<br> grids in seconds
 					</div>
@@ -58,12 +58,58 @@
 			<h2 class="text-center">
 				Set your body copy
 			</h2>
-			<div>
-				
+			<div class="container">
+				<div class="flex-row">
+					<div class="flex-child half">
+						<div class="font-source">
+							<a href="#">Local</a>
+							<span class="font-source-separator"> / </span>
+							<span>Google fonts</span>
+						</div>
+						<div class="font-controls">
+							<div class="font-select-wrapper">
+								<select name="fontSelect" 
+										id="fontSelect">
+									<option value="Helvetica" selected>Helvetica</option>
+									<option value="Arial">Arial</option>
+								</select>
+							</div>
+							<div class="input-fontsize">
+								<input type="text" placeholder="16px" />
+							</div>
+							<div class="input-lineheight">
+								<input type="text" placeholder="22px" />
+							</div>
+						</div>
+						<p class="example-text">
+							Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media proportion of your taste. Concordia will do the rest and will generate a modular grid just for you. Now, choose any of your system fonts above.
+						</p>
+						<div class="baseline-info">
+							Your baseline value will be 
+							<span>8</span> px
+						</div>
+					</div>
+					<div class="flex-child half">
+						<p>Adjust properties to improve legibility</p>
+						<div class="fontmetrics-input-wrapper">
+							<input type="text" />
+						</div>
+						<div class="fontmetrics-wrapper">
+							<!-- fontmetrics -->
+						</div>
+						<p class="fontmetrics-helper-info">
+							Keep in mind, that x-height value of your body copy should be as closest to 50% of Em-box height as possible to be legible on web. 
+						</p>
+					</div>
+				</div>
 			</div>
+			
 		</section>
 		<section>
-			
+			<h2 class="text-center">
+				Now choose your ratio
+				<div class="heading-arrow">↓</div>
+			</h2>
 		</section>
 		<section>
 			

@@ -3,11 +3,15 @@
 	max-width: @container-width-lg;
 	margin: 0 auto;
 }
-
+.flex-row, .flex-column {
+	margin-left: -(@gutter-width/2);
+	margin-right: -(@gutter-width/2);
+}
 .flex-row {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+
 }
 .flex-column {
 	display: flex;
@@ -16,4 +20,18 @@
 
 .flex-child {
 	flex: 1 1 100%;
+	padding: 0 (@gutter-width/2);
+}
+.half {
+	margin-left: 8.33%;
+	margin-right: 8.33%;
+}
+@media (max-width: @container-width-lg + (@gutter-width * 2)) {
+	.container {
+		padding: 0 @gutter-width;
+	}
+	.flex-row, .flex-column {
+		margin-left: 0;
+		margin-right: 0;
+	}
 }
