@@ -53,10 +53,12 @@ h2 {
 section {
 	// Banner styles
 	&.banner {
+		overflow: hidden;
 		height: 100vh;
 		min-height: 600px;
-		background: url('../img/background-img.jpg') no-repeat 0 0;
+		background: #000000;
 		background-size: cover;
+		position: relative;
 		color: #fff;
 		a {
 			color: #fff;
@@ -75,6 +77,10 @@ section {
 			bottom: 0;
 			margin-bottom: 120px;
 		}
+	}
+	.tesseract {
+		position: absolute;
+		transform: translate(-35%, -35%);
 	}
 	// END Banner styles
 }

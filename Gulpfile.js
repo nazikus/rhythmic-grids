@@ -61,6 +61,17 @@ gulp.task('images', function() {
 // js task
 gulp.task('js', function() {
     return gulp.src([
+            'node_modules/jquery/dist/jquery.js',
+            // tesseract
+            jsSrc + '/vendor/pre3d.js',
+            jsSrc + '/vendor/shapeutils.js',
+            jsSrc + '/vendor/tesseract.js',
+            // font metrics & detect
+            jsSrc + '/vendor/fontmetrics.js',
+            jsSrc + '/vendor/font.js',
+            jsSrc + '/vendor/fontdetect.js',
+            // app code
+            jsSrc + '/safe-box.js',
             jsSrc + '/app.js'
         ])
         .pipe(concat('app.js'))
