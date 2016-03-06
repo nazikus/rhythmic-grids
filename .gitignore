@@ -1,2 +1,7 @@
 node_modules
 dist
+_temp
+Grids/
+*.sublime-project
+*.sublime-workspace
+rhythmic-grids.wiki/
