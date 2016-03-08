@@ -163,7 +163,7 @@
 				</div>
 			</div>
 		</section>
-		<section>
+		<section class="grid-section">
 			<div class="container">
 				<h2 class="text-center">
 					Your grid is ready
@@ -171,21 +171,145 @@
 				<div class="flex-row">
 					<div class="flex-child">
 						<div class="form-label">
-							
+							Grid width (up to)
+						</div>
+						<div class="form-group">
+							<input type="radio" id="gridUpTo960" name="gridUpTo" checked />
+							<label for="gridUpTo960">
+								960
+							</label>
+							<input type="radio" id="gridUpTo1280" name="gridUpTo" />
+							<label for="gridUpTo1280">
+								1280
+							</label>
+							<input type="radio" id="gridUpTo1440" name="gridUpTo" />
+							<label for="gridUpTo1440">
+								1440
+							</label>
 						</div>
 					</div>
 					<div class="flex-child">
-						
+						<div class="form-label">
+							Ratio
+						</div>
+						<div class="form-group">
+							<input type="radio" id="gridRatio1x1" name="gridRatio" checked />
+							<label for="gridRatio1x1">
+								1:1
+							</label>
+							<input type="radio" id="gridRatio3x2" name="gridRatio" />
+							<label for="gridRatio3x2">
+								3:2
+							</label>
+							<input type="radio" id="gridRatio16x9" name="gridRatio" />
+							<label for="gridRatio16x9">
+								16:9
+							</label>
+						</div>
 					</div>
 					<div class="flex-child">
-						
+						<div class="form-label">
+							Baseline
+						</div>
+						<div class="form-group">
+							<input type="radio" id="gridBaseline" name="gridBaseline" checked />
+							<label for="gridBaseline">
+								8
+							</label>
+						</div>
 					</div>
-					<div class="flex-child"></div>
-					<div class="flex-child"></div>
-					<div class="flex-child"></div>
+					<div class="flex-child">
+						<div class="form-label">
+							Columns
+						</div>
+						<div class="form-group">
+							<input type="radio" id="gridColumns6" name="gridColumns" checked />
+							<label for="gridColumns6">
+								6
+							</label>
+							<input type="radio" id="gridColumns9" name="gridColumns" />
+							<label for="gridColumns9">
+								9
+							</label>
+							<input type="radio" id="gridColumns12" name="gridColumns" />
+							<label for="gridColumns12">
+								12
+							</label>
+						</div>
+					</div>
+					<div class="flex-child">
+						<div class="form-label">
+							Gutter
+						</div>
+						<div class="form-group">
+							<input type="radio" id="gridGutter0" name="gridGutter" checked />
+							<label for="gridGutter0">
+								0
+							</label>
+							<input type="radio" id="gridGutterx1" name="gridGutter" />
+							<label for="gridGutterx1">
+								x1
+							</label>
+							<input type="radio" id="gridGutterx2" name="gridGutter" />
+							<label for="gridGutterx2">
+								x2
+							</label>
+							<input type="radio" id="gridGutterx3" name="gridGutter" />
+							<label for="gridGutterx3">
+								x3
+							</label>
+						</div>
+					</div>
+					<div class="flex-child">
+						<div class="downloads">
+							<a href="#">Web</a>
+							<a href="#">Sketch</a>
+							<a href="#">Photoshop</a>
+						</div>
+					</div>
+				</div>
+				<div class="settings-links">
+					<div class="flex-row">
+						<div class="flex-child">
+							<a href="#">Hide Grid</a>
+						</div>
+						<div class="flex-child">
+							Your column width is 176 px with 33 px gutter
+						</div>
+						<div class="flex-child">
+							Share this grid settings http://crdia.io/248
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>
+		<footer class="footer">
+			<div class="container">
+				<div class="flex-row">
+					<div class="flex-child">
+						<!-- logo -->
+						<div class="logo">
+							Concordia
+						</div>
+					</div>
+					<div class="flex-child">
+						<!-- app name -->
+						<div class="text-center app-name">
+							Rhytmic grid calculator
+						</div>
+					</div>
+					<div class="flex-child">
+						<!-- Credits -->
+						<div class="credits text-right">
+							<a href="#">
+								Credits
+							</a>
+						</div>
+						
+					</div>
+				</div>
+			</div>
+		</footer>
 	</div>
 
 	<!-- Scripts -->
