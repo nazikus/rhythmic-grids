@@ -71,7 +71,7 @@ gulp.task('js', function() {
             jsSrc + '/vendor/font.js',
             jsSrc + '/vendor/fontdetect.js',
             // app code
-            jsSrc + '/safe-box.js',
+            // jsSrc + '/safe-box.js',
             jsSrc + '/app.js'
         ])
         .pipe(concat('app.js'))

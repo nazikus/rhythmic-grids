@@ -10,13 +10,7 @@
             <tspan x="149.674604" y="14.3492424">+</tspan>
         </text>
         <path d="M114.043478,5.20730444 L110.317478,5.20730444 C109.87713,5.20730444 109.38513,5.80450667 109.38513,6.60337556 L109.38513,9.37669556 L114.043478,9.37669556 L114.043478,13.3293622 L109.38513,13.3293622 L109.38513,25.1997311 L104.987391,25.1997311 L104.987391,13.3293622 L101,13.3293622 L101,9.37669556 L104.987391,9.37669556 L104.987391,7.05 C104.987391,3.71389556 107.233739,1 110.317478,1 L114.043478,1 L114.043478,5.20730444 L114.043478,5.20730444 Z" id="Shape" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
-        <g id="line-height-copy" sketch:type="MSLayerGroup" transform="translate(51.000000, 1.000000)" fill="#060100">
-            <rect id="Rectangle-path" sketch:type="MSShapeGroup" x="0.04" y="11.2" width="12" height="0.8"></rect>
-            <rect id="Rectangle-path" sketch:type="MSShapeGroup" transform="translate(6.040000, 5.860000) rotate(90.000000) translate(-6.040000, -5.860000) " x="3.29" y="5.36" width="5.5" height="1"></rect>
-            <rect id="Rectangle-path" sketch:type="MSShapeGroup" x="0.04" y="0" width="12" height="0.8"></rect>
-            <path d="M8.27,3.89 L3.81,3.89 L6.04,1.72 L8.27,3.89 L8.27,3.89 Z" id="Shape" sketch:type="MSShapeGroup"></path>
-            <path d="M8.27,7.89 L3.81,7.89 L6.04,10.07 L8.27,7.89 L8.27,7.89 Z" id="Shape" sketch:type="MSShapeGroup"></path>
-        </g>
+        <path d="M57.54,8.89 L57.54,4.89 L59.27,4.89 L57.04,2.72 L54.81,4.89 L56.54,4.89 L56.54,8.89 L54.81,8.89 L57.04,11.07 L59.27,8.89 L57.54,8.89 Z M51.04,12.2 L63.04,12.2 L63.04,13 L51.04,13 L51.04,12.2 Z M51.04,1 L63.04,1 L63.04,1.8 L51.04,1.8 L51.04,1 Z" id="Rectangle-path" opacity="0.6" fill="#060100" sketch:type="MSShapeGroup"></path>
         <path d="M11.23,1 L14.04,8 L13.04,8 L12.3,6.15 L9.22,6.15 L8.49,8 L7.49,8 L10.3,1 L11.24,1 L11.23,1 Z M10.75,2.17 L10.62,2.55 L9.52,5.3 L11.97,5.3 L10.86,2.55 L10.75,2.17 Z" id="Shape" opacity="0.6" fill="#000000" sketch:type="MSShapeGroup"></path>
         <path d="M4.78,3.1 L6.72,8 L5.86,8 L5.39,6.8 L3.32,6.8 L2.86,8 L1.97,8 L3.97,3.1 L4.81,3.1 L4.78,3.1 Z M4.35,4.1 L4.26,4.37 L3.58,6.12 L5.14,6.12 L4.44,4.34 L4.35,4.1 Z" id="Shape" opacity="0.6" fill="#000000" sketch:type="MSShapeGroup"></path>
     </g>

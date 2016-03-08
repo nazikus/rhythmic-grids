@@ -5,9 +5,13 @@ select, input {
 	border-bottom: 1px solid @color-gray-light;
 	border-radius: 0;
 	background: none;
+	transition: border-color 0.12s ease;
+	&:focus {
+		border-bottom-color: @color-blue;
+	}
 }
 input::-moz-focus-inner { 
-  border: 0;
+	border: 0;
 }
 select {
 	-webkit-appearance: none;

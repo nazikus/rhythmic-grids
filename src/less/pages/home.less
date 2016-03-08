@@ -15,6 +15,7 @@ h2 {
 	line-height: 1.08333;
 	margin-top: 85px;
 	margin-bottom: 100px;
+	font-weight: 400;
 }
 
 // Header
@@ -86,12 +87,15 @@ section {
 }
 
 // styles for font forms section
+.font-source {
+	margin-bottom: 30px;
+}
 .font-source-separator {
 	display: inline-block;
 	margin: 0 5px;
 }
 .font-controls {
-
+    margin-bottom: 25px;
 }
 .font-select-wrapper,
 .input-fontsize,
@@ -100,20 +104,128 @@ section {
 }
 .font-select-wrapper {
 	width: 48%;
+	label {
+		position: relative;
+	}
 	select {
 		width: 100%;
 		max-width: 150px;
+	}
+	.triangle {
+		color: #606060;
+		position: absolute;
+		right: 0;
+		top: 0;
+		pointer-events: none;
 	}
 }
 .input-fontsize,
 .input-lineheight {
 	width: 25%;
+	position: relative;
 	input {
 		max-width: 67px;
+		padding-left: 25px;
 	}
+	&:before {
+		content: " ";
+		display: block;
+		position: absolute;
+		background-image: url('../img/sprite.svg');
+	}
+}
+.input-fontsize:before {
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	width: 15px;
+	height: 9px;
+	top: 9px;
+    left: 1px;
+}
+.input-lineheight:before {
+	background-repeat: no-repeat;
+	background-position: -50px 0;
+	width: 14px;
+	height: 14px;
+	top: 5px;
+    left: 1px;
+}
+.baseline-info {
+	color: #424242;
 }
 // END styles for font forms section
 
+// ratio section
+.heading-arrow {
+	font-family: Helvetica, sans-serif;
+	margin-top: 10px;
+}
+.ratio-selector {
+	input[type="radio"] {
+		position: absolute;
+		left: -9999px;
+		visibility: hidden;
+		+ label {
+			width: 100%;
+		}
+		&:checked + label {
+			background-color: @color-blue;
+			border-color: @color-blue;
+			.inner, .outer {
+				border-color: #fff;
+			}
+			.ratio-info {
+				color: #fff;
+			}
+		}
+
+	}
+	.ratio {
+		label {
+			display: block;
+			border: 1px solid #000;
+			background-color: #fff;
+			position: relative;
+			.inner, .outer {
+				content: " ";
+				display: block;
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				width: 100%;
+				border-top: 1px dashed #ACACAC;
+				border-right: 1px dashed #ACACAC;
+			}
+			.inner {
+				width: 66.66%;
+			}
+			.outer {
+				width: 33.33%;
+			}
+			.ratio-info {
+				font-size: 24px;
+				position: absolute;
+    			bottom: 0;
+    			left: 8px;
+			}
+		}
+		&.ratio-1x1 label {
+			&, .inner div, .outer div {
+				padding-top: 100%;
+			}
+		}
+		&.ratio-3x2 label {
+			&, .inner div, .outer div {
+				padding-top: 66.66%;
+			}
+		}
+		&.ratio-16x9 label {
+			&, .inner div, .outer div {
+				padding-top: 56.25%;
+			}
+		}
+	}
+}
 
 
 
