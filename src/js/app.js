@@ -5,9 +5,9 @@ window.addEventListener('load', function() {
   var shape = Pre3d.ShapeUtils.makeTesseract(2);
 
   renderer.draw_overdraw = false;
-  renderer.fill_rgba = new Pre3d.RGBA(0x1F/255, 0x1C/255, 0xF5/255, 0);
-  renderer.ctx.lineWidth = 1;
-  renderer.stroke_rgba = new Pre3d.RGBA(0x1F/255, 0x1C/255, 0xF5/255, 1);
+  renderer.fill_rgba = new Pre3d.RGBA(0x07/255, 0x05/255, 0x6b/255, 0);
+  renderer.ctx.lineWidth = 2;
+  renderer.stroke_rgba = new Pre3d.RGBA(0x07/255, 0x05/255, 0x6b/255, 1);
 
   function setTransform(x, y) {
     var ct = renderer.camera.transform;

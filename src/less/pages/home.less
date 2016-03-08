@@ -17,6 +17,9 @@ h2 {
 	margin-bottom: 100px;
 	font-weight: 400;
 }
+label {
+	cursor: pointer;
+}
 
 // Header
 .logo {
@@ -41,12 +44,12 @@ h2 {
 }
 .app-name, .credits {
 	margin-top: 9px;
+	letter-spacing: 0.5px;
 }
 .credits {
 	text-decoration: none;
 	color: #fff;
 	outline: none;
-	letter-spacing: 0.88px;
 }
 
 // END Header
@@ -234,8 +237,55 @@ section {
 		}
 	}
 }
+// END Ratio section
+
+// Grid section
+.grid-section {
+	input[type="radio"] {
+		position: absolute;
+		left: -999px;
+		visibility: hidden;
+		+ label {
+			margin-right: 7px;
+		}
+		&:checked + label {
+			font-family: @font-medium;
+			font-weight: 500;
+			color: @color-blue;
+		}
+	}
+	.form-label {
+		border-bottom: 1px solid #000;
+		font-family: @font-medium;
+		padding-bottom: 4px;
+    	margin-bottom: 7px;
+	}
+	.downloads {
+		margin-left: -5px;
+		margin-right: -5px;
+		margin-top: 16px;
+		a {
+			margin: 0 5px;
+		}
+	}
+	.settings-links {
+		margin-top: 30px;
+	}
+}
+
+// END Grid Section
 
 
+// Footer Section
 
-
+.footer {
+	background: black; 
+	color: white;
+	padding-top: 56px;
+	padding-bottom: 56px;
+	a {
+		color: white;
+	}
+	
+}
 
