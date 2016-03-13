@@ -13,19 +13,19 @@
 .row {
 	overflow: hidden;
 	display: flex;
-	margin-left: -(@grid-gutter-width/2);
-	margin-right: -(@grid-gutter-width/2);
+	margin-left: -@grid-gutter-width/2;
+	margin-right: -@grid-gutter-width/2;
 }
 .column {
 	flex: 1 1 100%;
-	padding-left: -(@grid-gutter-width/2);
-	padding-right: -(@grid-gutter-width/2);
-	margin-bottom: -@grid-gutter-width;
+	padding-left: @grid-gutter-width/2;
+	padding-right: @grid-gutter-width/2;
+	margin-bottom: 24px;
 	.inner {
 		background-repeat: no-repeat;
 		background-position: 0 0;
 		background-size: cover;
-		padding-bottom: 66.6666666666%;
+		padding-bottom: @grid-ratio;
 		position: relative;
 		.text {
 			position: absolute;
