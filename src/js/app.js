@@ -7,7 +7,7 @@ window.addEventListener('load', function() {
   renderer.draw_overdraw = false;
   renderer.fill_rgba = new Pre3d.RGBA(0xff/255, 0xff/255, 0xff/255, 0);
   renderer.ctx.lineWidth = 2;
-  renderer.stroke_rgba = new Pre3d.RGBA(0xff/255, 0xff/255, 0xff/255, 0.3);
+  renderer.stroke_rgba = new Pre3d.RGBA(0x1e/255, 0x1c/255, 0xf5/255, 0.5);
 
   function setTransform(x, y) {
     var ct = renderer.camera.transform;
