@@ -14,3 +14,5 @@ Grids/**/*.txt
 *.asv
 *.log
 *.*sublime-*
+node_modules
+dist
