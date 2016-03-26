@@ -18,7 +18,7 @@ Options.ShowBlocks = 'rhythm';   % 'rhythm', 'sub-rhythm', 'all' (sub-rhythm not
 Options.Output     = 'all';      % 'valid', 'all' (valid+invalid)
 Options.ShowGrid   = 'largest';  % 'largest', 'all' - out of all fitting grids for current configuration
 Options.Formats    = {'png'};    % currently supports 'png' only
-Options.OutputDir  = sprintf('..\\Grids\\%s\\', datestr(now, 'yyyy-mm-dd HH-MM'));
+Options.OutputDir  = sprintf('..\\grids_output\\%s\\', datestr(now, 'yyyy-mm-dd HH-MM'));
 
 Options.IsOctave   = exist('OCTAVE_VERSION', 'builtin') ~= 0; % Octave/Matlab detection
 
