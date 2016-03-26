@@ -1,18 +1,16 @@
-_temp/
-*.wiki
-Grids/**/*.txt
+*.wiki/
+temp/
+grids_output/
 
-*.jpg
-*.png
-*.svg
+node_modules/
+dist/
+
 *.fig
-*.pdf
 *.psd
-
+*.pdf
 *.zip
 
 *.asv
 *.log
 *.*sublime-*
-node_modules
-dist
+

@@ -1,0 +1,294 @@
+html, body {
+	font-family: @font-regular, Helvetica, Arial;
+	-webkit-font-smoothing: antialiased;
+	font-size: 16px;
+	line-height: 1.375;
+	background-color: @body-bg;
+}
+a, a:active, a:focus, a:visited {
+	outline: none;
+	color: @color-blue;
+	text-decoration: none;
+}
+h2 {
+	font-size: 36px;
+	line-height: 1.08333;
+	margin-top: 85px;
+	margin-bottom: 100px;
+	font-weight: 400;
+}
+label {
+	cursor: pointer;
+}
+
+// Header
+.logo {
+	font-size: 24px;
+	font-family: @font-medium;
+	display: inline-block;
+	position: relative;
+	padding-right: 5px;
+	&:after {
+		content: " ";
+		display: block;
+		background-color: @color-blue;
+		width: 107px;
+		height: 4px;
+		position: absolute;
+    	right: -100%;
+    	bottom: 15px;
+	}
+}
+.header {
+	padding-top: 42px;
+}
+.app-name, .credits {
+	margin-top: 9px;
+	letter-spacing: 0.5px;
+}
+.credits {
+	text-decoration: none;
+	color: #fff;
+	outline: none;
+}
+
+// END Header
+
+section {
+	position: relative;
+	z-index: 1;
+	background-color: #fff;
+	// Banner styles
+	&.banner {
+		overflow: hidden;
+		height: 100vh;
+		min-height: 700px;
+		background: @banner-bg;
+		background-size: cover;
+		position: relative;
+		color: #000;
+		a {
+			color: #000;
+		}
+		h1 {
+			font-size: 144px;
+			font-weight: 400;
+			line-height: 140px;
+			margin: 0;
+			text-align: center;
+			font-family: @font-medium;
+			font-size: 144px;
+    		max-width: 600px;
+    		margin: 70px auto 0;
+		}
+		.subtitle {
+			font-size: 21px;
+			line-height: 1.2857;
+			margin-top: 50px;
+
+		}
+	}
+	.tesseract {
+		position: fixed;
+		transform: translate(-35%, -35%);
+	}
+	.heading-arrow {
+		color: #fff;
+		font-size: 24px;
+		margin-top: 10px;
+	}
+	// END Banner styles
+}
+
+// styles for font forms section
+.font-source {
+	margin-bottom: 30px;
+}
+.font-source-separator {
+	display: inline-block;
+	margin: 0 5px;
+}
+.font-controls {
+    margin-bottom: 25px;
+}
+.font-select-wrapper,
+.input-fontsize,
+.input-lineheight {
+	display: inline-block;
+}
+.font-select-wrapper {
+	width: 48%;
+	label {
+		position: relative;
+	}
+	select {
+		width: 100%;
+		max-width: 150px;
+	}
+	.triangle {
+		color: #606060;
+		position: absolute;
+		right: 0;
+		top: 0;
+		pointer-events: none;
+	}
+}
+.input-fontsize,
+.input-lineheight {
+	width: 25%;
+	position: relative;
+	input {
+		max-width: 67px;
+		padding-left: 25px;
+	}
+	&:before {
+		content: " ";
+		display: block;
+		position: absolute;
+		background-image: url('../img/sprite.svg');
+	}
+}
+.input-fontsize:before {
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	width: 15px;
+	height: 9px;
+	top: 9px;
+    left: 1px;
+}
+.input-lineheight:before {
+	background-repeat: no-repeat;
+	background-position: -50px 0;
+	width: 14px;
+	height: 14px;
+	top: 5px;
+    left: 1px;
+}
+.baseline-info {
+	color: #424242;
+}
+// END styles for font forms section
+
+// ratio section
+.heading-arrow {
+	font-family: Helvetica, sans-serif;
+	margin-top: 10px;
+}
+.ratio-selector {
+	max-width: 960px;
+	input[type="radio"] {
+		position: absolute;
+		left: -9999px;
+		visibility: hidden;
+		+ label {
+			width: 100%;
+		}
+		&:checked + label {
+			background-color: @color-blue;
+			border-color: @color-blue;
+			.inner, .outer {
+				border-color: #fff;
+			}
+			.ratio-info {
+				color: #fff;
+			}
+		}
+
+	}
+	.ratio {
+		label {
+			display: block;
+			border: 1px solid #000;
+			background-color: #fff;
+			position: relative;
+			.inner, .outer {
+				content: " ";
+				display: block;
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				width: 100%;
+				border-top: 1px dashed #ACACAC;
+				border-right: 1px dashed #ACACAC;
+			}
+			.inner {
+				width: 66.66%;
+			}
+			.outer {
+				width: 33.33%;
+			}
+			.ratio-info {
+				font-size: 24px;
+				position: absolute;
+    			bottom: 0;
+    			left: 8px;
+			}
+		}
+		&.ratio-1x1 label {
+			&, .inner div, .outer div {
+				padding-top: 100%;
+			}
+		}
+		&.ratio-3x2 label {
+			&, .inner div, .outer div {
+				padding-top: 66.66%;
+			}
+		}
+		&.ratio-16x9 label {
+			&, .inner div, .outer div {
+				padding-top: 56.25%;
+			}
+		}
+	}
+}
+// END Ratio section
+
+// Grid section
+.grid-section {
+	input[type="radio"] {
+		position: absolute;
+		left: -999px;
+		visibility: hidden;
+		+ label {
+			margin-right: 7px;
+		}
+		&:checked + label {
+			font-family: @font-medium;
+			font-weight: 500;
+			color: @color-blue;
+		}
+	}
+	.form-label {
+		border-bottom: 1px solid #000;
+		font-family: @font-medium;
+		padding-bottom: 4px;
+    	margin-bottom: 7px;
+	}
+	.downloads {
+		margin-left: -5px;
+		margin-right: -5px;
+		margin-top: 16px;
+		a {
+			margin: 0 5px;
+		}
+	}
+	.settings-links {
+		margin-top: 30px;
+	}
+}
+// END Grid Section
+
+
+// Footer Section
+
+.footer {
+	background: black; 
+	color: white;
+	padding-top: 56px;
+	padding-bottom: 56px;
+	a {
+		color: white;
+	}
+	
+}
+

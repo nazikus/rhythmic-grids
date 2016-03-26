@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Concordia Grid</title>
+	<meta name="description" content="No rhythm no hip-hop" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<link rel="icon" type="image/png" href="favicon.png">
+	<link rel="stylesheet" href="css/main.css" />
+	<link rel="stylesheet" href="css/grid.css" />
+</head>
+<body>
+	<!-- Main wrapper -->
+	<div class="outer-wrapper">
+		
+		<section class="banner">
+			<canvas id="tesseract" class="tesseract" width="5240"  height="3500"></canvas>
+			<div class="container height-full p-rel">
+				<header>
+					<div class="flex-row header">
+						<div class="flex-child">
+							<!-- logo -->
+							<div class="logo">
+								Concordia
+							</div>
+						</div>
+						<div class="flex-child">
+							<!-- app name -->
+							<div class="text-center app-name">
+								Rhytmic grid calculator
+							</div>
+						</div>
+						<div class="flex-child">
+							<!-- Credits -->
+							<div class="credits text-right">
+								<a href="#">
+									Credits
+								</a>
+							</div>
+							
+						</div>
+					</div>
+				</header>
+				<div class="text-center text-vertical-center">
+					<h1>
+						No rhythm<br>no hip-hop
+					</h1>
+				</div>
+			</div>
+
+			
+		</section>
+		<section>
+			<h2 class="text-center">
+				Set your body copy
+			</h2>
+			<div class="container">
+				<div class="flex-row">
+					<div class="flex-child half">
+						<div class="font-source">
+							<a href="#">Local</a>
+							<span class="font-source-separator"> / </span>
+							<span>Google fonts</span>
+						</div>
+						<div class="font-controls">
+							<div class="font-select-wrapper">
+								<label>
+									<select name="fontSelect" 
+											id="fontSelect">
+										<option value="Helvetica" selected>Helvetica</option>
+										<option value="Arial">Arial</option>
+									</select>
+									<div class="triangle">▾</div>
+								</label>
+							</div>
+							<div class="input-fontsize">
+								<input type="text" placeholder="16px" value="16px" />
+							</div>
+							<div class="input-lineheight">
+								<input type="text" placeholder="22px" value="22px" />
+							</div>
+						</div>
+						<p class="example-text">
+							Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media proportion of your taste. Concordia will do the rest and will generate a modular grid just for you. Now, choose any of your system fonts above.
+						</p>
+						<div class="baseline-info">
+							Your baseline value will be 
+							<span>8</span> px
+						</div>
+					</div>
+					<div class="flex-child half">
+						<p>Adjust properties to improve legibility</p>
+						<div class="fontmetrics-input-wrapper">
+							<input type="text" value="Hdxp" />
+						</div>
+						<div class="fontmetrics-wrapper">
+							<!-- fontmetrics -->
+						</div>
+						<p class="fontmetrics-helper-info">
+							Keep in mind, that x-height value of your body copy should be as closest to 50% of Em-box height as possible to be legible on web.
+						</p>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section>
+			<div class="container ratio-selector">
+				<h2 class="text-center">
+					Now choose your ratio
+					<div class="heading-arrow">↓</div>
+				</h2>
+				<div class="flex-row">
+					<div class="flex-child">
+						<div class="ratio ratio-1x1">
+							<input type="radio" id="ratio1x1" name="ratioSelector" />
+							<label for="ratio1x1">
+								<div class="inner">
+									<div></div>
+								</div>
+								<div class="outer">
+									<div></div>
+								</div>
+								<div class="ratio-info">
+									1:1
+								</div>
+							</label>
+						</div>
+					</div>
+
+
+					<div class="flex-child">
+						<div class="ratio ratio-3x2">
+							<input type="radio" name="ratioSelector" id="ratio3x2" />
+							<label for="ratio3x2">
+								<div class="inner">
+									<div></div>
+								</div>
+								<div class="outer">
+									<div></div>
+								</div>
+								<div class="ratio-info">
+									3:2
+								</div>
+							</label>
+						</div>
+					</div>
+
+					<div class="flex-child">
+						<div class="ratio ratio-16x9">
+							<input type="radio" name="ratioSelector" id="ratio16x9" />
+							<label for="ratio16x9">
+								<div class="inner">
+									<div></div>
+								</div>
+								<div class="outer">
+									<div></div>
+								</div>
+								<div class="ratio-info">
+									16:9
+								</div>
+							</label>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="grid-section">
+			<div class="container">
+				<h2 class="text-center">
+					Your grid is ready
+				</h2>
+				<div class="flex-row">
+					<div class="flex-child">
+						<div class="form-label">
+							Grid width (up to)
+						</div>
+						<div class="form-group">
+							<input type="radio" id="gridUpTo960" name="gridUpTo" checked />
+							<label for="gridUpTo960">
+								960
+							</label>
+							<input type="radio" id="gridUpTo1280" name="gridUpTo" />
+							<label for="gridUpTo1280">
+								1280
+							</label>
+							<input type="radio" id="gridUpTo1440" name="gridUpTo" />
+							<label for="gridUpTo1440">
+								1440
+							</label>
+						</div>
+					</div>
+					<div class="flex-child">
+						<div class="form-label">
+							Ratio
+						</div>
+						<div class="form-group">
+							<input type="radio" id="gridRatio1x1" name="gridRatio" checked />
+							<label for="gridRatio1x1">
+								1:1
+							</label>
+							<input type="radio" id="gridRatio3x2" name="gridRatio" />
+							<label for="gridRatio3x2">
+								3:2
+							</label>
+							<input type="radio" id="gridRatio16x9" name="gridRatio" />
+							<label for="gridRatio16x9">
+								16:9
+							</label>
+						</div>
+					</div>
+					<div class="flex-child">
+						<div class="form-label">
+							Baseline
+						</div>
+						<div class="form-group">
+							<input type="radio" id="gridBaseline" name="gridBaseline" checked />
+							<label for="gridBaseline">
+								8
+							</label>
+						</div>
+					</div>
+					<div class="flex-child">
+						<div class="form-label">
+							Columns
+						</div>
+						<div class="form-group">
+							<input type="radio" id="gridColumns6" name="gridColumns" checked />
+							<label for="gridColumns6">
+								6
+							</label>
+							<input type="radio" id="gridColumns9" name="gridColumns" />
+							<label for="gridColumns9">
+								9
+							</label>
+							<input type="radio" id="gridColumns12" name="gridColumns" />
+							<label for="gridColumns12">
+								12
+							</label>
+						</div>
+					</div>
+					<div class="flex-child">
+						<div class="form-label">
+							Gutter
+						</div>
+						<div class="form-group">
+							<input type="radio" id="gridGutter0" name="gridGutter" checked />
+							<label for="gridGutter0">
+								0
+							</label>
+							<input type="radio" id="gridGutterx1" name="gridGutter" />
+							<label for="gridGutterx1">
+								x1
+							</label>
+							<input type="radio" id="gridGutterx2" name="gridGutter" />
+							<label for="gridGutterx2">
+								x2
+							</label>
+							<input type="radio" id="gridGutterx3" name="gridGutter" />
+							<label for="gridGutterx3">
+								x3
+							</label>
+						</div>
+					</div>
+					<div class="flex-child">
+						<div class="downloads">
+							<a href="#">Web</a>
+							<a href="#">Sketch</a>
+							<a href="#">Photoshop</a>
+						</div>
+					</div>
+				</div>
+				<div class="settings-links">
+					<div class="flex-row">
+						<div class="flex-child">
+							<a href="#">Hide Grid</a>
+						</div>
+						<div class="flex-child">
+							Your column width is 176 px with 33 px gutter
+						</div>
+						<div class="flex-child">
+							Share this grid settings http://crdia.io/248
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="grid-outer-wrapper">
+				<div class="grid-container">
+					<div class="row">
+						<div class="column">
+							<div class="inner" style="background-image: url(img/mocks/1.jpg)"></div>
+						</div>
+						<div class="column">
+							<div class="inner">
+								<div class="text">
+									Nullam id dolor id nibh ultricies vehicula ut
+								</div>
+							</div>
+						</div>
+						<div class="column">
+							<div class="inner" style="background-image: url(img/mocks/2.jpg)"></div>
+						</div>
+						<div class="column">
+							<div class="inner">
+								<div class="text">
+									Nullam id dolor id nibh ultricies vehicula ut
+								</div>
+							</div>
+						</div>
+						<div class="column">
+							<div class="inner" style="background-image: url(img/mocks/3.jpg)"></div>
+						</div>
+						<div class="column">
+							<div class="inner" style="background-image: url(img/mocks/4.jpg)"></div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="column">
+							<div class="inner" style="background-image: url(img/mocks/5.jpg)"></div>
+						</div>
+						<div class="column">
+							<div class="inner">
+								<div class="text">
+									Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media. Nullam id dolor id nibh ultricies 
+								</div>
+							</div>
+						</div>
+						<div class="column">
+							<div class="inner" style="background-image: url(img/mocks/6.jpg)"></div>
+						</div>
+						<div class="column">
+							<div class="inner">
+								<div class="text">
+									Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media. Nullam id dolor id nibh ultricies vehicula ut id elit. Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="column">
+							<div class="inner" style="background-image: url(img/mocks/7.jpg)"></div>
+						</div>
+						<div class="column">
+							<div class="inner">
+								<div class="text">
+									Maecenas sed diam eget risus varius blandit sit amet non magna. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo. 
+									Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
+								</div>
+							</div>
+						</div>
+						<div class="column">
+							<div class="inner" style="background-image: url(img/mocks/8.jpg)"></div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="column">
+							<div class="inner" style="background-image: url(img/mocks/9.jpg)"></div>
+						</div>
+						<div class="column">
+							<div class="inner">
+								<div class="text">
+									<p>
+										Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Maecenas sed diam eget risus varius blandit sit amet non magna. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.. Nullam id dolor id nibh ultricies vehicula ut id elit. Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum id ligula porta felis euismod semper.
+									</p>
+									<p>
+										Maecenas sed diam eget risus varius blandit sit amet non magna. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<footer class="footer">
+			<div class="container">
+				<div class="flex-row">
+					<div class="flex-child">
+						<!-- logo -->
+						<div class="logo">
+							Concordia
+						</div>
+					</div>
+					<div class="flex-child">
+						<!-- app name -->
+						<div class="text-center app-name">
+							Rhytmic grid calculator
+						</div>
+					</div>
+					<div class="flex-child">
+						<!-- Credits -->
+						<div class="credits text-right">
+							<a href="#">
+								Credits
+							</a>
+						</div>
+						
+					</div>
+				</div>
+			</div>
+		</footer>
+	</div>
+
+	<!-- Scripts -->
+	<script type="text/javascript" src="js/app.js"></script>
+</body>
+</html>
