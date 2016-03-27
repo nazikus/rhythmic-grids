@@ -1,50 +1,60 @@
-window.addEventListener('load', function() {
-  var screen_canvas = document.getElementById('tesseract');
-  var renderer = new Pre3d.Renderer(screen_canvas);
+/////////////////////// TESSERACT //////////////////////
 
-  var shape = Pre3d.ShapeUtils.makeTesseract(2);
+// window.addEventListener('load', drawTesseract, false);
 
-  renderer.draw_overdraw = false;
-  renderer.fill_rgba = new Pre3d.RGBA(0xff/255, 0xff/255, 0xff/255, 0);
-  renderer.ctx.lineWidth = 2;
-  renderer.stroke_rgba = new Pre3d.RGBA(0x1e/255, 0x1c/255, 0xf5/255, 0.5);
 
-  function setTransform(x, y) {
-    var ct = renderer.camera.transform;
-    ct.reset();
-    ct.rotateZ(0.0);
-    ct.rotateY(-2.06 * x - 0.5);
-    ct.rotateX(2.2 * y + 1.5);
-    ct.translate(0, 0, -12);
-  }
+////////////////////// FONT METRICS ////////////////////
 
-  renderer.camera.focal_length = 6;
-  setTransform(0, 0);
 
-  function draw() {
-    renderer.clearBackground();
-    renderer.bufferShape(shape);
-    renderer.drawBuffer();
-    renderer.emptyBuffer();
-  }
-  
-  // Listen mousemove for rotation
-  
-  document.addEventListener('mousemove', function(e) {
-    setTransform(e.clientX / 1600, e.clientY / 1600);
-    draw();
-  }, false);
-  
-  // Set interval for rotation of a Tesseract
-  
-  var phase = 0;
-  // the denominator determins number of moves in a period
-  var deltaPhase = 2*Math.PI/1600 ; 
-  intervalId = setInterval(function(){
-    phase += deltaPhase;
-    shape = Pre3d.ShapeUtils.rotateTesseract(shape, phase);
-    draw();
-  },40);
-  
-  draw();
-}, false);
+
+////////////////////// GRID CONFIG /////////////////////
+
+var allConfigs = (function(){
+    var rgg = RhythmicGridGenerator;
+
+    // grid config range
+    var widthArr    = [960, 1280, 1440];
+    var ratioArr    = ['16x9', '3x2', '1x1'];
+    var baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    var columnsArr  = [5, 6, 9, 12];
+    var gutter2baselineFactorArr = [0, 1, 2, 3];
+
+    // you can specify a predicate validator which difines a valid grid and filters
+    // invalid ones during generation. The default validator:
+    // console.log('Current grid validator:\n' + 
+    //               rgg.isValidGrid.toString().replace(/$\s*\/\/.*/gm, '') + '\n');
+
+    // generate all possible grids from given configuration range
+    var allValidGrids = rgg.generateAllRhytmicGrids(
+        widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr);
+
+    // comparator for sort function
+    var srt = function(a,b){ return parseInt(a) > parseInt(b) ? 1 : -1; };
+
+    // re-evaluate config range to remove invalid configs
+    // (e.g. no grid exists with column=5 for current range)
+    baselineArr = allValidGrids.map(function(g){ return g.baseline }).unique().sort(srt);
+    columnsArr  = allValidGrids.map(function(g){ return g.columnsNum }).unique().sort(srt);
+    gutter2baselineFactorArr  = allValidGrids.map(function(g){ return g.gutterBaselineFactor }).unique().sort(srt);
+
+    return {
+        widthArr: widthArr,
+        ratioArr: ratioArr,
+        baselineArr: baselineArr,
+        columnsArr: columnsArr,
+        rangeArrs: [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
+        inputNames: ['gridUpTo', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
+        gutter2baselineFactorArr: gutter2baselineFactorArr,
+        allValidGrids: allValidGrids
+    }
+})();
+
+// create radio items based on the grid config above
+initializeRadioItems(allConfigs);
+
+
+///////////////// DRAW GRID LAYOUT /////////////////////
+// clear default grid layout
+// $('.grid-container').remove();
+
+

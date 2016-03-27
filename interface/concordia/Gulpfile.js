@@ -1,12 +1,15 @@
 // plugins
-var gulp = require('gulp'),
-	clean = require('gulp-clean'),
-	minifyCss = require('gulp-minify-css'),
-    less = require('gulp-less'),
-    concat = require('gulp-concat'),
+var gulp      = require('gulp'),
+	clean     = require('gulp-clean'),
+    minifyCss = require('gulp-minify-css'),
+    less      = require('gulp-less'),
+    concat    = require('gulp-concat'),
     runSequence = require('gulp-run-sequence'),
-    connect = require('gulp-connect'),
-    watch = require('gulp-watch');
+    connect   = require('gulp-connect'),
+    watch     = require('gulp-watch'),
+    merge     = require('merge-stream'), // for multiple src in a single task
+    spawn     = require('child_process').spawn; // auto-reload gulp process on Gulpfile.js change
+
 
 // paths
 var dist = 'dist',
@@ -60,8 +63,7 @@ gulp.task('images', function() {
 
 // js task
 gulp.task('js', function() {
-    return gulp.src([
-            'node_modules/jquery/dist/jquery.js',
+    var appStream = gulp.src([
             // tesseract
             jsSrc + '/vendor/pre3d.js',
             jsSrc + '/vendor/shapeutils.js',
@@ -71,12 +73,23 @@ gulp.task('js', function() {
             jsSrc + '/vendor/font.js',
             jsSrc + '/vendor/fontdetect.js',
             // app code
+            jsSrc + '/draw-tesseract.js',
             // jsSrc + '/safe-box.js',
+            jsSrc + '/grid-configurator.js',
             jsSrc + '/app.js'
         ])
         .pipe(concat('app.js'))
+        .pipe(gulp.dest(jsDist));
+
+    var scriptsStream = gulp.src([
+            './node_modules/jquery/dist/jquery.js',
+            './../../JavaScript/RhythmicGridGenerator.js'
+        ])
         .pipe(gulp.dest(jsDist))
         .pipe(connect.reload());
+
+
+    return merge(appStream, scriptsStream);
 });
 
 // task for compiling styles
@@ -107,5 +120,11 @@ gulp.task('watch', ['server'], function() {
     gulp.watch([lessSrc + '/**/*.less'], ['styles']);
     gulp.watch([src + '/*.html'], ['html']);
     gulp.watch([jsSrc + '/**/*.js'], ['js']);
+    gulp.watch('Gulpfile.js', ['gulp-reload']);
     connect.reload();
+});
+
+gulp.task('gulp-reload', function() {
+  spawn('gulp', ['watch'], {stdio: 'inherit'}); // TOFIX
+  process.exit();
 });
