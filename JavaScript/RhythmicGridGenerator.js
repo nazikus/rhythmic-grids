@@ -113,7 +113,7 @@ RhythmicGridGenerator = (function () {
         gc.baseline = baseline;
         gc.columnsNum = columnsNum;
         gc.gutter = {W: gutterW, H: gutterH};
-        // gc.gutterBaselineRatio = gutterW / baseline;
+        gc.gutterBaselineFactor = gutterW / baseline;
         
         gc.rhythmicGrid = null;
         gc.grids = [];
@@ -181,7 +181,7 @@ RhythmicGridGenerator = (function () {
             // generate block sizes (2xN matrix) that fit the rhythm
             var blocksFit = uFactorsFit.map(function(fr, i){
                 var W = (uBlockW+gutterW)*fr - gutterW;
-                return [W, W/ratio.R, fr];
+                return [W, W/ratio.R, (gridW+gutterW)/(W+gutterW), fr];
             });
 
             // grid height needed to plot/draw all the RHYTMIC blocks (+gutter)
@@ -209,7 +209,7 @@ RhythmicGridGenerator = (function () {
             grid.H = gridH_Fit;
             grid.margin = gridMargin;
             grid.canvas = {H: gridH_Fit + 0/*margin*/, W: canvasW};
-            grid.blocks   = blocksFit;
+            grid.blocks = blocksFit;
             // grid.uFactors = uFactorsFit;
 
             /* Additional info: all rhythmic blocks including non-optimal (less then largest) */
@@ -293,7 +293,7 @@ RhythmicGridGenerator = (function () {
     }
 
     /**
-     * Filters grids array for valid selection options based on provided selected input.
+     * Filters grid config array for valid options based on selected input.
      * @public
      * @method getValidConfigValues
      * @param {GridConf[]} grid - grids to filter for available valid options.
@@ -302,13 +302,14 @@ RhythmicGridGenerator = (function () {
      *                         selectGrid(): [canvasW, ratioStr, baseline, columnsNum, gutterR]
      *
      * @return {Options[]}  - options object {'PropertyName': [[optionValue, isOptionValid], ...]}
+     *                        e.g. {'Gutter': [[6, true], [9, false], [12, true]], ...}
      */
     this.getValidConfigValues = function(gridConfigsArr, filterArr){
         var filteredGC = gridConfigsArr;
         var props = ['maxCanvasWidth', 'ratio', 'baseline', 'columnsNum', 'gutter'];
 
         if (props.length !== filterArr.length) 
-            throw 'Exception: something wrong with filterArr ['+filterArr+']';
+            throw 'Exception: something wrong with filterArr ['+filterArr.join(', ')+']';
 
         var opts = [];
         for (var i=0; i<props.length-1; i++) { // -1 to skip the last prop 'gutter'
