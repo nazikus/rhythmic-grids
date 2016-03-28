@@ -2226,38 +2226,6 @@ Pre3d.ShapeUtils = (function() {
     return metrics;
   };
 }());
-var font = (function () {
-    var test_string = 'mmmmmmmmmwwwwwww';
-    var test_font = '"Comic Sans MS"';
-    var notInstalledWidth = 0;
-    var testbed = null;
-    var guid = 0;
-    
-    return {
-        // must be called when the dom is ready
-        setup : function () {
-            if ($('#fontInstalledTest').length) return;
-
-            $('head').append('<' + 'style> #fontInstalledTest, #fontTestBed { position: absolute; left: -9999px; top: 0; visibility: hidden; } #fontInstalledTest { font-size: 50px!important; font-family: ' + test_font + ';}</' + 'style>');
-            
-            
-            $('body').append('<div id="fontTestBed"></div>').append('<span id="fontInstalledTest" class="fonttest">' + test_string + '</span>');
-            testbed = $('#fontTestBed');
-            notInstalledWidth = $('#fontInstalledTest').width();
-        },
-        
-        isInstalled : function(font) {
-            guid++;
-        
-            var style = '<' + 'style id="fonttestStyle"> #fonttest' + guid + ' { font-size: 50px!important; font-family: ' + font + ', ' + test_font + '; } <' + '/style>';
-            
-            $('head').find('#fonttestStyle').remove().end().append(style);
-            testbed.empty().append('<span id="fonttest' + guid + '" class="fonttest">' + test_string + '</span>');
-                        
-            return (testbed.find('span').width() != notInstalledWidth);
-        }
-    };
-})();
 /**
  * JavaScript code to detect available availability of a
  * particular font in a browser using JavaScript and CSS.
@@ -2279,10 +2247,10 @@ var font = (function () {
  */
 
 /**
- * Usage: d = new Detector();
+ * Usage: d = new FontDetector();
  *        d.detect('font name');
  */
-var Detector = function() {
+var FontDetector = function() {
     // a font will be compared against all the three default fonts.
     // and if it doesn't match all 3 then that font is not available.
     var baseFonts = ['monospace', 'sans-serif', 'serif'];
@@ -2325,7 +2293,8 @@ var Detector = function() {
 
     this.detect = detect;
 };
-window.addEventListener('load', function() {
+function drawTesseract(){
+
   var screen_canvas = document.getElementById('tesseract');
   var renderer = new Pre3d.Renderer(screen_canvas);
 
@@ -2334,7 +2303,7 @@ window.addEventListener('load', function() {
   renderer.draw_overdraw = false;
   renderer.fill_rgba = new Pre3d.RGBA(0xff/255, 0xff/255, 0xff/255, 0);
   renderer.ctx.lineWidth = 2;
-  renderer.stroke_rgba = new Pre3d.RGBA(0xdd/255, 0xdd/255, 0xdd/255, 0.25);
+  renderer.stroke_rgba = new Pre3d.RGBA(0x1e/255, 0x1c/255, 0xf5/255, 0.5);
 
   function setTransform(x, y) {
     var ct = renderer.camera.transform;
@@ -2374,4 +2343,473 @@ window.addEventListener('load', function() {
   },40);
   
   draw();
-}, false);
+}
+
+
+function getAvailableSystemFonts() {
+  detective = new FontDetector();  // (c) Lalit Patel [see /js/font-detector.js]
+  // alternativedetection via ComicSans (?) [see /js/font-detector-temp.js]
+  // font.setup();
+
+  var fontList = getFontList(),
+      currFont = null,
+      availableFonts = [];
+
+  fontList.forEach(function(fontName){
+    // console.log("%s: %s", fontName, detective.detect(fontName) );
+    if (detective.detect(fontName)){
+      availableFonts.push(fontName);
+    }
+  });
+
+  console.log('Available system fonts %s/%s', availableFonts.length, fontList.length);
+  return availableFonts;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+
+function createSelectOptions(id, values) {
+  var select = $(id);
+  
+  values.forEach(function(val, idx) {
+    var option = $('<option>').prop('value', val).text(val);
+    if (!idx) option.prop('selected', true);  // make 1st option a default selection
+    select.append(option);
+  });
+
+  // select.on('change', onFontSelect);
+  // initialize dropdown values (from previous session if any)
+  // select.find('option[value="'+(localStorage.getItem(id) || 16)+'"]')
+  //       .attr('selected','selected')
+  //       .parent()
+  //       .trigger('change');
+
+  return ;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+// font selection event handler
+function onFontSelect(e) {
+    var id = $(this).attr('id');  // font dropdown
+    if (!id)  id = $(this).parent().attr('class')  // fontsize or lineheight input
+
+    // TOFIX event fired twice every time
+    // console.log(id); 
+    // in order to remember selections between sessions
+    // localStorage.setItem(id, this.value);
+    // console.log("onChange: %s %s", id, this.value );
+
+    // update text sample according to the selected item
+    switch(id){
+    case 'fontSelect':
+      $('.example-text').css('font-family', this.value, "monospace"); //fallback: Helvetica,Arial
+      curr_typeface = this.value;
+
+      // // re-draw font metrics
+      // drawMetrics(curr_typeface, $('#metrics-text-eb').val() );
+      // drawText(curr_typeface, $('#metrics-text-eb').val() );
+      break;
+
+    case 'input-fontsize':
+        $('.example-text').css('font-size', parseInt(this.value)+'px');
+        break;
+    case 'input-lineheight':
+        $('.example-text').css('line-height', parseInt(this.value)+'px');
+        break;
+    }
+
+};
+
+/////////////////////////////////////////////////////////////////////////////
+function onInputChange(e) {
+    var input = $(e.target);
+    var code = (e.keyCode || e.which);
+      // (down, left)
+      if( [40/*, 37*/].indexOf(code) > -1 ) {
+        input.val(parseInt(input.val())-1+'px')
+      }
+      // (up, right)
+      if( [38/*, 39*/].indexOf(code) > -1 ) {
+        input.val(parseInt(input.val())+1+'px')
+      }
+      $(this).trigger('change');  
+}
+/////////////////////////////////////////////////////////////////////////////
+
+function getFontList() {
+  return [
+    "Abadi MT Condensed Light", "Academy Engraved LET", "ADOBE CASLON PRO", 
+    "Adobe Garamond", "ADOBE GARAMOND PRO", "Agency FB", "Aharoni", 
+    "Albertus Extra Bold", "Albertus Medium", "Algerian", "Amazone BT", 
+    "American Typewriter", "American Typewriter Condensed", "AmerType Md BT", 
+    "Andalus", "Angsana New", "AngsanaUPC", "Antique Olive", "Aparajita", 
+    "Apple Chancery", "Apple Color Emoji", "Apple SD Gothic Neo", 
+    "Arabic Typesetting", "ARCHER", "ARNO PRO", "Arrus BT", "Aurora Cn BT", 
+    "AvantGarde Bk BT", "AvantGarde Md BT", "AVENIR", "Ayuthaya", "Bandy", 
+    "Bangla Sangam MN", "Bank Gothic", "BankGothic Md BT", "Baskerville", 
+    "Baskerville Old Face", "Batang", "BatangChe", "Bauer Bodoni", "Bauhaus 93",
+    "Bazooka", "Bell MT", "Bembo", "Benguiat Bk BT", "Berlin Sans FB",
+    "Berlin Sans FB Demi", "Bernard MT Condensed", "BernhardFashion BT", 
+    "BernhardMod BT", "Big Caslon", "BinnerD", "Blackadder ITC", 
+    "BlairMdITC TT", "Bodoni 72", "Bodoni 72 Oldstyle", "Bodoni 72 Smallcaps",
+    "Bodoni MT", "Bodoni MT Black", "Bodoni MT Condensed", 
+    "Bodoni MT Poster Compressed", "Bookshelf Symbol 7", "Boulder", 
+    "Bradley Hand", "Bradley Hand ITC", "Bremen Bd BT", "Britannic Bold", 
+    "Broadway", "Browallia New", "BrowalliaUPC", "Brush Script MT", 
+    "Californian FB", "Calisto MT", "Calligrapher", "Candara", 
+    "CaslonOpnface BT", "Castellar", "Centaur", "Cezanne", "CG Omega", 
+    "CG Times", "Chalkboard", "Chalkboard SE", "Chalkduster", "Charlesworth", 
+    "Charter Bd BT", "Charter BT", "Chaucer", "ChelthmITC Bk BT", "Chiller", 
+    "Clarendon", "Clarendon Condensed", "CloisterBlack BT", "Cochin", 
+    "Colonna MT", "Constantia", "Cooper Black", "Copperplate", 
+    "Copperplate Gothic", "Copperplate Gothic Bold", "Copperplate Gothic Light",
+    "CopperplGoth Bd BT", "Corbel", "Cordia New", "CordiaUPC", 
+    "Cornerstone", "Coronet", "Cuckoo", "Curlz MT", "DaunPenh", "Dauphin", 
+    "David", "DB LCD Temp", "DELICIOUS", "Denmark", "DFKai-SB", "Didot", 
+    "DilleniaUPC", "DIN", "DokChampa", "Dotum", "DotumChe", "Ebrima", 
+    "Edwardian Script ITC", "Elephant", "English 111 Vivace BT", "Engravers MT",
+    "EngraversGothic BT", "Eras Bold ITC", "Eras Demi ITC", "Eras Light ITC", 
+    "Eras Medium ITC", "EucrosiaUPC", "Euphemia", "Euphemia UCAS",
+    "EUROSTILE", "Exotc350 Bd BT", "FangSong", "Felix Titling", "Fixedsys", 
+    "FONTIN", "Footlight MT Light", "Forte", "FrankRuehl", "Fransiscan", 
+    "Freefrm721 Blk BT", "FreesiaUPC", "Freestyle Script", "French Script MT",
+    "FrnkGothITC Bk BT", "Fruitger", "FRUTIGER", "Futura", "Futura Bk BT", 
+    "Futura Lt BT", "Futura Md BT", "Futura ZBlk BT", "FuturaBlack BT", 
+    "Gabriola", "Galliard BT", "Gautami", "Geeza Pro", "Geometr231 BT", 
+    "Geometr231 Hv BT", "Geometr231 Lt BT", "GeoSlab 703 Lt BT", 
+    "GeoSlab 703 XBd BT", "Gigi", "Gill Sans", "Gill Sans MT", 
+    "Gill Sans MT Condensed", "Gill Sans MT Ext Condensed Bold", 
+    "Gill Sans Ultra Bold", "Gill Sans Ultra Bold Condensed", "Gisha", 
+    "Gloucester MT Extra Condensed", "GOTHAM", "GOTHAM BOLD", 
+    "Goudy Old Style", "Goudy Stout", "GoudyHandtooled BT", "GoudyOLSt BT", 
+    "Gujarati Sangam MN", "Gulim", "GulimChe", "Gungsuh", "GungsuhChe", 
+    "Gurmukhi MN", "Haettenschweiler", "Harlow Solid Italic", "Harrington", 
+    "Heather", "Heiti SC", "Heiti TC", "HELV", "Helvetica", "Herald", "High Tower Text", 
+    "Hiragino Kaku Gothic ProN", "Hiragino Mincho ProN", "Hoefler Text", 
+    "Humanst 521 Cn BT", "Humanst521 BT", "Humanst521 Lt BT", 
+    "Imprint MT Shadow", "Incised901 Bd BT", "Incised901 BT", 
+    "Incised901 Lt BT", "INCONSOLATA", "Informal Roman", "Informal011 BT", 
+    "INTERSTATE", "IrisUPC", "Iskoola Pota", "JasmineUPC", "Jazz LET", 
+    "Jenson", "Jester", "Jokerman", "Juice ITC", "Kabel Bk BT", 
+    "Kabel Ult BT", "Kailasa", "KaiTi", "Kalinga", "Kannada Sangam MN", 
+    "Kartika", "Kaufmann Bd BT", "Kaufmann BT", "Khmer UI", "KodchiangUPC", 
+    "Kokila", "Korinna BT", "Kristen ITC", "Krungthep", "Kunstler Script", 
+    "Lao UI", "Latha", "Leelawadee", "Letter Gothic", "Levenim MT", "LilyUPC",
+    "Lithograph", "Lithograph Light", "Long Island", "Lydian BT", "Magneto", 
+    "Maiandra GD", "Malayalam Sangam MN", "Malgun Gothic", "Mangal", "Marigold", 
+    "Marion", "Marker Felt", "Market", "Marlett", "Matisse ITC",
+    "Matura MT Script Capitals", "Meiryo", "Meiryo UI", "Microsoft Himalaya", 
+    "Microsoft JhengHei", "Microsoft New Tai Lue", "Microsoft PhagsPa", 
+    "Microsoft Tai Le", "Microsoft Uighur", "Microsoft YaHei", 
+    "Microsoft Yi Baiti", "MingLiU", "MingLiU_HKSCS", "MingLiU_HKSCS-ExtB", 
+    "MingLiU-ExtB", "Minion", "Minion Pro", "Miriam", "Miriam Fixed", "Mistral", 
+    "Modern", "Modern No. 20", "Mona Lisa Solid ITC TT", "Mongolian Baiti",
+    "MONO", "MoolBoran", "Mrs Eaves", "MS LineDraw", "MS Mincho", "MS PMincho", 
+    "MS Reference Specialty", "MS UI Gothic", "MT Extra", "MUSEO", "MV Boli", 
+    "Nadeem", "Narkisim", "NEVIS", "News Gothic", "News GothicMT",
+    "NewsGoth BT", "Niagara Engraved", "Niagara Solid", "Noteworthy", "NSimSun", 
+    "Nyala", "OCR A Extended", "Old Century", "Old English Text MT", "Onyx",
+    "Onyx BT", "OPTIMA", "Oriya Sangam MN", "OSAKA", "OzHandicraft BT", 
+    "Palace Script MT", "Papyrus", "Parchment", "Party LET", "Pegasus", 
+    "Perpetua", "Perpetua Titling MT", "PetitaBold", "Pickwick", 
+    "Plantagenet Cherokee", "Playbill", "PMingLiU", "PMingLiU-ExtB", 
+    "Poor Richard", "Poster", "PosterBodoni BT", "PRINCETOWN LET", "Pristina",
+    "PTBarnum BT", "Pythagoras", "Raavi", "Rage Italic", "Ravie", 
+    "Ribbon131 Bd BT", "Rockwell", "Rockwell Condensed", "Rockwell Extra Bold",
+    "Rod", "Roman", "Sakkal Majalla", "Santa Fe LET", "Savoye LET",
+    "Sceptre", "Script", "Script MT Bold", "SCRIPTINA", "Serifa", "Serifa BT", 
+    "Serifa Th BT", "ShelleyVolante BT", "Sherwood", "Shonar Bangla", 
+    "Showcard Gothic", "Shruti", "Signboard", "SILKSCREEN", "SimHei", 
+    "Simplified Arabic", "Simplified Arabic Fixed", "SimSun", "SimSun-ExtB", 
+    "Sinhala Sangam MN", "Sketch Rockwell", "Skia", "Small Fonts", "Snap ITC",
+    "Snell Roundhand", "Socket", "Souvenir Lt BT", "Staccato222 BT", "Steamer",
+    "Stencil", "Storybook", "Styllo", "Subway", "Swis721 BlkEx BT",
+    "Swiss911 XCm BT", "Sylfaen", "Synchro LET", "System", "Tamil Sangam MN", 
+    "Technical", "Teletype", "Telugu Sangam MN", "Tempus Sans ITC", "Terminal",
+    "Thonburi", "Traditional Arabic", "Trajan", "TRAJAN PRO", "Tristan",
+    "Tubular", "Tunga", "Tw Cen MT", "Tw Cen MT Condensed", 
+    "Tw Cen MT Condensed Extra Bold", "TypoUpright BT", "Unicorn", "Univers", 
+    "Univers CE 55 Medium", "Univers Condensed", "Utsaah", "Vagabond", "Vani",
+    "Vijaya", "Viner Hand ITC", "VisualUI", "Vivaldi", "Vladimir Script", 
+    "Vrinda", "Westminster", "WHITNEY", "Wide Latin", "ZapfEllipt BT", 
+    "ZapfHumnst BT", "ZapfHumnst Dm BT", "Zapfino", "Zurich BlkEx BT",
+    "Zurich Ex BT", "ZWAdobeF"
+  ];
+}
+
+function setupRadioItems(allConfigs){
+
+    var getSelected = function(){
+        return $('input:checked', allConfigs.radioForms) 
+                .map(function() {  
+                    var val = $(this).val();
+                    return isNaN(val) ? val : ~~val;
+                })
+                .toArray(); 
+    };
+
+    allConfigs.radioForms.each( function(idx, el){
+        // clear default config radio options
+        $(el).empty();
+
+        // append <input> and <label> for each config value
+        $(el).append( createRadioInputs(allConfigs.inputNames[idx], 
+                                        allConfigs.rangeArrs[idx]) );
+
+        // get ALL inputs on every single change
+        $(el).on('change', function(){
+          refreshRadioInputs(allConfigs.radioForms, getSelected()); // this might modify selection
+          
+          var gridConfig = RhythmicGridGenerator.selectGrid(
+                        allConfigs.allValidGrids, getSelected() );
+          
+          if (gridConfig)
+              drawRhythmicGrid(gridConfig);
+          else
+              allConfigs.gridContainer.empty();
+          
+
+          // console.log("Grid conifg: [%s]", getSelected().join(', '));
+        });
+     });
+
+    // trigger onChange event to refresh radio inputs at startup
+    $(allConfigs.radioForms[0]).trigger('change');
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+// called several times during initializeRadioItems()
+function createRadioInputs(inputName, valueRange){
+    var elements = [];
+    valueRange.forEach(function(value,i){
+        var input = $('<input>').prop({
+                type: "radio",
+                id: inputName+String(value),
+                name: inputName,
+                value: value
+            });
+        
+        // the first radio is selected by default
+        if (!i) input.prop('checked', true); 
+        
+        // special cases for Ratio and Gutter labels
+        switch(allConfigs.inputNames.indexOf(inputName)) {
+            case 1:  labelText = value.replace('x',':'); break;
+            case 4:  labelText = allConfigs.baselineArr[0]*value; break; 
+            default: labelText = String(value);
+        }
+        var label = $('<label>')
+            .prop('for', inputName+String(value))
+            .text( labelText );
+        
+        elements.push(input, label);
+    });
+
+    return elements;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// disables radio buttons for impossible grids, called on each user selection
+function refreshRadioInputs(radioForms, selectedInputs){
+    var validInputs = 
+        RhythmicGridGenerator.getValidConfigValues(
+            allConfigs.allValidGrids, selectedInputs);
+    // console.log(selectedInputs);
+    // console.log(validInputs);
+
+    var ids = allConfigs.inputNames;
+    if (ids.length !== validInputs.length) 
+        throw 'ERROR: wrong length of IDs in '+arguments.callee.name+'()';
+
+    validInputs.forEach( function(v, i) {
+
+        // enable/disable each radio input
+        $('input', radioForms[i]).each(function(k, opt){
+            $(this).prop('disabled', !v[k][1] || null );
+            
+            // update gutter value according to baseline value
+            if (ids[i] === ids[ids.length-1]){ // if the last id (gutter)
+                $(this).next().text( v[k][0]*selectedInputs[2] );  // gutter*baseline
+            }
+        }); // <--- $(<input>).each()
+
+        // change selected element if currently selected option became disabled
+        var selectedOp = $('input:checked', radioForms[i]);
+        if ( selectedOp.prop('disabled') ) {
+            var enabled = $('input:enabled:last', radioForms[i]);
+            if (enabled.length){
+                enabled.prop('checked', true);
+            }
+        }
+
+    });  // <--  validInputs.forEach()
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+function drawRhythmicGrid(gridConfig){
+    // console.log('Rhythmic config: '); console.log(gridConfig);
+    
+    /////// GENERATE BLOCK DIVS ///////////
+    var container = allConfigs.gridContainer,
+        c = 0,
+        imgId = 0,
+        row   = null, 
+        column= null,
+        inner = null,
+        txtmck= null;
+
+    container.empty();
+    gridConfig.rhythmicGrid.blocks.forEach( function(val, idx, arr){
+        row = $('<div>').addClass('row');
+
+        //val[2] - number of blocks (columns) in current row
+        // see @class Grid (RhythmicGridGenerator.js)
+        for (var i=1; i<=val[2]; i++){
+            inner = $('<div>').addClass('inner').addClass('inner'+i);
+            
+            // pairwise image & text for odd-even blocks
+            c++;
+            if (c%2 || idx+1===arr.length/*the last biggest block is better with an image*/){
+                imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
+                inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg');
+                // console.log(inner.attr('style'));
+            } else {
+                txtmck = allConfigs.textMocks[idx][Math.floor(Math.random() * allConfigs.textMocks[idx].length)];
+                // txtmck = Array(50).join("x ");
+                inner.append( $('<div>').addClass('text').text(txtmck) );
+            }
+
+            column = $('<div>').addClass('column').append(inner);
+            row.append(column);
+        }
+
+        container.append(row);
+    });
+
+
+    //////////  SET BLOCK CSS RULES  ///////////
+    var g = gridConfig.gutter.W;
+    $('.row').css({
+        'margin-left': g/2,
+        'margin-right': g/2
+    });
+    
+    $('.column').css({
+        'padding-left': g/2,
+        'padding-right': g/2,
+        'margin-bottom': gridConfig.gutter.H
+    });
+
+    // TOFIX
+    $('.column .inner .text').css('line-height', 1+(gridConfig.baseline-3)/10+'em');
+    $('.column .inner .text').css('text-decoration', 'underline');
+
+    // TOFIX
+    // a problem with relative flex values and floats, eg 66.666667% 
+    $('.column .inner').css('padding-bottom', 1/gridConfig.ratio.R*100+'%')
+
+
+    // var gridRules = Object
+    //     .keys(document.styleSheets)
+    //     .map(function(me) { return document.styleSheets[e] })
+    //     .filter(function(fe) { return /grid\.css/.test(e.href); })[0];
+    // gridRules = gridRules.cssRules || gridRules.rules;
+
+
+    return ;
+}
+/////////////////////// TESSERACT //////////////////////
+
+window.addEventListener('load', drawTesseract, false);
+
+
+//////////////////// FONT SELECTION ////////////////////
+
+// TODO refactor with on DOM ready event
+$('#fontSelect').empty();
+typefaceArr = getAvailableSystemFonts();
+createSelectOptions('#fontSelect', typefaceArr);
+
+['#fontSelect', '.input-fontsize > input', '.input-lineheight > input']
+  .forEach(function(selector, idx){
+      var input = $(selector);
+      input.on('change', onFontSelect);
+      if(idx) input.on('keyup', onInputChange);
+  });
+
+$('#fontSelect').on('change', onFontSelect);
+$('.input-fontsize > input').on('change', onFontSelect);
+$('.input-lineheight > input').on('change', onFontSelect);
+
+////////////////////// FONT METRICS ////////////////////
+
+
+
+////////////////////// GRID CONFIG /////////////////////
+
+var allConfigs = (function(){
+    var rgg = RhythmicGridGenerator;
+
+    // grid config range
+    var widthArr    = [960, 1280, 1440];
+    var ratioArr    = ['16x9', '3x2', '1x1'];
+    var baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    var columnsArr  = [5, 6, 9, 12];
+    var gutter2baselineFactorArr = [0, 1, 2, 3];
+
+    // you can specify a predicate validator which difines a valid grid and filters
+    // invalid ones during generation. The default validator:
+    // console.log('Current grid validator:\n' + 
+    //               rgg.isValidGrid.toString().replace(/$\s*\/\/.*/gm, '') + '\n');
+
+    // generate all possible grids from given configuration range
+    var allValidGrids = rgg.generateAllRhytmicGrids(
+        widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr);
+
+    // comparator for sort function
+    var srt = function(a,b){ return parseInt(a) > parseInt(b) ? 1 : -1; };
+
+    // re-evaluate config range to remove invalid configs
+    // (e.g. no grid exists with 5 columns for current range)
+    baselineArr = allValidGrids.map(function(g){ return g.baseline }).unique().sort(srt);
+    columnsArr  = allValidGrids.map(function(g){ return g.columnsNum }).unique().sort(srt);
+    gutter2baselineFactorArr  = allValidGrids.map(function(g){ return g.gutterBaselineFactor }).unique().sort(srt);
+
+    return {
+        widthArr     : widthArr,
+        ratioArr     : ratioArr,
+        baselineArr  : baselineArr,
+        columnsArr   : columnsArr,
+        gutter2baselineFactorArr: gutter2baselineFactorArr,
+        allValidGrids: allValidGrids,
+        
+        rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
+        inputNames   : ['gridUpTo', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
+        
+
+        gridContainer: $('.grid-container'),   
+        radioForms   : $('.grid-section > .container > .flex-row >'+
+                         ' .flex-child:lt(5) > .form-group'), // all config radio elements
+
+        imageMocks   : 9, // from 1.jpg to 9.jpg
+        textMocks    : [ 
+            ['Nullam id dolor id nibh ultricies vehicula ut'],
+            [
+                'Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media. Nullam id dolor id nibh ultricies',
+                'Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media. Nullam id dolor id nibh ultricies vehicula ut id elit. Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna'
+            ],
+            ['Maecenas sed diam eget risus varius blandit sit amet non magna. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.'],
+            ['Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Maecenas sed diam eget risus varius blandit sit amet non magna. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.. Nullam id dolor id nibh ultricies vehicula ut id elit. Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum id ligula porta felis euismod semper.\n\nMaecenas sed diam eget risus varius blandit sit amet non magna. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.']
+        ]
+    }
+})();
+
+// create radio items based on the grid config above
+setupRadioItems(allConfigs);

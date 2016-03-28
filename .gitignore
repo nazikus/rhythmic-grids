@@ -1,7 +1,7 @@
+grids_output
 node_modules
 dist
-_temp
-Grids/
+temp
 *.sublime-project
 *.sublime-workspace
 rhythmic-grids.wiki/
