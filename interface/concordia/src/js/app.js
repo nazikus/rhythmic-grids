@@ -1,7 +1,25 @@
 /////////////////////// TESSERACT //////////////////////
 
-// window.addEventListener('load', drawTesseract, false);
+window.addEventListener('load', drawTesseract, false);
 
+
+//////////////////// FONT SELECTION ////////////////////
+
+// TODO refactor with on DOM ready event
+$('#fontSelect').empty();
+typefaceArr = getAvailableSystemFonts();
+createSelectOptions('#fontSelect', typefaceArr);
+
+['#fontSelect', '.input-fontsize > input', '.input-lineheight > input']
+  .forEach(function(selector, idx){
+      var input = $(selector);
+      input.on('change', onFontSelect);
+      if(idx) input.on('keyup', onInputChange);
+  });
+
+$('#fontSelect').on('change', onFontSelect);
+$('.input-fontsize > input').on('change', onFontSelect);
+$('.input-lineheight > input').on('change', onFontSelect);
 
 ////////////////////// FONT METRICS ////////////////////
 
@@ -32,7 +50,7 @@ var allConfigs = (function(){
     var srt = function(a,b){ return parseInt(a) > parseInt(b) ? 1 : -1; };
 
     // re-evaluate config range to remove invalid configs
-    // (e.g. no grid exists with column=5 for current range)
+    // (e.g. no grid exists with 5 columns for current range)
     baselineArr = allValidGrids.map(function(g){ return g.baseline }).unique().sort(srt);
     columnsArr  = allValidGrids.map(function(g){ return g.columnsNum }).unique().sort(srt);
     gutter2baselineFactorArr  = allValidGrids.map(function(g){ return g.gutterBaselineFactor }).unique().sort(srt);

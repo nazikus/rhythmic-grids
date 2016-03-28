@@ -19,10 +19,10 @@
  */
 
 /**
- * Usage: d = new Detector();
+ * Usage: d = new FontDetector();
  *        d.detect('font name');
  */
-var Detector = function() {
+var FontDetector = function() {
     // a font will be compared against all the three default fonts.
     // and if it doesn't match all 3 then that font is not available.
     var baseFonts = ['monospace', 'sans-serif', 'serif'];

@@ -69,12 +69,13 @@ gulp.task('js', function() {
             jsSrc + '/vendor/shapeutils.js',
             jsSrc + '/vendor/tesseract.js',
             // font metrics & detect
-            jsSrc + '/vendor/fontmetrics.js',
-            jsSrc + '/vendor/font.js',
-            jsSrc + '/vendor/fontdetect.js',
+            jsSrc + '/vendor/canvas-fontmetrics.js', // redifines Canvas2D.prototype.measureText()
+            jsSrc + '/vendor/font-detector.js',
+            // wierd implementation of font detector using ComicSans, but keep it for comparison
+            // jsSrc + '/vendor/font-detector-temp.js',
             // app code
             jsSrc + '/draw-tesseract.js',
-            // jsSrc + '/safe-box.js',
+            jsSrc + '/font-selector.js',
             jsSrc + '/grid-configurator.js',
             jsSrc + '/app.js'
         ])
