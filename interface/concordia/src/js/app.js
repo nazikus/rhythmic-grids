@@ -38,23 +38,33 @@ var allConfigs = (function(){
     gutter2baselineFactorArr  = allValidGrids.map(function(g){ return g.gutterBaselineFactor }).unique().sort(srt);
 
     return {
-        widthArr: widthArr,
-        ratioArr: ratioArr,
-        baselineArr: baselineArr,
-        columnsArr: columnsArr,
-        rangeArrs: [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
-        inputNames: ['gridUpTo', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
+        widthArr     : widthArr,
+        ratioArr     : ratioArr,
+        baselineArr  : baselineArr,
+        columnsArr   : columnsArr,
         gutter2baselineFactorArr: gutter2baselineFactorArr,
-        allValidGrids: allValidGrids
+        allValidGrids: allValidGrids,
+        
+        rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
+        inputNames   : ['gridUpTo', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
+        
+
+        gridContainer: $('.grid-container'),   
+        radioForms   : $('.grid-section > .container > .flex-row >'+
+                         ' .flex-child:lt(5) > .form-group'), // all config radio elements
+
+        imageMocks   : 9, // from 1.jpg to 9.jpg
+        textMocks    : [ 
+            ['Nullam id dolor id nibh ultricies vehicula ut'],
+            [
+                'Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media. Nullam id dolor id nibh ultricies',
+                'Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media. Nullam id dolor id nibh ultricies vehicula ut id elit. Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna'
+            ],
+            ['Maecenas sed diam eget risus varius blandit sit amet non magna. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.'],
+            ['Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Maecenas sed diam eget risus varius blandit sit amet non magna. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.. Nullam id dolor id nibh ultricies vehicula ut id elit. Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum id ligula porta felis euismod semper.\n\nMaecenas sed diam eget risus varius blandit sit amet non magna. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.']
+        ]
     }
 })();
 
 // create radio items based on the grid config above
-initializeRadioItems(allConfigs);
-
-
-///////////////// DRAW GRID LAYOUT /////////////////////
-// clear default grid layout
-// $('.grid-container').remove();
-
-
+setupRadioItems(allConfigs);
