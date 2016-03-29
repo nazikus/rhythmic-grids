@@ -88,7 +88,7 @@ gulp.task('js', function() {
 
     var scriptsStream = gulp.src([
             './node_modules/jquery/dist/jquery.js',
-            './../../JavaScript/RhythmicGridGenerator.js'
+            './../JavaScript/RhythmicGridGenerator.js'
         ])
         .pipe(gulp.dest(jsDist))
         .pipe(connect.reload());

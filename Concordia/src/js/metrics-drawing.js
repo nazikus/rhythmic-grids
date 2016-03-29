@@ -27,6 +27,7 @@ console.log($(canvasT).css('text-canvas-font-size'))
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// TODO center text
 function drawText(typeface, text)
 {
   var startTime = performance.now();
@@ -177,6 +178,7 @@ function drawMetrics(typeface) {
   }
   ctx.font = metrics_label_font;
 
+  // TODO ovelay cap height line above ascent line
   // CAP HEIGHT line
   ctx.beginPath();
   ctx.strokeStyle = 'chocolate';
