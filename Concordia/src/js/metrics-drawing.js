@@ -1,3 +1,4 @@
+// TODO make canvas unseletable
 var canvas  = $('#metrics-canvas')[0],
     canvasT = $('#text-canvas')[0],
     ctx  = canvas.getContext('2d'),

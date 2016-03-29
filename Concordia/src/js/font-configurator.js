@@ -88,6 +88,7 @@ function onInputKeyup(e) {
       $(this).trigger('change');  
 
       // TODO on key hold
+      // TODO disable key up -> home
 }
 
 /////////////////////////////////////////////////////////////////////////////

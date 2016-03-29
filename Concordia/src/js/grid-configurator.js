@@ -1,7 +1,7 @@
 
 function setupRadioItems(allConfigs){
 
-    var getSelected = function(){
+    var getAllSelected = function(){
         return $('input:checked', allConfigs.radioForms) 
                 .map(function() {  
                     var val = $(this).val();
@@ -20,18 +20,23 @@ function setupRadioItems(allConfigs){
 
         // get ALL inputs on every single change
         $(el).on('change', function(){
-          refreshRadioInputs(allConfigs.radioForms, getSelected()); // this might modify selection
+          refreshRadioInputs(allConfigs.radioForms, getAllSelected()); // this might modify the selection
           
           var gridConfig = RhythmicGridGenerator.selectGrid(
-                        allConfigs.allValidGrids, getSelected() );
+                        allConfigs.allValidGrids, getAllSelected() );
           
           if (gridConfig)
               drawRhythmicGrid(gridConfig);
           else
               allConfigs.gridContainer.empty();
           
-
-          // console.log("Grid conifg: [%s]", getSelected().join(', '));
+          // ratio form: change-back the grphic ratio selector (previous section)
+          if ($(el).attr('id') === 'gridRatio'){
+              var ratioStr = $('input:checked', el).val();
+              $('.ratio-selector input[name=ratioSelector][id=ratio'+ratioStr+']')
+                .prop('checked', true);
+          }
+          // console.log("Grid conifg: [%s]", getAllSelected().join(', '));
         });
      });
 

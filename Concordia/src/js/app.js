@@ -2,7 +2,7 @@
 /////////////////////// TESSERACT ////////////////////////
 //////////////////////////////////////////////////////////
 
-window.addEventListener('load', drawTesseract, false);
+// window.addEventListener('load', drawTesseract, false);
 
 
 //////////////////////////////////////////////////////////
@@ -23,6 +23,7 @@ createSelectOptions('#fontSelect', getAvailableSystemFonts());
       if(idx) {
         input.on('keyup', onInputKeyup);
         // initialize input value from previous session
+        // TODO update text example css after initialization
         var localItem = localStorage.getItem(input.parent().attr('class'));
         if (localItem)  input.val(localItem);
       }
@@ -33,6 +34,19 @@ $('#fontSelect').trigger('change');
 $('.fontmetrics-input-wrapper > input').on('keyup', onMetricsTextChange).trigger('keyup');
 
 //////////////////////////////////////////////////////////
+///////////////// RATIO SELECTION ////////////////////////
+//////////////////////////////////////////////////////////
+
+// radio input handler
+$('.ratio-selector .flex-row').on('change', function(){
+    var radioObj = $('.ratio-selector input[name=ratioSelector]:checked');
+    var ratioStr = /\d+x\d+$/.exec( radioObj.attr('id') )[0];
+
+    var gridRatioObj = $('.grid-section .flex-child input[name="gridRatio"][value="' + ratioStr + '"]');
+    gridRatioObj.prop('checked', true).trigger('change');
+});
+
+//////////////////////////////////////////////////////////
 ///////////////// GRID CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
 
@@ -41,7 +55,7 @@ var allConfigs = (function(){
 
     // grid config range
     var widthArr    = [960, 1280, 1440];
-    var ratioArr    = ['16x9', '3x2', '1x1'];
+    var ratioArr    = ['1x1', '3x2', '16x9'];
     var baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     var columnsArr  = [5, 6, 9, 12];
     var gutter2baselineFactorArr = [0, 1, 2, 3];
