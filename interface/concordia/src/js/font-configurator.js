@@ -30,65 +30,87 @@ function createSelectOptions(id, values) {
     select.append(option);
   });
 
-  // select.on('change', onFontSelect);
   // initialize dropdown values (from previous session if any)
-  // select.find('option[value="'+(localStorage.getItem(id) || 16)+'"]')
-  //       .attr('selected','selected')
-  //       .parent()
-  //       .trigger('change');
-
-  return ;
+  var item = localStorage.getItem(select.attr('id'))
+  if (item)
+    select.find('option[value="'+item+'"]')
+          .attr('selected','selected');
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 // font selection event handler
-function onFontSelect(e) {
-    var id = $(this).attr('id');  // font dropdown
-    if (!id)  id = $(this).parent().attr('class')  // fontsize or lineheight input
+function onFontChange(e) {
+  var id = $(this).attr('id');  // font selection
+  if (!id)  id = $(this).parent().attr('class')  // fontsize or lineheight input text
+  // console.log("onChange: %s %s", id, this.value );
 
-    // TOFIX event fired twice every time
-    // console.log(id); 
-    // in order to remember selections between sessions
-    // localStorage.setItem(id, this.value);
-    // console.log("onChange: %s %s", id, this.value );
+  // remember selections between sessions
+  localStorage.setItem(id, this.value);
 
-    // update text sample according to the selected item
-    switch(id){
-    case 'fontSelect':
-      $('.example-text').css('font-family', this.value, "monospace"); //fallback: Helvetica,Arial
-      curr_typeface = this.value;
+  // update text sample according to the selected item
+  switch(id){
+  case 'fontSelect':
+    $('.example-text').css('font-family', this.value, ",monospace"); //fallback: Helvetica,Arial,monospace
+    curr_typeface = this.value; // global var
 
-      // // re-draw font metrics
-      // drawMetrics(curr_typeface, $('#metrics-text-eb').val() );
-      // drawText(curr_typeface, $('#metrics-text-eb').val() );
+    // // re-draw font metrics
+    drawMetrics(curr_typeface);
+    drawText(curr_typeface, curr_mtext);
+    break;
+
+  case 'input-fontsize':
+      $('.example-text').css('font-size', parseInt(this.value)+'px');
       break;
+  case 'input-lineheight':
+      $('.example-text').css('line-height', parseInt(this.value)+'px');
+      break;
+  }
 
-    case 'input-fontsize':
-        $('.example-text').css('font-size', parseInt(this.value)+'px');
-        break;
-    case 'input-lineheight':
-        $('.example-text').css('line-height', parseInt(this.value)+'px');
-        break;
-    }
-
+  // fixes the problem of onChange event firing twice
+  $(this).off('change').blur().on('change', onFontChange);
+  $(this).focus();
 };
 
 /////////////////////////////////////////////////////////////////////////////
-function onInputChange(e) {
+function onInputKeyup(e) {
     var input = $(e.target);
     var code = (e.keyCode || e.which);
-      // (down, left)
+      // [down, left]
       if( [40/*, 37*/].indexOf(code) > -1 ) {
         input.val(parseInt(input.val())-1+'px')
       }
-      // (up, right)
+      // [up, right]
       if( [38/*, 39*/].indexOf(code) > -1 ) {
         input.val(parseInt(input.val())+1+'px')
       }
       $(this).trigger('change');  
+
+      // TODO on key hold
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+function onMetricsTextChange(e) {
+  var code = (e.keyCode || e.which);
+  // do nothing if pressed key is an arrow key
+  // [left, up, right, down), shift, ctrl, alt]
+  if( [37, 38, 39, 40, 16, 17, 18].indexOf(code) > -1 ) {
+      return;
+  }
+
+  curr_mtext = this.value;
+  curr_mtext_width = curr_mtext ? Math.round(ctxT.measureText(curr_mtext).width) : 0;
+  
+  drawText(curr_typeface, curr_mtext);
+
+  // TODO trigger wheel events, in order to auto-scroll when text is deleted 
+  // $(canvasT).trigger( jQuery.Event('DOMMouseScroll') );
+  // $(canvasT).trigger( jQuery.Event('mousewheel') );
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 
 function getFontList() {
@@ -181,11 +203,11 @@ function getFontList() {
     "Stencil", "Storybook", "Styllo", "Subway", "Swis721 BlkEx BT",
     "Swiss911 XCm BT", "Sylfaen", "Synchro LET", "System", "Tamil Sangam MN", 
     "Technical", "Teletype", "Telugu Sangam MN", "Tempus Sans ITC", "Terminal",
-    "Thonburi", "Traditional Arabic", "Trajan", "TRAJAN PRO", "Tristan",
-    "Tubular", "Tunga", "Tw Cen MT", "Tw Cen MT Condensed", 
+    "Thonburi", 'Times New Roman', "Traditional Arabic", "Trajan", "TRAJAN PRO",
+    "Tristan", "Tubular", "Tunga", "Tw Cen MT", "Tw Cen MT Condensed",
     "Tw Cen MT Condensed Extra Bold", "TypoUpright BT", "Unicorn", "Univers", 
     "Univers CE 55 Medium", "Univers Condensed", "Utsaah", "Vagabond", "Vani",
-    "Vijaya", "Viner Hand ITC", "VisualUI", "Vivaldi", "Vladimir Script", 
+    "Verdana", "Vijaya", "Viner Hand ITC", "VisualUI", "Vivaldi", "Vladimir Script",
     "Vrinda", "Westminster", "WHITNEY", "Wide Latin", "ZapfEllipt BT", 
     "ZapfHumnst BT", "ZapfHumnst Dm BT", "Zapfino", "Zurich BlkEx BT",
     "Zurich Ex BT", "ZWAdobeF"

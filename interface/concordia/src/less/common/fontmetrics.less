@@ -1,0 +1,47 @@
+// font metrics canvas variables
+@metrics-canvas-width: 400px;
+@metrics-canvas-height: 180px;
+
+@text-canvas-margin-left: 0px; // most like you won't need this
+@text-canvas-margin-right: 55px; // extra right margin is required for 'UPM' label
+
+
+
+#fontmetrics-wrapper {
+    // border: thin solid green;
+}
+
+#metrics-canvas {
+    width: @metrics-canvas-width;
+    height: @metrics-canvas-height;
+
+    position: absolute;
+    z-index: 100;
+    // border: thin solid orange;
+}
+
+#text-canvas {
+    width: @metrics-canvas-width - (@text-canvas-margin-left+@text-canvas-margin-right);
+    height: @metrics-canvas-height;
+    margin-left: @text-canvas-margin-left;
+    margin-right: @text-canvas-margin-right;
+    
+    position: absolute;
+    z-index: 100;
+    // border: thin solid red;
+
+    cursor: col-resize;
+    /*cursor: grab;*/
+    /*#eA { cursor: -webkit-grab; cursor: -moz-grab; }*/
+    &:active {
+        cursor: col-resize;
+        /*cursor: grabbing;*/
+        /*#eA:active { cursor: -webkit-grabbing; cursor:-moz-grabbing; }*/
+    } 
+}
+
+.fontmetrics-helper-info{
+    position: absolute;
+    margin-top: @metrics-canvas-height + 10;
+    width: @metrics-canvas-width;
+}

@@ -1,31 +1,40 @@
-/////////////////////// TESSERACT //////////////////////
+//////////////////////////////////////////////////////////
+/////////////////////// TESSERACT ////////////////////////
+//////////////////////////////////////////////////////////
 
 window.addEventListener('load', drawTesseract, false);
 
 
-//////////////////// FONT SELECTION ////////////////////
+//////////////////////////////////////////////////////////
+///////////////// FONT CONFIGURATION /////////////////////
+//////////////////////////////////////////////////////////
+
+// clear remembered configs from previous sesssion
+// localStorage.clear()
 
 // TODO refactor with on DOM ready event
 $('#fontSelect').empty();
-typefaceArr = getAvailableSystemFonts();
-createSelectOptions('#fontSelect', typefaceArr);
+createSelectOptions('#fontSelect', getAvailableSystemFonts());
 
 ['#fontSelect', '.input-fontsize > input', '.input-lineheight > input']
   .forEach(function(selector, idx){
       var input = $(selector);
-      input.on('change', onFontSelect);
-      if(idx) input.on('keyup', onInputChange);
+      input.on('change', onFontChange);
+      if(idx) {
+        input.on('keyup', onInputKeyup);
+        // initialize input value from previous session
+        var localItem = localStorage.getItem(input.parent().attr('class'));
+        if (localItem)  input.val(localItem);
+      }
   });
 
-$('#fontSelect').on('change', onFontSelect);
-$('.input-fontsize > input').on('change', onFontSelect);
-$('.input-lineheight > input').on('change', onFontSelect);
+// trigger for initial metrics drawing 
+$('#fontSelect').trigger('change');
+$('.fontmetrics-input-wrapper > input').on('keyup', onMetricsTextChange).trigger('keyup');
 
-////////////////////// FONT METRICS ////////////////////
-
-
-
-////////////////////// GRID CONFIG /////////////////////
+//////////////////////////////////////////////////////////
+///////////////// GRID CONFIGURATION /////////////////////
+//////////////////////////////////////////////////////////
 
 var allConfigs = (function(){
     var rgg = RhythmicGridGenerator;

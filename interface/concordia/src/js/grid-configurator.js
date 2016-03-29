@@ -141,7 +141,8 @@ function drawRhythmicGrid(gridConfig){
                 inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg');
                 // console.log(inner.attr('style'));
             } else {
-                txtmck = allConfigs.textMocks[idx][Math.floor(Math.random() * allConfigs.textMocks[idx].length)];
+                txtmck = allConfigs.textMocks[idx][0];
+                //[Math.floor(Math.random() * allConfigs.textMocks[idx].length)];
                 // txtmck = Array(50).join("x ");
                 inner.append( $('<div>').addClass('text').text(txtmck) );
             }
