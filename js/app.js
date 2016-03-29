@@ -2303,7 +2303,7 @@ function drawTesseract(){
   renderer.draw_overdraw = false;
   renderer.fill_rgba = new Pre3d.RGBA(0xff/255, 0xff/255, 0xff/255, 0);
   renderer.ctx.lineWidth = 2;
-  renderer.stroke_rgba = new Pre3d.RGBA(0x1e/255, 0x1c/255, 0xf5/255, 0.5);
+  renderer.stroke_rgba = new Pre3d.RGBA(0x1e/255, 0x1c/255, 0xf5/255, 0.15);
 
   function setTransform(x, y) {
     var ct = renderer.camera.transform;
@@ -2377,65 +2377,87 @@ function createSelectOptions(id, values) {
     select.append(option);
   });
 
-  // select.on('change', onFontSelect);
   // initialize dropdown values (from previous session if any)
-  // select.find('option[value="'+(localStorage.getItem(id) || 16)+'"]')
-  //       .attr('selected','selected')
-  //       .parent()
-  //       .trigger('change');
-
-  return ;
+  var item = localStorage.getItem(select.attr('id'))
+  if (item)
+    select.find('option[value="'+item+'"]')
+          .attr('selected','selected');
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 // font selection event handler
-function onFontSelect(e) {
-    var id = $(this).attr('id');  // font dropdown
-    if (!id)  id = $(this).parent().attr('class')  // fontsize or lineheight input
+function onFontChange(e) {
+  var id = $(this).attr('id');  // font selection
+  if (!id)  id = $(this).parent().attr('class')  // fontsize or lineheight input text
+  // console.log("onChange: %s %s", id, this.value );
 
-    // TOFIX event fired twice every time
-    // console.log(id); 
-    // in order to remember selections between sessions
-    // localStorage.setItem(id, this.value);
-    // console.log("onChange: %s %s", id, this.value );
+  // remember selections between sessions
+  localStorage.setItem(id, this.value);
 
-    // update text sample according to the selected item
-    switch(id){
-    case 'fontSelect':
-      $('.example-text').css('font-family', this.value, "monospace"); //fallback: Helvetica,Arial
-      curr_typeface = this.value;
+  // update text sample according to the selected item
+  switch(id){
+  case 'fontSelect':
+    $('.example-text').css('font-family', this.value, ",monospace"); //fallback: Helvetica,Arial,monospace
+    curr_typeface = this.value; // global var
 
-      // // re-draw font metrics
-      // drawMetrics(curr_typeface, $('#metrics-text-eb').val() );
-      // drawText(curr_typeface, $('#metrics-text-eb').val() );
+    // // re-draw font metrics
+    drawMetrics(curr_typeface);
+    drawText(curr_typeface, curr_mtext);
+    break;
+
+  case 'input-fontsize':
+      $('.example-text').css('font-size', parseInt(this.value)+'px');
       break;
+  case 'input-lineheight':
+      $('.example-text').css('line-height', parseInt(this.value)+'px');
+      break;
+  }
 
-    case 'input-fontsize':
-        $('.example-text').css('font-size', parseInt(this.value)+'px');
-        break;
-    case 'input-lineheight':
-        $('.example-text').css('line-height', parseInt(this.value)+'px');
-        break;
-    }
-
+  // fixes the problem of onChange event firing twice
+  $(this).off('change').blur().on('change', onFontChange);
+  $(this).focus();
 };
 
 /////////////////////////////////////////////////////////////////////////////
-function onInputChange(e) {
+function onInputKeyup(e) {
     var input = $(e.target);
     var code = (e.keyCode || e.which);
-      // (down, left)
+      // [down, left]
       if( [40/*, 37*/].indexOf(code) > -1 ) {
         input.val(parseInt(input.val())-1+'px')
       }
-      // (up, right)
+      // [up, right]
       if( [38/*, 39*/].indexOf(code) > -1 ) {
         input.val(parseInt(input.val())+1+'px')
       }
       $(this).trigger('change');  
+
+      // TODO on key hold
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+function onMetricsTextChange(e) {
+  var code = (e.keyCode || e.which);
+  // do nothing if pressed key is an arrow key
+  // [left, up, right, down), shift, ctrl, alt]
+  if( [37, 38, 39, 40, 16, 17, 18].indexOf(code) > -1 ) {
+      return;
+  }
+
+  curr_mtext = this.value;
+  curr_mtext_width = curr_mtext ? Math.round(ctxT.measureText(curr_mtext).width) : 0;
+  
+  drawText(curr_typeface, curr_mtext);
+
+  // TODO trigger wheel events, in order to auto-scroll when text is deleted 
+  // $(canvasT).trigger( jQuery.Event('DOMMouseScroll') );
+  // $(canvasT).trigger( jQuery.Event('mousewheel') );
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 
 function getFontList() {
@@ -2528,11 +2550,11 @@ function getFontList() {
     "Stencil", "Storybook", "Styllo", "Subway", "Swis721 BlkEx BT",
     "Swiss911 XCm BT", "Sylfaen", "Synchro LET", "System", "Tamil Sangam MN", 
     "Technical", "Teletype", "Telugu Sangam MN", "Tempus Sans ITC", "Terminal",
-    "Thonburi", "Traditional Arabic", "Trajan", "TRAJAN PRO", "Tristan",
-    "Tubular", "Tunga", "Tw Cen MT", "Tw Cen MT Condensed", 
+    "Thonburi", 'Times New Roman', "Traditional Arabic", "Trajan", "TRAJAN PRO",
+    "Tristan", "Tubular", "Tunga", "Tw Cen MT", "Tw Cen MT Condensed",
     "Tw Cen MT Condensed Extra Bold", "TypoUpright BT", "Unicorn", "Univers", 
     "Univers CE 55 Medium", "Univers Condensed", "Utsaah", "Vagabond", "Vani",
-    "Vijaya", "Viner Hand ITC", "VisualUI", "Vivaldi", "Vladimir Script", 
+    "Verdana", "Vijaya", "Viner Hand ITC", "VisualUI", "Vivaldi", "Vladimir Script",
     "Vrinda", "Westminster", "WHITNEY", "Wide Latin", "ZapfEllipt BT", 
     "ZapfHumnst BT", "ZapfHumnst Dm BT", "Zapfino", "Zurich BlkEx BT",
     "Zurich Ex BT", "ZWAdobeF"
@@ -2681,7 +2703,8 @@ function drawRhythmicGrid(gridConfig){
                 inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg');
                 // console.log(inner.attr('style'));
             } else {
-                txtmck = allConfigs.textMocks[idx][Math.floor(Math.random() * allConfigs.textMocks[idx].length)];
+                txtmck = allConfigs.textMocks[idx][0];
+                //[Math.floor(Math.random() * allConfigs.textMocks[idx].length)];
                 // txtmck = Array(50).join("x ");
                 inner.append( $('<div>').addClass('text').text(txtmck) );
             }
@@ -2725,34 +2748,367 @@ function drawRhythmicGrid(gridConfig){
 
     return ;
 }
-/////////////////////// TESSERACT //////////////////////
+var canvas  = $('#metrics-canvas')[0],
+    canvasT = $('#text-canvas')[0],
+    ctx  = canvas.getContext('2d'),
+    ctxT = canvasT.getContext('2d');
+
+var int = function(str){ return parseInt(str,10); }
+
+//'xMHy|$ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ (){}!?/\\\'`.,:;@#%^&*<>',
+var reference_alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    metrics_fontsize = 140,
+    metrics_fallback = '30px sans', // in case font detector give false positive
+    metrics_default_text = reference_alphabet, //'Munchy',
+    curr_typeface = null,
+    curr_mtext = null,
+    curr_mtext_width = 0,
+    xOffL = int( $(canvasT).css('margin-left') ),  // left offset (margin)
+    xOffR = int( $(canvasT).css('margin-right') ); // right offset (margin)
+
+// set canvas width attribute same as css width style
+canvas.width   = int( $(canvas).css('width') );
+canvas.height  = int( $(canvas).css('height') );
+canvasT.width  = int( $(canvasT).css('width') );
+canvasT.height = int( $(canvasT).css('height') );
+
+console.log('Metrics canvas %sx%s\nText canvasT %sx%s\noffset %s-%s',  canvas.width,  canvas.height, canvasT.width, canvasT.height, xOffL, xOffR);
+console.log($(canvasT).css('text-canvas-font-size'))
+
+///////////////////////////////////////////////////////////////////////////////
+
+function drawText(typeface, text)
+{
+  var startTime = performance.now();
+  var baseline_y = Math.round( canvasT.height*.70 );
+
+  // Initialize text font and extract its metrics
+  ctxT.clearRect(0, 0, canvasT.width, canvasT.height);
+  ctxT.font = metrics_fallback;  // fallback font in case non-valid typeface is passed
+  ctxT.font = metrics_fontsize + "px " + typeface;
+  canvasT.style.font = ctxT.font;
+  if (ctxT.font==metrics_fallback)
+    return;
+
+  // draw sample text
+  // NOTE. canvasT must have higher css z-index for proper overlay rendering
+  ctxT.fillText(text, translated, baseline_y);
+
+  var timing = performance.now() - startTime;
+  // console.log('------------- text rendering finished (%.1fms).', timing);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+// text rendering with font metrics visualized
+function drawMetrics(typeface) {
+  var startTime = performance.now();
+  var error_font = false;
+
+  // Initialize text font and extract its metrics
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = metrics_fallback;
+  ctx.font = metrics_fontsize + "px " + typeface;
+  canvas.style.font = ctx.font;
+
+  if (ctx.font == metrics_fallback)
+      error_font = true;
+  
+  var metrics   = ctx.measureText(reference_alphabet),  // fontmetrics.js
+      ascent    = metrics.ascent,
+      descent   = metrics.descent,
+      x_height  = ctx.measureText('x').ascent,
+      cap_height= ctx.measureText('H').ascent,
+      safebox_h = Math.round(metrics_fontsize / 2), // safe-box height ??
+      xdev = x_height / safebox_h - 1;  // x-height deviation from safe-box height
+
+  curr_mtext_width = Math.round(ctx.measureText(curr_mtext).width); // NB! global var
+  var baseline_y = Math.round( canvas.height*.70 ),
+      line_length = canvas.width - xOffR; //metrics.width+b*2-xoff;
+
+  // console.log('Baseline Y: %sx', baseline_y);
+  // console.log('Safe-box height: %s', safebox_h);
+  // console.log(metrics);
+  // console.log('x-height deviation: %.1f%%', xdev*100)
+
+  // font init for metrics labels
+  var metrics_label_font = '16px serif';
+  ctx.font = metrics_label_font;
+  canvas.style.font = ctx.font;
+
+  // // EM BOX lines
+  // var em_gap = Math.round((metrics_fontsize - (ascent+descent)) / 2);
+  // ctx.beginPath();
+  // ctx.strokeStyle = 'rgba(255, 0, 0, .7)';
+  // ctx.lineWidth = 1;
+  // ctx.strokeRect(1, baseline_y-ascent-em_gap, 
+  //                line_length+xOffR-1, metrics_fontsize);
+  // // console.log('Baseline = %s; Ascent = %s; Descent = %s; Em gap = %s', baseline_y, ascent, descent, em_gap);
+  
+  // // EM BOX label
+  // ctx.fillStyle = 'rgba(255, 0, 0, .8)';
+  // ctx.textBaseline = 'bottom';
+  // if (true) {  // rotate flag
+  //   ctx.save();
+  //   ctx.textAlign = 'right';
+  //   ctx.rotate(Math.PI/2); // rotate coordinates by 90° clockwise
+  //   ctx.fillText('em box', baseline_y+descent+em_gap-5, -2); // for vertical label
+  //   ctx.restore();
+  // } else {
+  //   ctx.textAlign = 'left';
+  //   ctx.fillText('em box', 2, baseline_y-ascent-em_gap); // for horizontal label 
+  // }
+
+  if (error_font)
+      return ;
+
+  // SAFEBOX rectangle
+  ctx.beginPath();
+  ctx.fillStyle = 'rgba(0, 107, 255, .3)';
+  ctx.lineWidth = 2;
+  ctx.fillRect(xOffL, baseline_y-safebox_h, line_length-xOffL, safebox_h);
+
+  // SAFEBOX label
+  // ctx.fillStyle = 'rgba(0, 107, 255, .8)';
+  // ctx.textBaseline = 'hanging';
+  // ctx.textAlign = 'left';
+  // ctx.fillText('500UPM', line_length+5, baseline_y-safebox_h);
+
+  // BASELINE line
+  ctx.beginPath();
+  ctx.strokeStyle = 'lightseagreen';
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.lineWidth = 3;
+  ctx.moveTo(xOffL, baseline_y + Math.floor(ctx.lineWidth/2));
+  ctx.lineTo(line_length, baseline_y + Math.floor(ctx.lineWidth/2));
+  ctx.stroke();
+
+  // BASELINE label
+  ctx.textBaseline = 'hanging';
+  ctx.textAlign = 'right';
+  ctx.fillText('baseline', line_length, baseline_y+2);
+
+  // X-HEIGHT line
+  ctx.beginPath();
+  ctx.strokeStyle = 'red';
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.lineWidth = 1;
+  ctx.moveTo(xOffL, baseline_y - x_height);
+  ctx.lineTo(line_length, baseline_y - x_height);
+  ctx.stroke();
+
+  // X-HEIGHT label
+  ctx.textBaseline = 'hanging';
+  ctx.textAlign = 'right';
+  ctx.fillText('x-height', line_length, baseline_y-x_height+1);
+
+  // TODO color coded interpolation
+  // X-HEIGHT deviation from "safe zone" (500UPMs)
+  ctx.textBaseline = 'bottom';
+  ctx.textAlign = 'left';
+  ctx.font = "11px sans";
+  ctx.fillStyle = 'rgba(0, 107, 255, .9)';
+  if (/*xdev != 0*/1) { // omit zero UPM or not
+    if (false){
+      // vertical label, in UPMs
+      ctx.save();
+      ctx.rotate(Math.PI/2); // retote coordinates by 90° clockwise
+      ctx.fillText((xdev>=0?'+ ':'– ') + Math.abs(Math.round(xdev*500)) + ' UPM', 
+                   baseline_y-x_height-3, -line_length); // UPM, vertical label
+      ctx.restore();
+    } else {
+      // horizontal label in % or UPMs
+      // ctx.fillText((xdev>=0?'+':'-') + Math.round(xdev*1000)/10 + '%', line_length, baseline_y-x_height+1);
+      ctx.fillText( (xdev>0?'+':'') + Math.round(xdev*500) + ' UPM',
+           line_length+3, baseline_y-x_height+5); 
+    }
+  }
+  ctx.font = metrics_label_font;
+
+  // CAP HEIGHT line
+  ctx.beginPath();
+  ctx.strokeStyle = 'chocolate';
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.lineWidth = 1;
+  ctx.moveTo(xOffL, baseline_y - cap_height);
+  ctx.lineTo(line_length, baseline_y - cap_height);
+  ctx.stroke();
+
+  // CAP HEIGHT line
+  ctx.textBaseline = 'bottom';
+  ctx.textAlign = 'right';
+  ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
+
+  // ASCENT & DESCENT lines
+  ctx.beginPath();
+  ctx.strokeStyle = 'lightgray';
+  ctx.fillStyle = 'gray';
+  ctx.lineWidth = 2;
+  ctx.moveTo(xOffL, baseline_y-ascent);
+  ctx.lineTo(line_length, baseline_y-ascent);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(xOffL, baseline_y+descent);
+  ctx.lineTo(line_length, baseline_y+descent);
+  ctx.stroke();
+
+  // ASCENT & DESCENT labels
+  ctx.textBaseline = 'bottom';
+  ctx.textAlign = 'left';
+  ctx.fillText('ascent', xOffL, baseline_y-ascent-2);
+
+  ctx.textBaseline = 'hanging';
+  ctx.textAlign = 'left';
+  ctx.fillText('descent', xOffL, baseline_y+descent);
+
+  var timing = performance.now() - startTime;
+  console.log('------------- metrics rendering finished (%.1dms).', timing);
+};
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////// CANVAS PANNING //////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/**********************
+     CANVAS PANNING 
+***********************/
+
+var dragging = false,
+    lastX = 0,
+    translated = 0; // localStorage.getItem('drag-translation') || 0;
+
+// TODO fix glitch when dragging cursor outside the canvas
+// stops scrolling if text goes outside the canvas
+function restrictRange(transdelta){
+  // console.log('Scrolling lastX: %s; delta: %s; translated: %s; width: %s', lastX, transdelta-translated, translated, curr_mtext_width);
+  // if text fits within canvas width completely
+  if (curr_mtext_width < canvasT.width)
+    return transdelta > canvasT.width-curr_mtext_width ? canvasT.width-curr_mtext_width :
+           transdelta < 0 ? 0 : transdelta;
+  // if text is wider then the canvas width
+  else {
+    var pm = 0.15; // panning margin, normalized
+    return transdelta > canvasT.width*(pm) ? canvasT.width*(pm)  :
+           transdelta < -curr_mtext_width+canvasT.width/(1+pm) ? -curr_mtext_width+canvasT.width/(1+pm) : 
+           transdelta;
+  }
+}
+
+window.onmousemove = function(e){
+  var evt = e || event;
+
+  if (dragging){
+    e=e || window.event;
+    pauseEvent(e);
+    var delta = evt.offsetX - lastX;
+    translated = restrictRange(translated+delta);
+    lastX = evt.offsetX;
+    drawText(curr_typeface, curr_mtext);
+  }
+
+}
+
+canvasT.onmousedown = function(e){
+  // console.log('Mouse down');
+  var evt = e || event;
+  dragging = true;
+  lastX = evt.offsetX;
+}
+
+window.onmouseup = function(){
+  // console.log('Mouse up');
+  dragging = false;
+  localStorage.setItem('drag-translation', translated);
+}
+
+
+// SCROLL PANNING
+// TODO drag cursor for Chrome
+// TODO block further wheel event propagation
+// TODO kinectic scrolling: http://ariya.ofilabs.com/2013/11/javascript-kinetic-scrolling-part-2.html
+// TODO horizontal scroll-panning (currently only in FireFox)
+// canvasT.addEventListener('DOMMouseScroll', mouseWheelEvent);
+// canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
+
+function mouseWheelEvent(e){
+    var delta = 0;
+
+    // console.log(e);
+    switch (e.type){
+      case 'DOMMouseScroll': // FireFox
+        delta = Math.round(e.wheelDelta || e.detail*10);
+        break;
+
+      case 'mousewheel': // Chrome (e.deltaY),  IE & Opera (e.wheelDelta)
+        delta = Math.round(e.deltaX || e.deltaY || e.wheelDelta);
+        break; 
+      
+      default:
+        console.log('Currently "%s" type is not supported.', e.type);
+        return false;
+    }
+    translated = restrictRange(translated+delta);
+    // translated += delta;
+
+    drawText(curr_typeface, curr_mtext);
+    // mouseController.wheel(e);
+    return false; 
+};
+
+// disable wheel events in main window, but still accessible in canvas
+// TOFIX works in chrome but not in FF
+// window.onwheel = function() { return false; }
+
+// in order to prevent unwanted selection while dragging
+function pauseEvent(e){
+    if(e.stopPropagation) e.stopPropagation();
+    if(e.preventDefault) e.preventDefault();
+    e.cancelBubble=true;
+    e.returnValue=false;
+    return false;
+}
+//////////////////////////////////////////////////////////
+/////////////////////// TESSERACT ////////////////////////
+//////////////////////////////////////////////////////////
 
 window.addEventListener('load', drawTesseract, false);
 
 
-//////////////////// FONT SELECTION ////////////////////
+//////////////////////////////////////////////////////////
+///////////////// FONT CONFIGURATION /////////////////////
+//////////////////////////////////////////////////////////
+
+// clear remembered configs from previous sesssion
+// localStorage.clear()
 
 // TODO refactor with on DOM ready event
 $('#fontSelect').empty();
-typefaceArr = getAvailableSystemFonts();
-createSelectOptions('#fontSelect', typefaceArr);
+createSelectOptions('#fontSelect', getAvailableSystemFonts());
 
 ['#fontSelect', '.input-fontsize > input', '.input-lineheight > input']
   .forEach(function(selector, idx){
       var input = $(selector);
-      input.on('change', onFontSelect);
-      if(idx) input.on('keyup', onInputChange);
+      input.on('change', onFontChange);
+      if(idx) {
+        input.on('keyup', onInputKeyup);
+        // initialize input value from previous session
+        var localItem = localStorage.getItem(input.parent().attr('class'));
+        if (localItem)  input.val(localItem);
+      }
   });
 
-$('#fontSelect').on('change', onFontSelect);
-$('.input-fontsize > input').on('change', onFontSelect);
-$('.input-lineheight > input').on('change', onFontSelect);
+// trigger for initial metrics drawing 
+$('#fontSelect').trigger('change');
+$('.fontmetrics-input-wrapper > input').on('keyup', onMetricsTextChange).trigger('keyup');
 
-////////////////////// FONT METRICS ////////////////////
-
-
-
-////////////////////// GRID CONFIG /////////////////////
+//////////////////////////////////////////////////////////
+///////////////// GRID CONFIGURATION /////////////////////
+//////////////////////////////////////////////////////////
 
 var allConfigs = (function(){
     var rgg = RhythmicGridGenerator;
