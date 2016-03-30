@@ -190,6 +190,12 @@ function drawRhythmicGrid(gridConfig){
         'margin-bottom': g
     });
 
+    $('.text').css({
+        // 'text-decoration': 'underline',
+        'font-family': $('#fontSelect').val()+",monospace",
+        'font-size': parseInt($('.input-fontsize > input').val(), 10)+'px'
+    });
+
     // TOFIX
     // a problem with relative flex values and floats, eg 66.666667% 
     $('.column .inner').css('padding-bottom', 100/gridConfig.ratio.R+'%')

@@ -6,31 +6,75 @@ window.addEventListener('load', drawTesseract, false);
 
 
 //////////////////////////////////////////////////////////
-///////////////// FONT CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
+var allConfigs;
 
 // do not remember selections from previous sesssions
 // localStorage.clear()
 
-// TODO refactor with on DOM ready event
-$('#fontSelect').empty();
-createSelectOptions('#fontSelect', getAvailableSystemFonts());
+// $(document).ready(function(){
 
-['#fontSelect', '.input-fontsize > input', '.input-lineheight > input']
-  .forEach(function(selector, idx){
-      var input = $(selector);
-      input.on('change', onFontChange);
-      if(idx) {
-        input.on('keyup', onInputKeyup);
-        // initialize input value from previous session
-        // TODO update text example css after initialization
-        var localItem = localStorage.getItem(input.parent().attr('class'));
-        if (localItem)  input.val(localItem);
+//////////////////////////////////////////////////////////
+///////////////// FONT CONFIGURATION /////////////////////
+//////////////////////////////////////////////////////////
+['#fontSelect',
+ '.input-fontsize > input',
+ '.input-lineheight > input'
+].forEach(function(selector, idx){
+      switch(idx){
+        // font dropdown
+        case 0:
+            var fontList = getAvailableSystemFonts();
+            var select = $(selector);
+            select.empty();
+  
+            fontList.forEach(function(val, idx) {
+              var option = $('<option>').prop('value', val).text(val);
+              if (!idx) option.prop('selected', true);  // make 1st option a default selection
+              select.append(option);
+            });
+
+            // initialize dropdown values from previous session (if any)
+            var prevFont = localStorage.getItem(select.attr('id'))
+            if (prevFont)
+                select.find('option[value="'+prevFont+'"]')
+                      .attr('selected','selected');
+
+            $('.example-text').css('font-family', select.val()+",monospace");
+
+            select.on('change', onFontChange).trigger('change');
+            
+            // in Firefox only (Safari?)
+            // if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
+                // select.on('keyup', function(){ $(this).trigger('change'); })
+            break;
+        
+        // font size & line height edit boxes
+        case 1:
+        case 2:
+            var input = $(selector);
+
+            // initialize edit box from previous session (if any)
+            var prevSize = localStorage.getItem(input.parent().attr('class'));
+            if (prevSize)  input.val(prevSize);            
+        
+            if (idx==1)
+                $('.example-text').css('font-size', parseInt(input.val())+'px');
+            else 
+                $('.example-text').css('line-height', parseInt(input.val())+'px');
+
+            input.on('change', onFontChange);
+            input.on('keydown', onKeyDown);
+            
+            break;
+        default:
+            console.warn('update your font selector initialization')
       }
+
+      $(selector).trigger('change');
   });
 
-// trigger for initial metrics drawing 
-$('#fontSelect').trigger('change');
+// trigger for initial text metrics rendering
 $('.fontmetrics-input-wrapper > input').on('keyup', onMetricsTextChange).trigger('keyup');
 
 //////////////////////////////////////////////////////////
@@ -50,7 +94,7 @@ $('.ratio-selector .flex-row').on('change', function(){
 ///////////////// GRID CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
 
-var allConfigs = (function(){
+allConfigs = (function(){
     var rgg = RhythmicGridGenerator;
 
     // grid config range
@@ -108,3 +152,5 @@ var allConfigs = (function(){
 
 // create radio items based on the grid config above
 setupRadioItems(allConfigs);
+
+// }); // <-- $(document).ready()

@@ -19,24 +19,6 @@ function getAvailableSystemFonts() {
   return availableFonts;
 };
 
-/////////////////////////////////////////////////////////////////////////////
-
-function createSelectOptions(id, values) {
-  var select = $(id);
-  
-  values.forEach(function(val, idx) {
-    var option = $('<option>').prop('value', val).text(val);
-    if (!idx) option.prop('selected', true);  // make 1st option a default selection
-    select.append(option);
-  });
-
-  // initialize dropdown values (from previous session if any)
-  var item = localStorage.getItem(select.attr('id'))
-  if (item)
-    select.find('option[value="'+item+'"]')
-          .attr('selected','selected');
-}
-
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +26,7 @@ function createSelectOptions(id, values) {
 function onFontChange(e) {
   var id = $(this).attr('id');  // font selection
   if (!id)  id = $(this).parent().attr('class')  // fontsize or lineheight input text
-  // console.log("onChange: %s %s", id, this.value );
+  console.log("onChange: %s %s", id, this.value );
 
   // remember selections between sessions
   localStorage.setItem(id, this.value);
@@ -52,8 +34,9 @@ function onFontChange(e) {
   // update text sample according to the selected item
   switch(id){
   case 'fontSelect':
-    $('.example-text').css('font-family', this.value, ",monospace"); //fallback: Helvetica,Arial,monospace
-    curr_typeface = this.value; // global var
+    $('.example-text').css('font-family', this.value+",monospace"); //fallback: Helvetica,Arial,monospace
+    $('.text').css('font-family', this.value+",monospace");
+    metricsContext.curr_typeface = this.value; // global var for metrics drawing
 
     // // re-draw font metrics
     drawMetrics(curr_typeface);
@@ -62,6 +45,7 @@ function onFontChange(e) {
 
   case 'input-fontsize':
       $('.example-text').css('font-size', parseInt(this.value)+'px');
+      $('.text').css('font-size', parseInt(this.value)+'px');
       break;
   case 'input-lineheight':
       $('.example-text').css('line-height', parseInt(this.value)+'px');
