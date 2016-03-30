@@ -71,6 +71,7 @@ gulp.task('js', function() {
             
             // font metrics & detect
             jsSrc + '/vendor/canvas-fontmetrics.js', // redifines Canvas2D.prototype.measureText()
+            jsSrc + '/vendor/lorem.js',
             jsSrc + '/vendor/font-detector.js',
             // wierd implementation of font detector using ComicSans, but keep it for comparison
             // jsSrc + '/vendor/font-detector-temp.js',

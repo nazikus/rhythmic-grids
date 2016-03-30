@@ -123,36 +123,29 @@ function drawRhythmicGrid(gridConfig){
     
     /////// GENERATE BLOCK DIVS ///////////
     var container = allConfigs.gridContainer,
-        c = 0,
-        imgId = 0,
-        row   = null, 
-        column= null,
-        inner = null,
-        txtmck= null;
+        c = 0;
 
     container.empty();
     gridConfig.rhythmicGrid.blocks.forEach( function(val, idx, arr){
-        row = $('<div>').addClass('row');
+        var row = $('<div>').addClass('row');
 
         //val[2] - number of blocks (columns) in current row
         // see @class Grid (RhythmicGridGenerator.js)
         for (var i=1; i<=val[2]; i++){
-            inner = $('<div>').addClass('inner').addClass('inner'+i);
+            var inner = $('<div>').addClass('inner').addClass('inner'+i);
             
             // pairwise image & text for odd-even blocks
             c++;
             if (c%2 || idx+1===arr.length/*the last biggest block is better with an image*/){
-                imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
+                var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
                 inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg');
                 // console.log(inner.attr('style'));
             } else {
-                txtmck = allConfigs.textMocks[idx][0];
-                //[Math.floor(Math.random() * allConfigs.textMocks[idx].length)];
-                // txtmck = Array(50).join("x ");
+                var txtmck = allConfigs.textMocks[idx];
                 inner.append( $('<div>').addClass('text').text(txtmck) );
             }
 
-            column = $('<div>').addClass('column').append(inner);
+            var column = $('<div>').addClass('column').append(inner);
             row.append(column);
         }
 
@@ -173,13 +166,21 @@ function drawRhythmicGrid(gridConfig){
         'margin-bottom': gridConfig.gutter.H
     });
 
-    // TOFIX
-    $('.column .inner .text').css('line-height', 1+(gridConfig.baseline-3)/10+'em');
-    $('.column .inner .text').css('text-decoration', 'underline');
+    // TOFIX line-height vs baseline
+    $('.column .inner .text').css({
+        'line-height': 1+(gridConfig.baseline-3)/10+'em',
+        // 'display': 'inline-block',
+        'text-decoration': 'underline',
+        'text-overflow': 'ellipsis'
+    });
 
     // TOFIX
     // a problem with relative flex values and floats, eg 66.666667% 
-    $('.column .inner').css('padding-bottom', 1/gridConfig.ratio.R*100+'%')
+    $('.column .inner').css('padding-bottom', 100/gridConfig.ratio.R+'%')
+
+    // truncate overflow text
+    console.log('dotdotdot');
+    $(".column .inner .text").dotdotdot();
 
 
     // var gridRules = Object
