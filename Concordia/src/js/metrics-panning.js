@@ -3,56 +3,54 @@
 ///////////////////// CANVAS PANNING //////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-/**********************
-     CANVAS PANNING 
-***********************/
-
-var dragging = false,
-    lastX = 0,
-    translated = 0; // localStorage.getItem('drag-translation') || 0;
+// NB! REQUIRES metricsContext object, initialized in metrics-drawings.js
 
 // TODO fix glitch when dragging cursor outside the canvas
 // stops scrolling if text goes outside the canvas
 function restrictRange(transdelta){
-  // console.log('Scrolling lastX: %s; delta: %s; translated: %s; width: %s', lastX, transdelta-translated, translated, curr_mtext_width);
+  var mCtx = metricsContext,
+      mtextW = mCtx.curr_mtext_width,
+      width  = mCtx.canvasT.width;
+  // console.log('Scrolling lastX: %s; delta: %s; translated: %s; width: %s', 
+     // mCtx.lastX, transdelta-mCtx.translated, mCtx.translated, mtextW);
+  
   // if text fits within canvas width completely
-  if (curr_mtext_width < canvasT.width)
-    return transdelta > canvasT.width-curr_mtext_width ? canvasT.width-curr_mtext_width :
+  if (mtextW < width)
+    return transdelta > width-mtextW ? width-mtextW :
            transdelta < 0 ? 0 : transdelta;
   // if text is wider then the canvas width
   else {
     var pm = 0.15; // panning margin, normalized
-    return transdelta > canvasT.width*(pm) ? canvasT.width*(pm)  :
-           transdelta < -curr_mtext_width+canvasT.width/(1+pm) ? -curr_mtext_width+canvasT.width/(1+pm) : 
+    return transdelta > width*(pm) ? width*(pm)  :
+           transdelta < -mtextW+width/(1+pm) ? -mtextW+width/(1+pm) : 
            transdelta;
   }
 }
 
 window.onmousemove = function(e){
   var evt = e || event;
+  var mCtx = metricsContext;
 
-  if (dragging){
+  if (mCtx.dragging){
     e=e || window.event;
     pauseEvent(e);
-    var delta = evt.offsetX - lastX;
-    translated = restrictRange(translated+delta);
-    lastX = evt.offsetX;
-    drawText(curr_typeface, curr_mtext);
+    var delta = evt.offsetX - mCtx.lastX;
+    mCtx.translated = restrictRange(mCtx.translated+delta);
+    mCtx.lastX = evt.offsetX;
+    drawText();
   }
 
 }
 
-canvasT.onmousedown = function(e){
-  // console.log('Mouse down');
+metricsContext.canvasT.onmousedown = function(e){
   var evt = e || event;
-  dragging = true;
-  lastX = evt.offsetX;
+  metricsContext.dragging = true;
+  metricsContext.lastX = evt.offsetX;
 }
 
 window.onmouseup = function(){
-  // console.log('Mouse up');
-  dragging = false;
-  localStorage.setItem('drag-translation', translated);
+  metricsContext.dragging = false;
+  // localStorage.setItem('drag-translation', metricsContext.translated);
 }
 
 
@@ -65,6 +63,7 @@ window.onmouseup = function(){
 // canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
 
 function mouseWheelEvent(e){
+    var mCtx = metricsContext;
     var delta = 0;
 
     // console.log(e);
@@ -81,10 +80,10 @@ function mouseWheelEvent(e){
         console.log('Currently "%s" type is not supported.', e.type);
         return false;
     }
-    translated = restrictRange(translated+delta);
+    mCtx.translated = restrictRange(mCtx.translated+delta);
     // translated += delta;
 
-    drawText(curr_typeface, curr_mtext);
+    drawText();
     // mouseController.wheel(e);
     return false; 
 };

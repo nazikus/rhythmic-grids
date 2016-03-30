@@ -5,7 +5,6 @@ function getAvailableSystemFonts() {
   // font.setup();
 
   var fontList = getFontList(),
-      currFont = null,
       availableFonts = [];
 
   fontList.forEach(function(fontName){
@@ -36,11 +35,12 @@ function onFontChange(e) {
   case 'fontSelect':
     $('.example-text').css('font-family', this.value+",monospace"); //fallback: Helvetica,Arial,monospace
     $('.text').css('font-family', this.value+",monospace");
+>>>>>>> 9c51287... WebInterface: metrics rendering refactoring
     metricsContext.curr_typeface = this.value; // global var for metrics drawing
 
     // // re-draw font metrics
-    drawMetrics(curr_typeface);
-    drawText(curr_typeface, curr_mtext);
+    drawMetrics();
+    drawText();
     break;
 
   case 'input-fontsize':
@@ -79,6 +79,7 @@ function onKeyDown(e) {
 /////////////////////////////////////////////////////////////////////////////
 
 function onMetricsTextChange(e) {
+  var mCtx = metricsContext;
   var code = (e.keyCode || e.which);
   // console.log('metrics key: %s', code);
 
@@ -88,10 +89,11 @@ function onMetricsTextChange(e) {
       return;
   }
 
-  curr_mtext = this.value;
-  curr_mtext_width = curr_mtext ? Math.round(ctxT.measureText(curr_mtext).width) : 0;
+  mCtx.curr_mtext = this.value;
+  mCtx.curr_mtext_width = mCtx.curr_mtext ? 
+      Math.round(mCtx.contextT.measureText(mCtx.curr_mtext).width) : 0;
   
-  drawText(curr_typeface, curr_mtext);
+  drawText();
 
   // TODO trigger wheel events, in order to auto-scroll when text is deleted 
   // $(canvasT).trigger( jQuery.Event('DOMMouseScroll') );

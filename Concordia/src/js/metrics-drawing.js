@@ -1,48 +1,71 @@
-var canvas  = $('#metrics-canvas')[0],
-    canvasT = $('#text-canvas')[0],
-    ctx  = canvas.getContext('2d'),
-    ctxT = canvasT.getContext('2d');
+var metricsContext = (function(){
 
-var int = function(str){ return parseInt(str,10); }
+  var int = function(str){ return parseInt(str,10); }
 
-//'xMHy|$ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ (){}!?/\\\'`.,:;@#%^&*<>',
-var reference_alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    metrics_fontsize = 140,
-    metrics_fallback = '30px sans', // in case font detector give false positive
-    metrics_default_text = reference_alphabet, //'Munchy',
-    curr_typeface = null,
-    curr_mtext = null,
-    curr_mtext_width = 0,
-    xOffL = int( $(canvasT).css('margin-left') ),  // left offset (margin)
-    xOffR = int( $(canvasT).css('margin-right') ); // right offset (margin)
+  var _canvas  = $('#metrics-canvas')[0],
+      _canvasT = $('#text-canvas')[0];
 
-// set canvas width attribute same as css width style
-canvas.width   = int( $(canvas).css('width') );
-canvas.height  = int( $(canvas).css('height') );
-canvasT.width  = int( $(canvasT).css('width') );
-canvasT.height = int( $(canvasT).css('height') );
+  // set canvas width attribute same as css width style
+  _canvas.width   = int( $(_canvas).css('width') );
+  _canvas.height  = int( $(_canvas).css('height') );
+  _canvasT.width  = int( $(_canvasT).css('width') );
+  _canvasT.height = int( $(_canvasT).css('height') );
 
-// console.log('Metrics canvas %sx%s\nText canvasT %sx%s\noffset %s-%s',  canvas.width,  canvas.height, canvasT.width, canvasT.height, xOffL, xOffR);
+  // console.log('Metrics canvas %sx%s\nText canvasT %sx%s',
+  //  canvas.width,  canvas.height, canvasT.width, canvasT.height);
 
+  return {
+    canvas  : _canvas,
+    canvasT : _canvasT,
+    context : _canvas.getContext('2d'),
+    contextT: _canvasT.getContext('2d'),
+    
+    // reference alphabet is used for determining metrics for current font
+    reference_alphabet: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    metrics_fontsize: 140,
+    metrics_fallback: '30px sans', // in case font detector give false positive
+    
+    // global vars (accessed by event handlers)
+    curr_typeface: null,
+    curr_mtext: null,
+    curr_mtext_width: 0,
+    
+    // drawing layout & styles
+    label_font: '16px serif',
+    'label_font_upm': '11px sans',
+    baseline_y: Math.round( _canvas.height*.70 ),
+    xOffL: int( $(_canvasT).css('margin-left') ),  // left offset (margin)
+    xOffR: int( $(_canvasT).css('margin-right') ), // right offset (margin)
+    
+    // vars used for mouse panning
+    dragging: false,
+    lastX: 0,
+    translated: 0
+  };
+})();
 ///////////////////////////////////////////////////////////////////////////////
 
 // TODO center text
-function drawText(typeface, text)
+function drawText()
 {
-  var startTime = performance.now();
-  var baseline_y = Math.round( canvasT.height*.70 );
+  var startTime = performance.now(), 
+    mCtx = metricsContext, 
+    canvasT = mCtx.canvasT,
+    ctxT = mCtx.contextT;
 
   // Initialize text font and extract its metrics
   ctxT.clearRect(0, 0, canvasT.width, canvasT.height);
-  ctxT.font = metrics_fallback;  // fallback font in case non-valid typeface is passed
-  ctxT.font = metrics_fontsize + "px " + typeface;
+  ctxT.font = mCtx.metrics_fallback;  // fallback font in case non-valid typeface is passed
+  ctxT.font = mCtx.metrics_fontsize + "px " + mCtx.curr_typeface;
   canvasT.style.font = ctxT.font;
-  if (ctxT.font==metrics_fallback)
+
+  if (ctxT.font == mCtx.metrics_fallback)
     return;
 
-  // draw sample text
   // NOTE. canvasT must have higher css z-index for proper overlay rendering
-  ctxT.fillText(text, translated, baseline_y);
+  ctxT.fillText(mCtx.curr_mtext,   // string
+                mCtx.translated,   // x
+                mCtx.baseline_y);  // y
 
   var timing = performance.now() - startTime;
   // console.log('------------- text rendering finished (%.1fms).', timing);
@@ -53,30 +76,37 @@ function drawText(typeface, text)
 
 
 // text rendering with font metrics visualized
-function drawMetrics(typeface) {
-  var startTime = performance.now();
-  var error_font = false;
+function drawMetrics() {
+  var startTime = performance.now(),
+      error_font = false;
+
+  var canvas = metricsContext.canvas,
+      ctx = metricsContext.context,
+      metrics_fontsize = metricsContext.metrics_fontsize,
+      baseline_y = metricsContext.baseline_y,
+      xOffL = metricsContext.xOffL;
+
 
   // Initialize text font and extract its metrics
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.font = metrics_fallback;
-  ctx.font = metrics_fontsize + "px " + typeface;
+  ctx.font = metricsContext.metrics_fallback;
+  ctx.font = metrics_fontsize + "px " + metricsContext.curr_typeface;
   canvas.style.font = ctx.font;
 
-  if (ctx.font == metrics_fallback)
+  if (ctx.font == metricsContext.metrics_fallback)
       error_font = true;
   
-  var metrics   = ctx.measureText(reference_alphabet),  // fontmetrics.js
+  metricsContext.curr_mtext_width = 
+      Math.round( ctx.measureText(metricsContext.curr_mtext).width );
+
+  var metrics   = ctx.measureText(metricsContext.reference_alphabet),  // fontmetrics.js
       ascent    = metrics.ascent,
       descent   = metrics.descent,
       x_height  = ctx.measureText('x').ascent,
       cap_height= ctx.measureText('H').ascent,
       safebox_h = Math.round(metrics_fontsize / 2), // safe-box height ??
-      xdev = x_height / safebox_h - 1;  // x-height deviation from safe-box height
-
-  curr_mtext_width = Math.round(ctx.measureText(curr_mtext).width); // NB! global var
-  var baseline_y = Math.round( canvas.height*.70 ),
-      line_length = canvas.width - xOffR; //metrics.width+b*2-xoff;
+      xdev = x_height / safebox_h - 1,  // x-height deviation from safe-box height
+      line_length = canvas.width - metricsContext.xOffR; //metrics.width+b*2-xoff;
 
   // console.log('Baseline Y: %sx', baseline_y);
   // console.log('Safe-box height: %s', safebox_h);
@@ -84,8 +114,7 @@ function drawMetrics(typeface) {
   // console.log('x-height deviation: %.1f%%', xdev*100)
 
   // font init for metrics labels
-  var metrics_label_font = '16px serif';
-  ctx.font = metrics_label_font;
+  ctx.font = metricsContext.label_font;
   canvas.style.font = ctx.font;
 
   // // EM BOX lines
@@ -158,7 +187,7 @@ function drawMetrics(typeface) {
   // X-HEIGHT deviation from "safe zone" (500UPMs)
   ctx.textBaseline = 'bottom';
   ctx.textAlign = 'left';
-  ctx.font = "11px sans";
+  ctx.font = metricsContext.label_font_upm;
   ctx.fillStyle = 'rgba(0, 107, 255, .9)';
   if (/*xdev != 0*/1) { // omit zero UPM or not
     if (false){
@@ -175,22 +204,7 @@ function drawMetrics(typeface) {
            line_length+3, baseline_y-x_height+5); 
     }
   }
-  ctx.font = metrics_label_font;
-
-  // TODO ovelay cap height line above ascent line
-  // CAP HEIGHT line
-  ctx.beginPath();
-  ctx.strokeStyle = 'chocolate';
-  ctx.fillStyle = ctx.strokeStyle;
-  ctx.lineWidth = 1;
-  ctx.moveTo(xOffL, baseline_y - cap_height);
-  ctx.lineTo(line_length, baseline_y - cap_height);
-  ctx.stroke();
-
-  // CAP HEIGHT line
-  ctx.textBaseline = 'bottom';
-  ctx.textAlign = 'right';
-  ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
+  ctx.font = metricsContext.label_font;
 
   // ASCENT & DESCENT lines
   ctx.beginPath();
@@ -214,6 +228,20 @@ function drawMetrics(typeface) {
   ctx.textBaseline = 'hanging';
   ctx.textAlign = 'left';
   ctx.fillText('descent', xOffL, baseline_y+descent);
+
+  // CAP HEIGHT line
+  ctx.beginPath();
+  ctx.strokeStyle = 'chocolate';
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.lineWidth = 1;
+  ctx.moveTo(xOffL, baseline_y - cap_height);
+  ctx.lineTo(line_length, baseline_y - cap_height);
+  ctx.stroke();
+
+  // CAP HEIGHT line
+  ctx.textBaseline = 'bottom';
+  ctx.textAlign = 'right';
+  ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
 
   var timing = performance.now() - startTime;
   console.log('... metrics rendering finished (%.1dms).', timing);
