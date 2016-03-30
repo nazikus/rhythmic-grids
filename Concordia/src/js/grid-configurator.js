@@ -18,25 +18,37 @@ function setupRadioItems(allConfigs){
         $(el).append( createRadioInputs(allConfigs.inputNames[idx], 
                                         allConfigs.rangeArrs[idx]) );
 
-        // get ALL inputs on every single change
+        // restore selection from previous session (if any)
+        var prevSelection = localStorage.getItem($(el).attr('id'));
+        if (prevSelection)
+            $('input[value="'+prevSelection+'"]', el).prop('checked', true);
+
+        // get ALL inputs on every single change in grid config
         $(el).on('change', function(){
-          refreshRadioInputs(allConfigs.radioForms, getAllSelected()); // this might modify the selection
+          var allGridSelections = getAllSelected();
+          refreshRadioInputs(allConfigs.radioForms, allGridSelections); // this might modify the selection
           
           var gridConfig = RhythmicGridGenerator.selectGrid(
-                        allConfigs.allValidGrids, getAllSelected() );
+                        allConfigs.allValidGrids, allGridSelections );
           
           if (gridConfig)
               drawRhythmicGrid(gridConfig);
           else
               allConfigs.gridContainer.empty();
+
+          var selected = $('input:checked', el);
           
-          // ratio form: change-back the grphic ratio selector (previous section)
+          // if ratio form: change-back the grphic ratio selector (in previous section)
           if ($(el).attr('id') === 'gridRatio'){
-              var ratioStr = $('input:checked', el).val();
+              var ratioStr = selected.val();
               $('.ratio-selector input[name=ratioSelector][id=ratio'+ratioStr+']')
                 .prop('checked', true);
           }
-          // console.log("Grid conifg: [%s]", getAllSelected().join(', '));
+
+          // save current selection for the future session
+          localStorage.setItem($(el).attr('id'), selected.val());
+
+          // console.log("Grid conifg: [%s]", allGridSelections.join(', '));
         });
      });
 
@@ -60,7 +72,7 @@ function createRadioInputs(inputName, valueRange){
         
         // the first radio is selected by default
         if (!i) input.prop('checked', true); 
-        
+
         // special cases for Ratio and Gutter labels
         switch(allConfigs.inputNames.indexOf(inputName)) {
             case 1:  labelText = value.replace('x',':'); break;
