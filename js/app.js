@@ -2226,6 +2226,147 @@ Pre3d.ShapeUtils = (function() {
     return metrics;
   };
 }());
+var Lorem;
+(function() {
+
+    //Create a class named Lorem and constructor
+    Lorem = function() {
+        //Default values.
+        this.type = null;
+        this.query = null;
+        this.data = null;
+    };
+    //Static variables
+    Lorem.IMAGE = 1;
+    Lorem.TEXT = 2;
+    Lorem.TYPE = {
+        PARAGRAPH: 1,
+        SENTENCE: 2,
+        WORD: 3
+    };
+    //Words to create lorem ipsum text.
+    Lorem.WORDS = [
+        "lorem", "ipsum", "dolor", "sit", "amet,", "consectetur", "adipiscing", "elit", "ut", "aliquam,", "purus", "sit", "amet", "luctus", "venenatis,", "lectus", "magna", "fringilla", "urna,", "porttitor", "rhoncus", "dolor", "purus", "non", "enim", "praesent", "elementum", "facilisis", "leo,", "vel", "fringilla", "est", "ullamcorper", "eget", "nulla", "facilisi", "etiam", "dignissim", "diam", "quis", "enim", "lobortis", "scelerisque", "fermentum", "dui", "faucibus", "in", "ornare", "quam", "viverra", "orci", "sagittis", "eu", "volutpat", "odio", "facilisis", "mauris", "sit", "amet", "massa", "vitae", "tortor", "condimentum", "lacinia", "quis", "vel", "eros", "donec", "ac", "odio", "tempor", "orci", "dapibus", "ultrices", "in", "iaculis", "nunc", "sed", "augue", "lacus,", "viverra", "vitae", "congue", "eu,", "consequat", "ac", "felis", "donec", "et", "odio", "pellentesque", "diam", "volutpat", "commodo", "sed", "egestas", "egestas", "fringilla", "phasellus", "faucibus", "scelerisque", "eleifend", "donec", "pretium", "vulputate", "sapien", "nec", "sagittis", "aliquam", "malesuada", "bibendum", "arcu", "vitae", "elementum",
+        "curabitur", "vitae", "nunc", "sed", "velit", "dignissim", "sodales", "ut", "eu", "sem", "integer", "vitae", "justo", "eget", "magna", "fermentum", "iaculis", "eu", "non", "diam", "phasellus", "vestibulum", "lorem", "sed", "risus", "ultricies", "tristique", "nulla", "aliquet", "enim", "tortor,", "at", "auctor", "urna", "nunc", "id", "cursus", "metus", "aliquam", "eleifend", "mi", "in", "nulla", "posuere", "sollicitudin", "aliquam", "ultrices", "sagittis", "orci,", "a", "scelerisque", "purus", "semper", "eget", "duis", "at", "tellus", "at", "urna", "condimentum", "mattis", "pellentesque", "id", "nibh", "tortor,", "id", "aliquet", "lectus", "proin", "nibh", "nisl,", "condimentum", "id", "venenatis", "a,", "condimentum", "vitae", "sapien", "pellentesque", "habitant", "morbi", "tristique", "senectus", "et", "netus", "et", "malesuada", "fames", "ac", "turpis", "egestas", "sed", "tempus,", "urna", "et", "pharetra", "pharetra,", "massa", "massa", "ultricies", "mi,", "quis", "hendrerit", "dolor", "magna", "eget", "est", "lorem", "ipsum", "dolor", "sit", "amet,", "consectetur", "adipiscing", "elit", "pellentesque", "habitant", "morbi", "tristique", "senectus", "et", "netus", "et", "malesuada", "fames", "ac", "turpis", "egestas", "integer", "eget", "aliquet", "nibh", "praesent", "tristique", "magna", "sit", "amet", "purus", "gravida", "quis", "blandit", "turpis", "cursus", "in", "hac", "habitasse", "platea", "dictumst", "quisque", "sagittis,", "purus", "sit", "amet", "volutpat", "consequat,", "mauris", "nunc", "congue", "nisi,", "vitae", "suscipit", "tellus", "mauris", "a", "diam",
+        "maecenas", "sed", "enim", "ut", "sem", "viverra", "aliquet", "eget", "sit", "amet", "tellus", "cras", "adipiscing", "enim", "eu", "turpis", "egestas", "pretium", "aenean", "pharetra,", "magna", "ac", "placerat", "vestibulum,", "lectus", "mauris", "ultrices", "eros,", "in", "cursus", "turpis", "massa", "tincidunt", "dui", "ut", "ornare", "lectus", "sit", "amet", "est", "placerat", "in", "egestas", "erat", "imperdiet", "sed", "euismod", "nisi", "porta", "lorem", "mollis", "aliquam", "ut", "porttitor", "leo", "a", "diam", "sollicitudin", "tempor", "id", "eu", "nisl", "nunc", "mi", "ipsum,", "faucibus", "vitae", "aliquet", "nec,", "ullamcorper", "sit", "amet", "risus", "nullam", "eget", "felis", "eget", "nunc", "lobortis", "mattis", "aliquam", "faucibus", "purus", "in", "massa", "tempor", "nec", "feugiat", "nisl", "pretium", "fusce", "id", "velit", "ut", "tortor", "pretium", "viverra", "suspendisse", "potenti", "nullam", "ac", "tortor", "vitae", "purus", "faucibus", "ornare", "suspendisse", "sed", "nisi", "lacus,", "sed", "viverra", "tellus", "in", "hac", "habitasse", "platea", "dictumst", "vestibulum", "rhoncus", "est", "pellentesque", "elit", "ullamcorper", "dignissim", "cras", "tincidunt", "lobortis", "feugiat", "vivamus", "at", "augue", "eget", "arcu", "dictum", "varius", "duis", "at", "consectetur", "lorem",
+        "donec", "massa", "sapien,", "faucibus", "et", "molestie", "ac,", "feugiat", "sed", "lectus", "vestibulum", "mattis", "ullamcorper", "velit", "sed", "ullamcorper", "morbi", "tincidunt", "ornare", "massa,", "eget", "egestas", "purus", "viverra", "accumsan", "in", "nisl", "nisi,", "scelerisque", "eu", "ultrices", "vitae,", "auctor", "eu", "augue", "ut", "lectus", "arcu,", "bibendum", "at", "varius", "vel,", "pharetra", "vel", "turpis", "nunc", "eget", "lorem", "dolor,", "sed", "viverra", "ipsum", "nunc", "aliquet", "bibendum", "enim,", "facilisis", "gravida", "neque", "convallis", "a", "cras", "semper", "auctor", "neque,", "vitae", "tempus", "quam", "pellentesque", "nec", "nam", "aliquam", "sem", "et", "tortor", "consequat", "id", "porta", "nibh", "venenatis", "cras", "sed", "felis", "eget", "velit", "aliquet", "sagittis", "id", "consectetur", "purus", "ut", "faucibus", "pulvinar", "elementum", "integer", "enim", "neque,", "volutpat", "ac", "tincidunt", "vitae,", "semper", "quis", "lectus", "nulla", "at", "volutpat", "diam", "ut", "venenatis", "tellus", "in", "metus", "vulputate", "eu", "scelerisque", "felis", "imperdiet", "proin", "fermentum", "leo", "vel", "orci", "porta", "non", "pulvinar", "neque", "laoreet", "suspendisse", "interdum", "consectetur", "libero,", "id", "faucibus", "nisl", "tincidunt", "eget", "nullam", "non", "nisi", "est,", "sit", "amet", "facilisis", "magna",
+        "etiam", "tempor,", "orci", "eu", "lobortis", "elementum,", "nibh", "tellus", "molestie", "nunc,", "non", "blandit", "massa", "enim", "nec", "dui", "nunc", "mattis", "enim", "ut", "tellus", "elementum", "sagittis", "vitae", "et", "leo", "duis", "ut", "diam", "quam", "nulla", "porttitor", "massa", "id", "neque", "aliquam", "vestibulum", "morbi", "blandit", "cursus", "risus,", "at", "ultrices", "mi", "tempus", "imperdiet", "nulla", "malesuada", "pellentesque", "elit", "eget", "gravida", "cum", "sociis", "natoque", "penatibus", "et", "magnis", "dis", "parturient", "montes,", "nascetur", "ridiculus", "mus", "mauris", "vitae", "ultricies", "leo", "integer", "malesuada", "nunc", "vel", "risus", "commodo", "viverra", "maecenas", "accumsan,", "lacus", "vel", "facilisis", "volutpat,", "est", "velit", "egestas", "dui,", "id", "ornare", "arcu", "odio", "ut", "sem", "nulla", "pharetra", "diam", "sit", "amet", "nisl", "suscipit", "adipiscing", "bibendum", "est", "ultricies", "integer", "quis", "auctor", "elit",
+        "sed", "vulputate", "mi", "sit", "amet", "mauris", "commodo", "quis", "imperdiet", "massa", "tincidunt", "nunc", "pulvinar", "sapien", "et", "ligula", "ullamcorper", "malesuada", "proin", "libero", "nunc,", "consequat", "interdum", "varius", "sit", "amet,", "mattis", "vulputate", "enim", "nulla", "aliquet", "porttitor", "lacus,", "luctus", "accumsan", "tortor", "posuere", "ac", "ut", "consequat", "semper", "viverra", "nam", "libero", "justo,", "laoreet", "sit", "amet", "cursus", "sit", "amet,", "dictum", "sit", "amet", "justo", "donec", "enim", "diam,", "vulputate", "ut", "pharetra", "sit", "amet,", "aliquam", "id", "diam", "maecenas", "ultricies", "mi", "eget", "mauris", "pharetra", "et", "ultrices", "neque", "ornare", "aenean", "euismod", "elementum", "nisi,", "quis", "eleifend", "quam", "adipiscing", "vitae", "proin", "sagittis,", "nisl", "rhoncus", "mattis", "rhoncus,", "urna", "neque", "viverra", "justo,", "nec", "ultrices", "dui", "sapien", "eget", "mi", "proin", "sed", "libero", "enim,", "sed", "faucibus", "turpis", "in", "eu", "mi", "bibendum", "neque", "egestas", "congue", "quisque", "egestas", "diam", "in", "arcu", "cursus", "euismod", "quis", "viverra", "nibh", "cras", "pulvinar", "mattis", "nunc,", "sed", "blandit", "libero", "volutpat", "sed", "cras", "ornare", "arcu", "dui", "vivamus", "arcu", "felis,", "bibendum", "ut", "tristique", "et,", "egestas", "quis", "ipsum", "suspendisse", "ultrices", "gravida", "dictum",
+        "fusce", "ut", "placerat", "orci", "nulla", "pellentesque", "dignissim", "enim,", "sit", "amet", "venenatis", "urna", "cursus", "eget", "nunc", "scelerisque", "viverra", "mauris,", "in", "aliquam", "sem", "fringilla", "ut", "morbi", "tincidunt", "augue", "interdum", "velit", "euismod", "in", "pellentesque", "massa", "placerat", "duis", "ultricies", "lacus", "sed", "turpis", "tincidunt", "id", "aliquet", "risus", "feugiat", "in", "ante", "metus,", "dictum", "at", "tempor", "commodo,", "ullamcorper", "a", "lacus", "vestibulum", "sed", "arcu", "non", "odio", "euismod", "lacinia", "at", "quis", "risus", "sed", "vulputate", "odio", "ut", "enim", "blandit", "volutpat", "maecenas", "volutpat", "blandit", "aliquam", "etiam", "erat", "velit,", "scelerisque", "in", "dictum", "non,", "consectetur", "a", "erat", "nam", "at", "lectus", "urna", "duis", "convallis", "convallis", "tellus,", "id", "interdum", "velit", "laoreet", "id", "donec", "ultrices", "tincidunt", "arcu,", "non", "sodales", "neque", "sodales", "ut", "etiam", "sit", "amet", "nisl", "purus,", "in", "mollis", "nunc",
+        "sed", "id", "semper", "risus", "in", "hendrerit", "gravida", "rutrum", "quisque", "non", "tellus", "orci,", "ac", "auctor", "augue", "mauris", "augue", "neque,", "gravida", "in", "fermentum", "et,", "sollicitudin", "ac", "orci", "phasellus", "egestas", "tellus", "rutrum", "tellus", "pellentesque", "eu", "tincidunt", "tortor", "aliquam", "nulla", "facilisi", "cras", "fermentum,", "odio", "eu", "feugiat", "pretium,", "nibh", "ipsum", "consequat", "nisl,", "vel", "pretium", "lectus", "quam", "id", "leo", "in", "vitae", "turpis", "massa", "sed", "elementum", "tempus", "egestas", "sed", "sed", "risus", "pretium", "quam", "vulputate", "dignissim", "suspendisse", "in", "est", "ante", "in", "nibh", "mauris,", "cursus", "mattis", "molestie", "a,", "iaculis", "at", "erat",
+        "pellentesque", "adipiscing", "commodo", "elit,", "at", "imperdiet", "dui", "accumsan", "sit", "amet", "nulla", "facilisi", "morbi", "tempus", "iaculis", "urna,", "id", "volutpat", "lacus", "laoreet", "non", "curabitur", "gravida", "arcu", "ac", "tortor", "dignissim", "convallis", "aenean", "et", "tortor", "at", "risus", "viverra", "adipiscing", "at", "in", "tellus", "integer", "feugiat", "scelerisque", "varius", "morbi", "enim", "nunc,", "faucibus", "a", "pellentesque", "sit", "amet,", "porttitor", "eget", "dolor", "morbi", "non", "arcu", "risus,", "quis", "varius", "quam", "quisque", "id", "diam", "vel", "quam", "elementum", "pulvinar", "etiam", "non", "quam", "lacus", "suspendisse", "faucibus", "interdum", "posuere", "lorem", "ipsum", "dolor", "sit", "amet,", "consectetur", "adipiscing", "elit", "duis", "tristique", "sollicitudin", "nibh", "sit", "amet", "commodo", "nulla", "facilisi",
+        "nullam", "vehicula", "ipsum", "a", "arcu", "cursus", "vitae", "congue", "mauris", "rhoncus", "aenean", "vel", "elit", "scelerisque", "mauris", "pellentesque", "pulvinar", "pellentesque", "habitant", "morbi", "tristique", "senectus", "et", "netus", "et", "malesuada", "fames", "ac", "turpis", "egestas", "maecenas", "pharetra", "convallis", "posuere", "morbi", "leo", "urna,", "molestie", "at", "elementum", "eu,", "facilisis", "sed", "odio", "morbi", "quis", "commodo", "odio", "aenean", "sed", "adipiscing", "diam", "donec", "adipiscing", "tristique", "risus", "nec", "feugiat", "in", "fermentum", "posuere", "urna", "nec", "tincidunt", "praesent", "semper", "feugiat", "nibh", "sed", "pulvinar", "proin", "gravida", "hendrerit", "lectus", "a", "molestie"
+    ];
+    //random integer method.
+    Lorem.prototype.randomInt = function (min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+    //text creator method with parameters: how many, what
+    Lorem.prototype.createText = function(count, type) {
+        switch (type) {
+            //paragraphs are loads of sentences.
+            case Lorem.TYPE.PARAGRAPH:
+                var paragraphs = new Array;
+                for (var i = 0; i < count; i++) {
+                    var paragraphLength = this.randomInt(10, 20);
+                    var paragraph = this.createText(paragraphLength, Lorem.TYPE.SENTENCE);
+                    paragraphs.push('<p>'+paragraph+'</p>');
+                }
+                return paragraphs.join('\n');
+                break;
+            //sentences are loads of words.
+            case Lorem.TYPE.SENTENCE:
+                var sentences = new Array;
+                for (var i = 0; i < count; i++) {
+                    var sentenceLength = this.randomInt(5, 10);
+                    var words = this.createText(sentenceLength, Lorem.TYPE.WORD).split(' ');
+                    words[0] = words[0].substr(0, 1).toUpperCase() + words[0].substr(1);
+                    var sentence = words.join(' ');
+
+                    sentences.push(sentence);
+                }
+                return (sentences.join('. ') + '.').replace(/(\.\,|\,\.)/g, '.');
+                break;
+            //words are words
+            case Lorem.TYPE.WORD:
+                var wordIndex = this.randomInt(0, Lorem.WORDS.length - count - 1);
+
+                return Lorem.WORDS.slice(wordIndex, wordIndex + count).join(' ').replace(/\.|\,/g, '');
+                break;
+        }
+    };
+    Lorem.prototype.createLorem = function(element) {
+
+        var lorem = new Array;
+        var count;
+        
+        if (/\d+-\d+[psw]/.test(this.query)){
+            var range = this.query.replace(/[a-z]/,'').split("-");
+            count = Math.floor(Math.random() * parseInt(range[1])) + parseInt(range[0]);
+        }else{
+            count = parseInt(this.query); 
+        }
+        
+        if (/\d+p/.test(this.query)) {
+            var type = Lorem.TYPE.PARAGRAPH;
+        }
+        else if (/\d+s/.test(this.query)) {
+            var type = Lorem.TYPE.SENTENCE;
+        }
+        else if (/\d+w/.test(this.query)) {
+            var type = Lorem.TYPE.WORD;
+        }
+
+        lorem.push(this.createText(count, type));
+        lorem = lorem.join(' ');
+
+        if (element) {
+            if (this.type == Lorem.TEXT)
+                element.innerHTML += lorem;
+            else if (this.type == Lorem.IMAGE) {
+                //TODO: for now, using lorempixum.
+                var path = '';
+                var options = this.query.split(' ');
+                if (options[0] == 'gray') {
+                    path += '/g';
+                    options[0] = '';
+                }
+                if (element.getAttribute('width'))
+                    path += '/' + element.getAttribute('width');
+
+                if (element.getAttribute('height'))
+                    path += '/' + element.getAttribute('height');
+
+                path += '/' + options.join(' ').replace(/(^\s+|\s+$)/, '');
+                element.src = 'http://lorempixum.com'+path.replace(/\/\//, '/');
+            }
+        }
+
+        if (element == null)
+            return lorem;
+    };
+
+    //Register as jQuery
+    if (typeof jQuery != 'undefined') {
+        (function($) {
+            $.fn.lorem = function() {
+                $(this).each(function() {
+                    var lorem = new Lorem;
+                    lorem.type = $(this).is('img') ? Lorem.IMAGE : Lorem.TEXT;
+                    //data-lorem can be taken with data function (thanks to http://forrst.com/people/webking)
+                    lorem.query = $(this).data('lorem');
+                    lorem.createLorem(this);
+                })
+            };
+
+            //If developer run this javascript, then we can run the lorem.js
+            $(document).ready(function() {
+                $('[data-lorem]').lorem();
+            });
+        })(jQuery);
+    }
+
+})();
 /**
  * JavaScript code to detect available availability of a
  * particular font in a browser using JavaScript and CSS.
@@ -2435,6 +2576,7 @@ function onInputKeyup(e) {
       $(this).trigger('change');  
 
       // TODO on key hold
+      // TODO disable key up -> home
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2563,7 +2705,7 @@ function getFontList() {
 
 function setupRadioItems(allConfigs){
 
-    var getSelected = function(){
+    var getAllSelected = function(){
         return $('input:checked', allConfigs.radioForms) 
                 .map(function() {  
                     var val = $(this).val();
@@ -2580,20 +2722,37 @@ function setupRadioItems(allConfigs){
         $(el).append( createRadioInputs(allConfigs.inputNames[idx], 
                                         allConfigs.rangeArrs[idx]) );
 
-        // get ALL inputs on every single change
+        // restore selection from previous session (if any)
+        var prevSelection = localStorage.getItem($(el).attr('id'));
+        if (prevSelection)
+            $('input[value="'+prevSelection+'"]', el).prop('checked', true);
+
+        // get ALL inputs on every single change in grid config
         $(el).on('change', function(){
-          refreshRadioInputs(allConfigs.radioForms, getSelected()); // this might modify selection
+          var allGridSelections = getAllSelected();
+          refreshRadioInputs(allConfigs.radioForms, allGridSelections); // this might modify the selection
           
           var gridConfig = RhythmicGridGenerator.selectGrid(
-                        allConfigs.allValidGrids, getSelected() );
+                        allConfigs.allValidGrids, allGridSelections );
           
           if (gridConfig)
               drawRhythmicGrid(gridConfig);
           else
               allConfigs.gridContainer.empty();
-          
 
-          // console.log("Grid conifg: [%s]", getSelected().join(', '));
+          var selected = $('input:checked', el);
+          
+          // if ratio form: change-back the grphic ratio selector (in previous section)
+          if ($(el).attr('id') === 'gridRatio'){
+              var ratioStr = selected.val();
+              $('.ratio-selector input[name=ratioSelector][id=ratio'+ratioStr+']')
+                .prop('checked', true);
+          }
+
+          // save current selection for the future session
+          localStorage.setItem($(el).attr('id'), selected.val());
+
+          // console.log("Grid conifg: [%s]", allGridSelections.join(', '));
         });
      });
 
@@ -2617,7 +2776,7 @@ function createRadioInputs(inputName, valueRange){
         
         // the first radio is selected by default
         if (!i) input.prop('checked', true); 
-        
+
         // special cases for Ratio and Gutter labels
         switch(allConfigs.inputNames.indexOf(inputName)) {
             case 1:  labelText = value.replace('x',':'); break;
@@ -2676,40 +2835,35 @@ function refreshRadioInputs(radioForms, selectedInputs){
 ////////////////////////////////////////////////////////////////////////////////
 
 function drawRhythmicGrid(gridConfig){
+    var startTime = performance.now();
     // console.log('Rhythmic config: '); console.log(gridConfig);
     
     /////// GENERATE BLOCK DIVS ///////////
     var container = allConfigs.gridContainer,
-        c = 0,
-        imgId = 0,
-        row   = null, 
-        column= null,
-        inner = null,
-        txtmck= null;
+        c = 0;
 
     container.empty();
     gridConfig.rhythmicGrid.blocks.forEach( function(val, idx, arr){
-        row = $('<div>').addClass('row');
+        var row = $('<div>').addClass('row');
 
         //val[2] - number of blocks (columns) in current row
         // see @class Grid (RhythmicGridGenerator.js)
         for (var i=1; i<=val[2]; i++){
-            inner = $('<div>').addClass('inner').addClass('inner'+i);
+            var inner = $('<div>').addClass('inner').addClass('inner'+i);
             
             // pairwise image & text for odd-even blocks
             c++;
+            if ( val[2]===3 && i===1 && !(c%2) ) c++; // if 3 columns, always start with an image
             if (c%2 || idx+1===arr.length/*the last biggest block is better with an image*/){
-                imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
+                var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
                 inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg');
                 // console.log(inner.attr('style'));
             } else {
-                txtmck = allConfigs.textMocks[idx][0];
-                //[Math.floor(Math.random() * allConfigs.textMocks[idx].length)];
-                // txtmck = Array(50).join("x ");
+                var txtmck = allConfigs.textMocks[idx];
                 inner.append( $('<div>').addClass('text').text(txtmck) );
             }
 
-            column = $('<div>').addClass('column').append(inner);
+            var column = $('<div>').addClass('column').append(inner);
             row.append(column);
         }
 
@@ -2719,6 +2873,16 @@ function drawRhythmicGrid(gridConfig){
 
     //////////  SET BLOCK CSS RULES  ///////////
     var g = gridConfig.gutter.W;
+    console.log('Blocks: ' + gridConfig.rhythmicGrid.blocks.map(function(v){ return v[0]+"x"+v[1] }));
+
+    $('.grid-outer-wrapper').css({
+        'max-width': gridConfig.maxCanvasWidth+'px'
+    });
+
+    $('.grid-container').css({
+        'max-width': gridConfig.rhythmicGrid.W+'px'
+    });
+
     $('.row').css({
         'margin-left': g/2,
         'margin-right': g/2
@@ -2727,16 +2891,25 @@ function drawRhythmicGrid(gridConfig){
     $('.column').css({
         'padding-left': g/2,
         'padding-right': g/2,
-        'margin-bottom': gridConfig.gutter.H
+        'margin-bottom': g
     });
 
     // TOFIX
-    $('.column .inner .text').css('line-height', 1+(gridConfig.baseline-3)/10+'em');
-    $('.column .inner .text').css('text-decoration', 'underline');
-
-    // TOFIX
     // a problem with relative flex values and floats, eg 66.666667% 
-    $('.column .inner').css('padding-bottom', 1/gridConfig.ratio.R*100+'%')
+    $('.column .inner').css('padding-bottom', 100/gridConfig.ratio.R+'%')
+
+    // TOFIX line-height vs baseline
+    $('.column .inner .text').css({
+        'line-height': 1+(gridConfig.baseline-3)/10+'em',
+        // 'display': 'inline-block',
+        // 'white-space': 'nowrap',
+        // 'overflow': 'hidden',
+        'text-overflow': 'ellipsis'
+    });
+
+
+    // truncate overflow text
+    $(".column .inner .text").dotdotdot();
 
 
     // var gridRules = Object
@@ -2745,9 +2918,11 @@ function drawRhythmicGrid(gridConfig){
     //     .filter(function(fe) { return /grid\.css/.test(e.href); })[0];
     // gridRules = gridRules.cssRules || gridRules.rules;
 
-
+    var timing = performance.now() - startTime;
+    // console.log('... grid rendering finished (%.1dms).', timing);
     return ;
 }
+// TODO make canvas unseletable
 var canvas  = $('#metrics-canvas')[0],
     canvasT = $('#text-canvas')[0],
     ctx  = canvas.getContext('2d'),
@@ -2772,11 +2947,11 @@ canvas.height  = int( $(canvas).css('height') );
 canvasT.width  = int( $(canvasT).css('width') );
 canvasT.height = int( $(canvasT).css('height') );
 
-console.log('Metrics canvas %sx%s\nText canvasT %sx%s\noffset %s-%s',  canvas.width,  canvas.height, canvasT.width, canvasT.height, xOffL, xOffR);
-console.log($(canvasT).css('text-canvas-font-size'))
+// console.log('Metrics canvas %sx%s\nText canvasT %sx%s\noffset %s-%s',  canvas.width,  canvas.height, canvasT.width, canvasT.height, xOffL, xOffR);
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// TODO center text
 function drawText(typeface, text)
 {
   var startTime = performance.now();
@@ -2927,6 +3102,7 @@ function drawMetrics(typeface) {
   }
   ctx.font = metrics_label_font;
 
+  // TODO ovelay cap height line above ascent line
   // CAP HEIGHT line
   ctx.beginPath();
   ctx.strokeStyle = 'chocolate';
@@ -2965,7 +3141,7 @@ function drawMetrics(typeface) {
   ctx.fillText('descent', xOffL, baseline_y+descent);
 
   var timing = performance.now() - startTime;
-  console.log('------------- metrics rendering finished (%.1dms).', timing);
+  console.log('... metrics rendering finished (%.1dms).', timing);
 };
 
 
@@ -3083,7 +3259,7 @@ window.addEventListener('load', drawTesseract, false);
 ///////////////// FONT CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
 
-// clear remembered configs from previous sesssion
+// do not remember selections from previous sesssions
 // localStorage.clear()
 
 // TODO refactor with on DOM ready event
@@ -3097,6 +3273,7 @@ createSelectOptions('#fontSelect', getAvailableSystemFonts());
       if(idx) {
         input.on('keyup', onInputKeyup);
         // initialize input value from previous session
+        // TODO update text example css after initialization
         var localItem = localStorage.getItem(input.parent().attr('class'));
         if (localItem)  input.val(localItem);
       }
@@ -3107,6 +3284,19 @@ $('#fontSelect').trigger('change');
 $('.fontmetrics-input-wrapper > input').on('keyup', onMetricsTextChange).trigger('keyup');
 
 //////////////////////////////////////////////////////////
+///////////////// RATIO SELECTION ////////////////////////
+//////////////////////////////////////////////////////////
+
+// radio input handler
+$('.ratio-selector .flex-row').on('change', function(){
+    var radioObj = $('.ratio-selector input[name=ratioSelector]:checked');
+    var ratioStr = /\d+x\d+$/.exec( radioObj.attr('id') )[0];
+
+    var gridRatioObj = $('.grid-section .flex-child input[name="gridRatio"][value="' + ratioStr + '"]');
+    gridRatioObj.prop('checked', true).trigger('change');
+});
+
+//////////////////////////////////////////////////////////
 ///////////////// GRID CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
 
@@ -3115,7 +3305,7 @@ var allConfigs = (function(){
 
     // grid config range
     var widthArr    = [960, 1280, 1440];
-    var ratioArr    = ['16x9', '3x2', '1x1'];
+    var ratioArr    = ['1x1', '3x2', '16x9'];
     var baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     var columnsArr  = [5, 6, 9, 12];
     var gutter2baselineFactorArr = [0, 1, 2, 3];
@@ -3155,15 +3345,14 @@ var allConfigs = (function(){
                          ' .flex-child:lt(5) > .form-group'), // all config radio elements
 
         imageMocks   : 9, // from 1.jpg to 9.jpg
-        textMocks    : [ 
-            ['Nullam id dolor id nibh ultricies vehicula ut'],
-            [
-                'Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media. Nullam id dolor id nibh ultricies',
-                'Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media. Nullam id dolor id nibh ultricies vehicula ut id elit. Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna'
-            ],
-            ['Maecenas sed diam eget risus varius blandit sit amet non magna. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.'],
-            ['Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Maecenas sed diam eget risus varius blandit sit amet non magna. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.. Nullam id dolor id nibh ultricies vehicula ut id elit. Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum id ligula porta felis euismod semper.\n\nMaecenas sed diam eget risus varius blandit sit amet non magna. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo. Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.']
-        ]
+        textMocks    : Array.apply(null, {length: 5}) // array of 5 lorem texts of different length
+                            .map(function(_,i) {
+                                return Lorem.prototype.createText(
+                                    // 10*(i+1),
+                                    17*Math.exp(i*1.3), 
+                                    // Math.pow(20, (i+1)*0.9), 
+                                    Lorem.TYPE.WORD)
+                            })
     }
 })();
 
