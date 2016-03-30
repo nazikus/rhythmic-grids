@@ -24,7 +24,6 @@ canvasT.width  = int( $(canvasT).css('width') );
 canvasT.height = int( $(canvasT).css('height') );
 
 console.log('Metrics canvas %sx%s\nText canvasT %sx%s\noffset %s-%s',  canvas.width,  canvas.height, canvasT.width, canvasT.height, xOffL, xOffR);
-console.log($(canvasT).css('text-canvas-font-size'))
 
 ///////////////////////////////////////////////////////////////////////////////
 

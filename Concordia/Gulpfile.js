@@ -1,15 +1,15 @@
 // plugins
 var gulp      = require('gulp'),
-	clean     = require('gulp-clean'),
+    clean     = require('gulp-clean'),
     minifyCss = require('gulp-minify-css'),
     less      = require('gulp-less'),
     concat    = require('gulp-concat'),
     runSequence = require('gulp-run-sequence'),
     connect   = require('gulp-connect'),
     watch     = require('gulp-watch'),
+    inject    = require('gulp-inject'),
     merge     = require('merge-stream'), // for multiple src in a single task
     spawn     = require('child_process').spawn; // auto-reload gulp process on Gulpfile.js change
-
 
 // paths
 var dist = 'dist',
@@ -33,7 +33,7 @@ gulp.task('clean', function() {
         .pipe(clean());
 });
 
-// html task
+// html task (unused because of 'injecthtml' task)
 gulp.task('html', function() {
   return gulp.src(src + '/*.html')
     .pipe(gulp.dest(dist))
@@ -86,8 +86,10 @@ gulp.task('js', function() {
         .pipe(concat('app.js'))
         .pipe(gulp.dest(jsDist));
 
-    var scriptsStream = gulp.src([
-            './node_modules/jquery/dist/jquery.js',
+    var scriptsStream = 
+        gulp.src([
+            './node_modules/jquery/dist/jquery.min.js',
+            './node_modules/dotdotdot/src/js/jquery.dotdotdot.js',
             './../JavaScript/RhythmicGridGenerator.js'
         ])
         .pipe(gulp.dest(jsDist))
@@ -95,6 +97,34 @@ gulp.task('js', function() {
 
 
     return merge(appStream, scriptsStream);
+});
+
+// inject <script>'s into .html
+gulp.task('injecthtml', function () {
+    var generateScriptTag = function(path) {
+        return '<script src=".'  + path.split(dist)[1] + '"></script>';
+    }
+
+    return gulp.src('./src/index.html')
+        .pipe(inject(
+            gulp.src([
+                jsDist + '/jquery.min.js',
+                jsDist + '/jquery.dotdotdot.js'
+            ] , {read: false}),
+            { 
+                transform: generateScriptTag, 
+                starttag: '<!-- inject:head:{{ext}} -->' 
+            }
+        ))
+        .pipe(inject(
+            gulp.src([
+                jsDist + '/RhythmicGridGenerator.js',
+                jsDist + '/app.js', 
+            ], {read: false}),
+            { transform: generateScriptTag }
+        ))
+        .pipe(gulp.dest(dist))
+        .pipe(connect.reload());;
 });
 
 // task for compiling styles
@@ -108,7 +138,7 @@ gulp.task('styles', function() {
 
 // build static site for local testing
 gulp.task('build-static', ['clean'], function(cb) {
-    runSequence(['styles', 'images', 'favicon', 'js', 'html', 'fonts'], cb);
+    runSequence('js', 'injecthtml', ['styles', 'images', 'favicon', 'fonts'], cb);
 });
 
 // run server via gulp-connect
@@ -123,7 +153,7 @@ gulp.task('server', ['build-static'], function() {
 // watch task
 gulp.task('watch', ['server'], function() {
     gulp.watch([lessSrc + '/**/*.less'], ['styles']);
-    gulp.watch([src + '/*.html'], ['html']);
+    gulp.watch([src + '/*.html'], ['injecthtml']);
     gulp.watch([jsSrc + '/**/*.js'], ['js']);
     gulp.watch('Gulpfile.js', ['gulp-reload']);
     connect.reload();
