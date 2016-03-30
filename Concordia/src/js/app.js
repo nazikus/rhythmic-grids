@@ -2,7 +2,7 @@
 /////////////////////// TESSERACT ////////////////////////
 //////////////////////////////////////////////////////////
 
-window.addEventListener('load', drawTesseract, false);
+// window.addEventListener('load', drawTesseract, false);
 
 
 //////////////////////////////////////////////////////////
@@ -98,8 +98,10 @@ var allConfigs = (function(){
         textMocks    : Array.apply(null, {length: 5}) // array of 5 lorem texts of different length
                             .map(function(_,i) {
                                 return Lorem.prototype.createText(
-                                    Math.pow(7, i+1), 
-                                    Lorem.TYPE.SENTENCE)
+                                    // 10*(i+1),
+                                    17*Math.exp(i*1.3), 
+                                    // Math.pow(20, (i+1)*0.9), 
+                                    Lorem.TYPE.WORD)
                             })
     }
 })();

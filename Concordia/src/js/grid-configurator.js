@@ -119,6 +119,7 @@ function refreshRadioInputs(radioForms, selectedInputs){
 ////////////////////////////////////////////////////////////////////////////////
 
 function drawRhythmicGrid(gridConfig){
+    var startTime = performance.now();
     // console.log('Rhythmic config: '); console.log(gridConfig);
     
     /////// GENERATE BLOCK DIVS ///////////
@@ -136,6 +137,7 @@ function drawRhythmicGrid(gridConfig){
             
             // pairwise image & text for odd-even blocks
             c++;
+            if ( val[2]===3 && i===1 && !(c%2) ) c++; // if 3 columns, always start with an image
             if (c%2 || idx+1===arr.length/*the last biggest block is better with an image*/){
                 var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
                 inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg');
@@ -155,6 +157,16 @@ function drawRhythmicGrid(gridConfig){
 
     //////////  SET BLOCK CSS RULES  ///////////
     var g = gridConfig.gutter.W;
+    console.log('Blocks: ' + gridConfig.rhythmicGrid.blocks.map(function(v){ return v[0]+"x"+v[1] }));
+
+    $('.grid-outer-wrapper').css({
+        'max-width': gridConfig.maxCanvasWidth+'px'
+    });
+
+    $('.grid-container').css({
+        'max-width': gridConfig.rhythmicGrid.W+'px'
+    });
+
     $('.row').css({
         'margin-left': g/2,
         'margin-right': g/2
@@ -163,23 +175,24 @@ function drawRhythmicGrid(gridConfig){
     $('.column').css({
         'padding-left': g/2,
         'padding-right': g/2,
-        'margin-bottom': gridConfig.gutter.H
-    });
-
-    // TOFIX line-height vs baseline
-    $('.column .inner .text').css({
-        'line-height': 1+(gridConfig.baseline-3)/10+'em',
-        // 'display': 'inline-block',
-        'text-decoration': 'underline',
-        'text-overflow': 'ellipsis'
+        'margin-bottom': g
     });
 
     // TOFIX
     // a problem with relative flex values and floats, eg 66.666667% 
     $('.column .inner').css('padding-bottom', 100/gridConfig.ratio.R+'%')
 
+    // TOFIX line-height vs baseline
+    $('.column .inner .text').css({
+        'line-height': 1+(gridConfig.baseline-3)/10+'em',
+        // 'display': 'inline-block',
+        // 'white-space': 'nowrap',
+        // 'overflow': 'hidden',
+        'text-overflow': 'ellipsis'
+    });
+
+
     // truncate overflow text
-    console.log('dotdotdot');
     $(".column .inner .text").dotdotdot();
 
 
@@ -189,6 +202,7 @@ function drawRhythmicGrid(gridConfig){
     //     .filter(function(fe) { return /grid\.css/.test(e.href); })[0];
     // gridRules = gridRules.cssRules || gridRules.rules;
 
-
+    var timing = performance.now() - startTime;
+    // console.log('... grid rendering finished (%.1dms).', timing);
     return ;
 }

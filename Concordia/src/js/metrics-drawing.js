@@ -23,7 +23,7 @@ canvas.height  = int( $(canvas).css('height') );
 canvasT.width  = int( $(canvasT).css('width') );
 canvasT.height = int( $(canvasT).css('height') );
 
-console.log('Metrics canvas %sx%s\nText canvasT %sx%s\noffset %s-%s',  canvas.width,  canvas.height, canvasT.width, canvasT.height, xOffL, xOffR);
+// console.log('Metrics canvas %sx%s\nText canvasT %sx%s\noffset %s-%s',  canvas.width,  canvas.height, canvasT.width, canvasT.height, xOffL, xOffR);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -217,6 +217,6 @@ function drawMetrics(typeface) {
   ctx.fillText('descent', xOffL, baseline_y+descent);
 
   var timing = performance.now() - startTime;
-  console.log('------------- metrics rendering finished (%.1dms).', timing);
+  console.log('... metrics rendering finished (%.1dms).', timing);
 };
 
