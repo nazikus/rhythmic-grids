@@ -1,4 +1,3 @@
-
 function setupRadioItems(allConfigs){
 
     var getAllSelected = function(){

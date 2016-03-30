@@ -65,13 +65,10 @@ var allConfigs;
 
             input.on('change', onFontChange);
             input.on('keydown', onKeyDown);
-            
             break;
         default:
             console.warn('update your font selector initialization')
       }
-
-      $(selector).trigger('change');
   });
 
 // trigger for initial text metrics rendering

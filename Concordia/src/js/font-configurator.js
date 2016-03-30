@@ -26,7 +26,7 @@ function getAvailableSystemFonts() {
 function onFontChange(e) {
   var id = $(this).attr('id');  // font selection
   if (!id)  id = $(this).parent().attr('class')  // fontsize or lineheight input text
-  console.log("onChange: %s %s", id, this.value );
+  // console.log("onChange: %s %s", id, this.value );
 
   // remember selections between sessions
   localStorage.setItem(id, this.value);
@@ -58,27 +58,30 @@ function onFontChange(e) {
 };
 
 /////////////////////////////////////////////////////////////////////////////
-function onInputKeyup(e) {
+function onKeyDown(e) {
     var input = $(e.target);
-    var code = (e.keyCode || e.which);
+    var code = (e.which || e.keyCode);
       // [down, left]
       if( [40/*, 37*/].indexOf(code) > -1 ) {
         input.val(parseInt(input.val())-1+'px')
+        e.preventDefault();
+        $(this).trigger('change');  
       }
       // [up, right]
       if( [38/*, 39*/].indexOf(code) > -1 ) {
         input.val(parseInt(input.val())+1+'px')
+        e.preventDefault();
+        $(this).trigger('change');  
       }
-      $(this).trigger('change');  
-
-      // TODO on key hold
-      // TODO disable key up -> home
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 
 function onMetricsTextChange(e) {
   var code = (e.keyCode || e.which);
+  // console.log('metrics key: %s', code);
+
   // do nothing if pressed key is an arrow key
   // [left, up, right, down), shift, ctrl, alt]
   if( [37, 38, 39, 40, 16, 17, 18].indexOf(code) > -1 ) {
