@@ -45,7 +45,6 @@ var metricsContext = (function(){
 })();
 ///////////////////////////////////////////////////////////////////////////////
 
-// TODO center text
 function drawText()
 {
   var startTime = performance.now(), 
@@ -140,9 +139,6 @@ function drawMetrics() {
   //   ctx.fillText('em box', 2, baseline_y-ascent-em_gap); // for horizontal label 
   // }
 
-  if (error_font)
-      return ;
-
   // SAFEBOX rectangle
   ctx.beginPath();
   ctx.fillStyle = 'rgba(0, 107, 255, .3)';
@@ -169,6 +165,14 @@ function drawMetrics() {
   ctx.textAlign = 'right';
   ctx.fillText('baseline', line_length, baseline_y+2);
 
+
+  if (error_font){
+      $('.example-text').css('color', 'white')
+      return ;
+  } else      
+      $('.example-text').css('color', '')
+
+
   // X-HEIGHT line
   ctx.beginPath();
   ctx.strokeStyle = 'red';
@@ -183,7 +187,9 @@ function drawMetrics() {
   ctx.textAlign = 'right';
   ctx.fillText('x-height', line_length, baseline_y-x_height+1);
 
-  // TODO color coded interpolation
+  // TODO color heat interpolation (for UPM label and for safebox or partial safebox)
+  // http://stackoverflow.com/questions/340209/generate-colors-between-red-and-green-for-a-power-meter/340214#340214
+  
   // X-HEIGHT deviation from "safe zone" (500UPMs)
   ctx.textBaseline = 'bottom';
   ctx.textAlign = 'left';

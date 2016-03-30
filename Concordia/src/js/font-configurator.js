@@ -35,7 +35,6 @@ function onFontChange(e) {
   case 'fontSelect':
     $('.example-text').css('font-family', this.value+",monospace"); //fallback: Helvetica,Arial,monospace
     $('.text').css('font-family', this.value+",monospace");
->>>>>>> 9c51287... WebInterface: metrics rendering refactoring
     metricsContext.curr_typeface = this.value; // global var for metrics drawing
 
     // // re-draw font metrics

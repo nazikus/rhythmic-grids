@@ -154,6 +154,7 @@ gulp.task('server', ['build-static'], function() {
 // watch task
 gulp.task('watch', ['server'], function() {
     gulp.watch([lessSrc + '/**/*.less'], ['styles']);
+    gulp.watch([lessSrc + '/common/fontmetrics.less'], ['js']);
     gulp.watch([src + '/*.html'], ['injecthtml']);
     gulp.watch([jsSrc + '/**/*.js'], ['js']);
     gulp.watch('Gulpfile.js', ['gulp-reload']);

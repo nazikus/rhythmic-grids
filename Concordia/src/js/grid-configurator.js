@@ -10,7 +10,7 @@ function setupRadioItems(allConfigs){
     };
 
     allConfigs.radioForms.each( function(idx, el){
-        // clear default config radio options
+        // clear default radio options
         $(el).empty();
 
         // append <input> and <label> for each config value
@@ -22,7 +22,7 @@ function setupRadioItems(allConfigs){
         if (prevSelection)
             $('input[value="'+prevSelection+'"]', el).prop('checked', true);
 
-        // get ALL inputs on every single change in grid config
+        // process ALL radio selections on every single change in grid config
         $(el).on('change', function(){
           var allGridSelections = getAllSelected();
           refreshRadioInputs(allConfigs.radioForms, allGridSelections); // this might modify the selection
@@ -37,7 +37,7 @@ function setupRadioItems(allConfigs){
 
           var selected = $('input:checked', el);
           
-          // if ratio form: change-back the grphic ratio selector (in previous section)
+          // if ratio form: change-back the grphic ratio selector (from previous section)
           if ($(el).attr('id') === 'gridRatio'){
               var ratioStr = selected.val();
               $('.ratio-selector input[name=ratioSelector][id=ratio'+ratioStr+']')
@@ -48,8 +48,8 @@ function setupRadioItems(allConfigs){
           localStorage.setItem($(el).attr('id'), selected.val());
 
           // console.log("Grid conifg: [%s]", allGridSelections.join(', '));
-        });
-     });
+        }); // <-- .on('chnage', ... )
+     });  // <-- radioForms.forEach()
 
     // trigger onChange event to refresh radio inputs at startup
     $(allConfigs.radioForms[0]).trigger('change');

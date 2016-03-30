@@ -1,12 +1,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////
-///////////////////// CANVAS PANNING //////////////////////////////////////////
+///////////////////////////// CANVAS PANNING //////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//// NB! REQUIRES metricsContext object, initialized in metrics-drawings.js ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// NB! REQUIRES metricsContext object, initialized in metrics-drawings.js
-
-// TODO fix glitch when dragging cursor outside the canvas
-// stops scrolling if text goes outside the canvas
+// stops scrolling if text is about to go outside the canvas
 function restrictRange(transdelta){
   var mCtx = metricsContext,
       mtextW = mCtx.curr_mtext_width,
@@ -14,29 +13,27 @@ function restrictRange(transdelta){
   // console.log('Scrolling lastX: %s; delta: %s; translated: %s; width: %s', 
      // mCtx.lastX, transdelta-mCtx.translated, mCtx.translated, mtextW);
   
+  var pm = 0.15; // panning margin factor, normalized
   // if text fits within canvas width completely
   if (mtextW < width)
-    return transdelta > width-mtextW ? width-mtextW :
-           transdelta < 0 ? 0 : transdelta;
+    return transdelta > width-mtextW*(1-pm) ? width-mtextW*(1-pm) :
+           transdelta < -mtextW*pm ? -mtextW*pm : transdelta;
   // if text is wider then the canvas width
   else {
-    var pm = 0.15; // panning margin, normalized
     return transdelta > width*(pm) ? width*(pm)  :
-           transdelta < -mtextW+width/(1+pm) ? -mtextW+width/(1+pm) : 
+           transdelta < -mtextW+width*(1-pm) ? -mtextW+width*(1-pm) : 
            transdelta;
   }
 }
 
 window.onmousemove = function(e){
-  var evt = e || event;
+  var evt = e || window.event;
   var mCtx = metricsContext;
-
   if (mCtx.dragging){
-    e=e || window.event;
-    pauseEvent(e);
-    var delta = evt.offsetX - mCtx.lastX;
+    pauseEvent(evt);
+    var delta = evt.clientX - mCtx.lastX;
     mCtx.translated = restrictRange(mCtx.translated+delta);
-    mCtx.lastX = evt.offsetX;
+    mCtx.lastX = evt.clientX;
     drawText();
   }
 
@@ -45,7 +42,7 @@ window.onmousemove = function(e){
 metricsContext.canvasT.onmousedown = function(e){
   var evt = e || event;
   metricsContext.dragging = true;
-  metricsContext.lastX = evt.offsetX;
+  metricsContext.lastX = evt.clientX;
 }
 
 window.onmouseup = function(){
