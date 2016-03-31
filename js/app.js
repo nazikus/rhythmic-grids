@@ -2493,7 +2493,6 @@ function getAvailableSystemFonts() {
   // font.setup();
 
   var fontList = getFontList(),
-      currFont = null,
       availableFonts = [];
 
   fontList.forEach(function(fontName){
@@ -2506,24 +2505,6 @@ function getAvailableSystemFonts() {
   console.log('Available system fonts %s/%s', availableFonts.length, fontList.length);
   return availableFonts;
 };
-
-/////////////////////////////////////////////////////////////////////////////
-
-function createSelectOptions(id, values) {
-  var select = $(id);
-  
-  values.forEach(function(val, idx) {
-    var option = $('<option>').prop('value', val).text(val);
-    if (!idx) option.prop('selected', true);  // make 1st option a default selection
-    select.append(option);
-  });
-
-  // initialize dropdown values (from previous session if any)
-  var item = localStorage.getItem(select.attr('id'))
-  if (item)
-    select.find('option[value="'+item+'"]')
-          .attr('selected','selected');
-}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2540,16 +2521,18 @@ function onFontChange(e) {
   // update text sample according to the selected item
   switch(id){
   case 'fontSelect':
-    $('.example-text').css('font-family', this.value, ",monospace"); //fallback: Helvetica,Arial,monospace
-    curr_typeface = this.value; // global var
+    $('.example-text').css('font-family', this.value+",monospace"); //fallback: Helvetica,Arial,monospace
+    $('.text').css('font-family', this.value+",monospace");
+    metricsContext.curr_typeface = this.value; // global var for metrics drawing
 
     // // re-draw font metrics
-    drawMetrics(curr_typeface);
-    drawText(curr_typeface, curr_mtext);
+    drawMetrics();
+    drawText();
     break;
 
   case 'input-fontsize':
       $('.example-text').css('font-size', parseInt(this.value)+'px');
+      $('.text').css('font-size', parseInt(this.value)+'px');
       break;
   case 'input-lineheight':
       $('.example-text').css('line-height', parseInt(this.value)+'px');
@@ -2562,37 +2545,42 @@ function onFontChange(e) {
 };
 
 /////////////////////////////////////////////////////////////////////////////
-function onInputKeyup(e) {
+function onKeyDown(e) {
     var input = $(e.target);
-    var code = (e.keyCode || e.which);
+    var code = (e.which || e.keyCode);
       // [down, left]
       if( [40/*, 37*/].indexOf(code) > -1 ) {
         input.val(parseInt(input.val())-1+'px')
+        e.preventDefault();
+        $(this).trigger('change');  
       }
       // [up, right]
       if( [38/*, 39*/].indexOf(code) > -1 ) {
         input.val(parseInt(input.val())+1+'px')
+        e.preventDefault();
+        $(this).trigger('change');  
       }
-      $(this).trigger('change');  
-
-      // TODO on key hold
-      // TODO disable key up -> home
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 
 function onMetricsTextChange(e) {
+  var mCtx = metricsContext;
   var code = (e.keyCode || e.which);
+  // console.log('metrics key: %s', code);
+
   // do nothing if pressed key is an arrow key
   // [left, up, right, down), shift, ctrl, alt]
   if( [37, 38, 39, 40, 16, 17, 18].indexOf(code) > -1 ) {
       return;
   }
 
-  curr_mtext = this.value;
-  curr_mtext_width = curr_mtext ? Math.round(ctxT.measureText(curr_mtext).width) : 0;
+  mCtx.curr_mtext = this.value;
+  mCtx.curr_mtext_width = mCtx.curr_mtext ? 
+      Math.round(mCtx.contextT.measureText(mCtx.curr_mtext).width) : 0;
   
-  drawText(curr_typeface, curr_mtext);
+  drawText();
 
   // TODO trigger wheel events, in order to auto-scroll when text is deleted 
   // $(canvasT).trigger( jQuery.Event('DOMMouseScroll') );
@@ -2702,7 +2690,6 @@ function getFontList() {
     "Zurich Ex BT", "ZWAdobeF"
   ];
 }
-
 function setupRadioItems(allConfigs){
 
     var getAllSelected = function(){
@@ -2715,7 +2702,7 @@ function setupRadioItems(allConfigs){
     };
 
     allConfigs.radioForms.each( function(idx, el){
-        // clear default config radio options
+        // clear default radio options
         $(el).empty();
 
         // append <input> and <label> for each config value
@@ -2727,7 +2714,7 @@ function setupRadioItems(allConfigs){
         if (prevSelection)
             $('input[value="'+prevSelection+'"]', el).prop('checked', true);
 
-        // get ALL inputs on every single change in grid config
+        // process ALL radio selections on every single change in grid config
         $(el).on('change', function(){
           var allGridSelections = getAllSelected();
           refreshRadioInputs(allConfigs.radioForms, allGridSelections); // this might modify the selection
@@ -2742,7 +2729,7 @@ function setupRadioItems(allConfigs){
 
           var selected = $('input:checked', el);
           
-          // if ratio form: change-back the grphic ratio selector (in previous section)
+          // if ratio form: change-back the grphic ratio selector (from previous section)
           if ($(el).attr('id') === 'gridRatio'){
               var ratioStr = selected.val();
               $('.ratio-selector input[name=ratioSelector][id=ratio'+ratioStr+']')
@@ -2753,8 +2740,8 @@ function setupRadioItems(allConfigs){
           localStorage.setItem($(el).attr('id'), selected.val());
 
           // console.log("Grid conifg: [%s]", allGridSelections.join(', '));
-        });
-     });
+        }); // <-- .on('chnage', ... )
+     });  // <-- radioForms.forEach()
 
     // trigger onChange event to refresh radio inputs at startup
     $(allConfigs.radioForms[0]).trigger('change');
@@ -2894,6 +2881,12 @@ function drawRhythmicGrid(gridConfig){
         'margin-bottom': g
     });
 
+    $('.text').css({
+        // 'text-decoration': 'underline',
+        'font-family': $('#fontSelect').val()+",monospace",
+        'font-size': parseInt($('.input-fontsize > input').val(), 10)+'px'
+    });
+
     // TOFIX
     // a problem with relative flex values and floats, eg 66.666667% 
     $('.column .inner').css('padding-bottom', 100/gridConfig.ratio.R+'%')
@@ -2922,52 +2915,73 @@ function drawRhythmicGrid(gridConfig){
     // console.log('... grid rendering finished (%.1dms).', timing);
     return ;
 }
-// TODO make canvas unseletable
-var canvas  = $('#metrics-canvas')[0],
-    canvasT = $('#text-canvas')[0],
-    ctx  = canvas.getContext('2d'),
-    ctxT = canvasT.getContext('2d');
+var metricsContext = (function(){
 
-var int = function(str){ return parseInt(str,10); }
+  var int = function(str){ return parseInt(str,10); }
 
-//'xMHy|$ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ (){}!?/\\\'`.,:;@#%^&*<>',
-var reference_alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    metrics_fontsize = 140,
-    metrics_fallback = '30px sans', // in case font detector give false positive
-    metrics_default_text = reference_alphabet, //'Munchy',
-    curr_typeface = null,
-    curr_mtext = null,
-    curr_mtext_width = 0,
-    xOffL = int( $(canvasT).css('margin-left') ),  // left offset (margin)
-    xOffR = int( $(canvasT).css('margin-right') ); // right offset (margin)
+  var _canvas  = $('#metrics-canvas')[0],
+      _canvasT = $('#text-canvas')[0];
 
-// set canvas width attribute same as css width style
-canvas.width   = int( $(canvas).css('width') );
-canvas.height  = int( $(canvas).css('height') );
-canvasT.width  = int( $(canvasT).css('width') );
-canvasT.height = int( $(canvasT).css('height') );
+  // set canvas width attribute same as css width style
+  _canvas.width   = int( $(_canvas).css('width') );
+  _canvas.height  = int( $(_canvas).css('height') );
+  _canvasT.width  = int( $(_canvasT).css('width') );
+  _canvasT.height = int( $(_canvasT).css('height') );
 
-// console.log('Metrics canvas %sx%s\nText canvasT %sx%s\noffset %s-%s',  canvas.width,  canvas.height, canvasT.width, canvasT.height, xOffL, xOffR);
+  // console.log('Metrics canvas %sx%s\nText canvasT %sx%s',
+  //  canvas.width,  canvas.height, canvasT.width, canvasT.height);
 
+  return {
+    canvas  : _canvas,
+    canvasT : _canvasT,
+    context : _canvas.getContext('2d'),
+    contextT: _canvasT.getContext('2d'),
+    
+    // reference alphabet is used for determining metrics for current font
+    reference_alphabet: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    metrics_fontsize: 140,
+    metrics_fallback: '30px sans', // in case font detector give false positive
+    
+    // global vars (accessed by event handlers)
+    curr_typeface: null,
+    curr_mtext: null,
+    curr_mtext_width: 0,
+    
+    // drawing layout & styles
+    label_font: '16px serif',
+    'label_font_upm': '11px sans',
+    baseline_y: Math.round( _canvas.height*.70 ),
+    xOffL: int( $(_canvasT).css('margin-left') ),  // left offset (margin)
+    xOffR: int( $(_canvasT).css('margin-right') ), // right offset (margin)
+    
+    // vars used for mouse panning
+    dragging: false,
+    lastX: 0,
+    translated: 0
+  };
+})();
 ///////////////////////////////////////////////////////////////////////////////
 
-// TODO center text
-function drawText(typeface, text)
+function drawText()
 {
-  var startTime = performance.now();
-  var baseline_y = Math.round( canvasT.height*.70 );
+  var startTime = performance.now(), 
+    mCtx = metricsContext, 
+    canvasT = mCtx.canvasT,
+    ctxT = mCtx.contextT;
 
   // Initialize text font and extract its metrics
   ctxT.clearRect(0, 0, canvasT.width, canvasT.height);
-  ctxT.font = metrics_fallback;  // fallback font in case non-valid typeface is passed
-  ctxT.font = metrics_fontsize + "px " + typeface;
+  ctxT.font = mCtx.metrics_fallback;  // fallback font in case non-valid typeface is passed
+  ctxT.font = mCtx.metrics_fontsize + "px " + mCtx.curr_typeface;
   canvasT.style.font = ctxT.font;
-  if (ctxT.font==metrics_fallback)
+
+  if (ctxT.font == mCtx.metrics_fallback)
     return;
 
-  // draw sample text
   // NOTE. canvasT must have higher css z-index for proper overlay rendering
-  ctxT.fillText(text, translated, baseline_y);
+  ctxT.fillText(mCtx.curr_mtext,   // string
+                mCtx.translated,   // x
+                mCtx.baseline_y);  // y
 
   var timing = performance.now() - startTime;
   // console.log('------------- text rendering finished (%.1fms).', timing);
@@ -2978,30 +2992,37 @@ function drawText(typeface, text)
 
 
 // text rendering with font metrics visualized
-function drawMetrics(typeface) {
-  var startTime = performance.now();
-  var error_font = false;
+function drawMetrics() {
+  var startTime = performance.now(),
+      error_font = false;
+
+  var canvas = metricsContext.canvas,
+      ctx = metricsContext.context,
+      metrics_fontsize = metricsContext.metrics_fontsize,
+      baseline_y = metricsContext.baseline_y,
+      xOffL = metricsContext.xOffL;
+
 
   // Initialize text font and extract its metrics
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.font = metrics_fallback;
-  ctx.font = metrics_fontsize + "px " + typeface;
+  ctx.font = metricsContext.metrics_fallback;
+  ctx.font = metrics_fontsize + "px " + metricsContext.curr_typeface;
   canvas.style.font = ctx.font;
 
-  if (ctx.font == metrics_fallback)
+  if (ctx.font == metricsContext.metrics_fallback)
       error_font = true;
   
-  var metrics   = ctx.measureText(reference_alphabet),  // fontmetrics.js
+  metricsContext.curr_mtext_width = 
+      Math.round( ctx.measureText(metricsContext.curr_mtext).width );
+
+  var metrics   = ctx.measureText(metricsContext.reference_alphabet),  // fontmetrics.js
       ascent    = metrics.ascent,
       descent   = metrics.descent,
       x_height  = ctx.measureText('x').ascent,
       cap_height= ctx.measureText('H').ascent,
       safebox_h = Math.round(metrics_fontsize / 2), // safe-box height ??
-      xdev = x_height / safebox_h - 1;  // x-height deviation from safe-box height
-
-  curr_mtext_width = Math.round(ctx.measureText(curr_mtext).width); // NB! global var
-  var baseline_y = Math.round( canvas.height*.70 ),
-      line_length = canvas.width - xOffR; //metrics.width+b*2-xoff;
+      xdev = x_height / safebox_h - 1,  // x-height deviation from safe-box height
+      line_length = canvas.width - metricsContext.xOffR; //metrics.width+b*2-xoff;
 
   // console.log('Baseline Y: %sx', baseline_y);
   // console.log('Safe-box height: %s', safebox_h);
@@ -3009,8 +3030,7 @@ function drawMetrics(typeface) {
   // console.log('x-height deviation: %.1f%%', xdev*100)
 
   // font init for metrics labels
-  var metrics_label_font = '16px serif';
-  ctx.font = metrics_label_font;
+  ctx.font = metricsContext.label_font;
   canvas.style.font = ctx.font;
 
   // // EM BOX lines
@@ -3035,9 +3055,6 @@ function drawMetrics(typeface) {
   //   ctx.textAlign = 'left';
   //   ctx.fillText('em box', 2, baseline_y-ascent-em_gap); // for horizontal label 
   // }
-
-  if (error_font)
-      return ;
 
   // SAFEBOX rectangle
   ctx.beginPath();
@@ -3065,6 +3082,14 @@ function drawMetrics(typeface) {
   ctx.textAlign = 'right';
   ctx.fillText('baseline', line_length, baseline_y+2);
 
+
+  if (error_font){
+      $('.example-text').css('color', 'white')
+      return ;
+  } else      
+      $('.example-text').css('color', '')
+
+
   // X-HEIGHT line
   ctx.beginPath();
   ctx.strokeStyle = 'red';
@@ -3079,11 +3104,13 @@ function drawMetrics(typeface) {
   ctx.textAlign = 'right';
   ctx.fillText('x-height', line_length, baseline_y-x_height+1);
 
-  // TODO color coded interpolation
+  // TODO color heat interpolation (for UPM label and for safebox or partial safebox)
+  // http://stackoverflow.com/questions/340209/generate-colors-between-red-and-green-for-a-power-meter/340214#340214
+  
   // X-HEIGHT deviation from "safe zone" (500UPMs)
   ctx.textBaseline = 'bottom';
   ctx.textAlign = 'left';
-  ctx.font = "11px sans";
+  ctx.font = metricsContext.label_font_upm;
   ctx.fillStyle = 'rgba(0, 107, 255, .9)';
   if (/*xdev != 0*/1) { // omit zero UPM or not
     if (false){
@@ -3100,22 +3127,7 @@ function drawMetrics(typeface) {
            line_length+3, baseline_y-x_height+5); 
     }
   }
-  ctx.font = metrics_label_font;
-
-  // TODO ovelay cap height line above ascent line
-  // CAP HEIGHT line
-  ctx.beginPath();
-  ctx.strokeStyle = 'chocolate';
-  ctx.fillStyle = ctx.strokeStyle;
-  ctx.lineWidth = 1;
-  ctx.moveTo(xOffL, baseline_y - cap_height);
-  ctx.lineTo(line_length, baseline_y - cap_height);
-  ctx.stroke();
-
-  // CAP HEIGHT line
-  ctx.textBaseline = 'bottom';
-  ctx.textAlign = 'right';
-  ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
+  ctx.font = metricsContext.label_font;
 
   // ASCENT & DESCENT lines
   ctx.beginPath();
@@ -3140,6 +3152,20 @@ function drawMetrics(typeface) {
   ctx.textAlign = 'left';
   ctx.fillText('descent', xOffL, baseline_y+descent);
 
+  // CAP HEIGHT line
+  ctx.beginPath();
+  ctx.strokeStyle = 'chocolate';
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.lineWidth = 1;
+  ctx.moveTo(xOffL, baseline_y - cap_height);
+  ctx.lineTo(line_length, baseline_y - cap_height);
+  ctx.stroke();
+
+  // CAP HEIGHT line
+  ctx.textBaseline = 'bottom';
+  ctx.textAlign = 'right';
+  ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
+
   var timing = performance.now() - startTime;
   console.log('... metrics rendering finished (%.1dms).', timing);
 };
@@ -3147,59 +3173,54 @@ function drawMetrics(typeface) {
 
 
 ///////////////////////////////////////////////////////////////////////////////
-///////////////////// CANVAS PANNING //////////////////////////////////////////
+///////////////////////////// CANVAS PANNING //////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//// NB! REQUIRES metricsContext object, initialized in metrics-drawings.js ///
 ///////////////////////////////////////////////////////////////////////////////
 
-/**********************
-     CANVAS PANNING 
-***********************/
-
-var dragging = false,
-    lastX = 0,
-    translated = 0; // localStorage.getItem('drag-translation') || 0;
-
-// TODO fix glitch when dragging cursor outside the canvas
-// stops scrolling if text goes outside the canvas
+// stops scrolling if text is about to go outside the canvas
 function restrictRange(transdelta){
-  // console.log('Scrolling lastX: %s; delta: %s; translated: %s; width: %s', lastX, transdelta-translated, translated, curr_mtext_width);
+  var mCtx = metricsContext,
+      mtextW = mCtx.curr_mtext_width,
+      width  = mCtx.canvasT.width;
+  // console.log('Scrolling lastX: %s; delta: %s; translated: %s; width: %s', 
+     // mCtx.lastX, transdelta-mCtx.translated, mCtx.translated, mtextW);
+  
+  var pm = 0.15; // panning margin factor, normalized
   // if text fits within canvas width completely
-  if (curr_mtext_width < canvasT.width)
-    return transdelta > canvasT.width-curr_mtext_width ? canvasT.width-curr_mtext_width :
-           transdelta < 0 ? 0 : transdelta;
+  if (mtextW < width)
+    return transdelta > width-mtextW*(1-pm) ? width-mtextW*(1-pm) :
+           transdelta < -mtextW*pm ? -mtextW*pm : transdelta;
   // if text is wider then the canvas width
   else {
-    var pm = 0.15; // panning margin, normalized
-    return transdelta > canvasT.width*(pm) ? canvasT.width*(pm)  :
-           transdelta < -curr_mtext_width+canvasT.width/(1+pm) ? -curr_mtext_width+canvasT.width/(1+pm) : 
+    return transdelta > width*(pm) ? width*(pm)  :
+           transdelta < -mtextW+width*(1-pm) ? -mtextW+width*(1-pm) : 
            transdelta;
   }
 }
 
 window.onmousemove = function(e){
-  var evt = e || event;
-
-  if (dragging){
-    e=e || window.event;
-    pauseEvent(e);
-    var delta = evt.offsetX - lastX;
-    translated = restrictRange(translated+delta);
-    lastX = evt.offsetX;
-    drawText(curr_typeface, curr_mtext);
+  var evt = e || window.event;
+  var mCtx = metricsContext;
+  if (mCtx.dragging){
+    pauseEvent(evt);
+    var delta = evt.clientX - mCtx.lastX;
+    mCtx.translated = restrictRange(mCtx.translated+delta);
+    mCtx.lastX = evt.clientX;
+    drawText();
   }
 
 }
 
-canvasT.onmousedown = function(e){
-  // console.log('Mouse down');
+metricsContext.canvasT.onmousedown = function(e){
   var evt = e || event;
-  dragging = true;
-  lastX = evt.offsetX;
+  metricsContext.dragging = true;
+  metricsContext.lastX = evt.clientX;
 }
 
 window.onmouseup = function(){
-  // console.log('Mouse up');
-  dragging = false;
-  localStorage.setItem('drag-translation', translated);
+  metricsContext.dragging = false;
+  // localStorage.setItem('drag-translation', metricsContext.translated);
 }
 
 
@@ -3212,6 +3233,7 @@ window.onmouseup = function(){
 // canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
 
 function mouseWheelEvent(e){
+    var mCtx = metricsContext;
     var delta = 0;
 
     // console.log(e);
@@ -3228,10 +3250,10 @@ function mouseWheelEvent(e){
         console.log('Currently "%s" type is not supported.', e.type);
         return false;
     }
-    translated = restrictRange(translated+delta);
+    mCtx.translated = restrictRange(mCtx.translated+delta);
     // translated += delta;
 
-    drawText(curr_typeface, curr_mtext);
+    drawText();
     // mouseController.wheel(e);
     return false; 
 };
@@ -3256,31 +3278,72 @@ window.addEventListener('load', drawTesseract, false);
 
 
 //////////////////////////////////////////////////////////
-///////////////// FONT CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
+var allConfigs;
 
 // do not remember selections from previous sesssions
 // localStorage.clear()
 
-// TODO refactor with on DOM ready event
-$('#fontSelect').empty();
-createSelectOptions('#fontSelect', getAvailableSystemFonts());
+// $(document).ready(function(){
 
-['#fontSelect', '.input-fontsize > input', '.input-lineheight > input']
-  .forEach(function(selector, idx){
-      var input = $(selector);
-      input.on('change', onFontChange);
-      if(idx) {
-        input.on('keyup', onInputKeyup);
-        // initialize input value from previous session
-        // TODO update text example css after initialization
-        var localItem = localStorage.getItem(input.parent().attr('class'));
-        if (localItem)  input.val(localItem);
+//////////////////////////////////////////////////////////
+///////////////// FONT CONFIGURATION /////////////////////
+//////////////////////////////////////////////////////////
+['#fontSelect',
+ '.input-fontsize > input',
+ '.input-lineheight > input'
+].forEach(function(selector, idx){
+      switch(idx){
+        // font dropdown
+        case 0:
+            var fontList = getAvailableSystemFonts();
+            var select = $(selector);
+            select.empty();
+  
+            fontList.forEach(function(val, idx) {
+              var option = $('<option>').prop('value', val).text(val);
+              if (!idx) option.prop('selected', true);  // make 1st option a default selection
+              select.append(option);
+            });
+
+            // initialize dropdown values from previous session (if any)
+            var prevFont = localStorage.getItem(select.attr('id'))
+            if (prevFont)
+                select.find('option[value="'+prevFont+'"]')
+                      .attr('selected','selected');
+
+            $('.example-text').css('font-family', select.val()+",monospace");
+
+            select.on('change', onFontChange).trigger('change');
+            
+            // in Firefox only (Safari?)
+            // if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
+                // select.on('keyup', function(){ $(this).trigger('change'); })
+            break;
+        
+        // font size & line height edit boxes
+        case 1:
+        case 2:
+            var input = $(selector);
+
+            // initialize edit box from previous session (if any)
+            var prevSize = localStorage.getItem(input.parent().attr('class'));
+            if (prevSize)  input.val(prevSize);            
+        
+            if (idx==1)
+                $('.example-text').css('font-size', parseInt(input.val())+'px');
+            else 
+                $('.example-text').css('line-height', parseInt(input.val())+'px');
+
+            input.on('change', onFontChange);
+            input.on('keydown', onKeyDown);
+            break;
+        default:
+            console.warn('update your font selector initialization')
       }
   });
 
-// trigger for initial metrics drawing 
-$('#fontSelect').trigger('change');
+// trigger for initial text metrics rendering
 $('.fontmetrics-input-wrapper > input').on('keyup', onMetricsTextChange).trigger('keyup');
 
 //////////////////////////////////////////////////////////
@@ -3300,7 +3363,7 @@ $('.ratio-selector .flex-row').on('change', function(){
 ///////////////// GRID CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
 
-var allConfigs = (function(){
+allConfigs = (function(){
     var rgg = RhythmicGridGenerator;
 
     // grid config range
@@ -3358,3 +3421,5 @@ var allConfigs = (function(){
 
 // create radio items based on the grid config above
 setupRadioItems(allConfigs);
+
+// }); // <-- $(document).ready()
