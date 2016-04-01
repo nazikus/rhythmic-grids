@@ -67,8 +67,7 @@
 						<div class="font-controls">
 							<div class="font-select-wrapper">
 								<label>
-									<select name="fontSelect" 
-											id="fontSelect">
+									<select name="fontSelect" id="fontSelect">
 										<option value="Helvetica" selected>Helvetica</option>
 										<option value="Arial">Arial</option>
 									</select>
@@ -76,10 +75,11 @@
 								</label>
 							</div>
 							<div class="input-fontsize">
-								<input type="text" placeholder="16px" value="16px" />
+								<input type="text" placeholder="16px" value="16px" id="input-fontsize" />
 							</div>
 							<div class="input-lineheight">
-								<input type="text" placeholder="22px" value="22px" />
+								<input type="text" placeholder="19px" value="19px" id="input-lineheight" />
+								<label for="input-lineheight" id="lineheight-percent-label">110%</label>
 							</div>
 						</div>
 						<p class="example-text">
@@ -93,7 +93,7 @@
 					<div class="flex-child half">
 						<p>Adjust properties to improve legibility</p>
 						<div class="fontmetrics-input-wrapper">
-							<input type="text" value="dHxp" />
+							<input type="text" value="dHxp" id="fontmetrics-input-wrapper" />
 						</div>
 						<div class="fontmetrics-wrapper">
 							<canvas id="metrics-canvas" class="disable-select">

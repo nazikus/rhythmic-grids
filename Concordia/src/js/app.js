@@ -2,7 +2,7 @@
 /////////////////////// TESSERACT ////////////////////////
 //////////////////////////////////////////////////////////
 
-window.addEventListener('load', drawTesseract, false);
+// window.addEventListener('load', drawTesseract, false);
 
 
 //////////////////////////////////////////////////////////
@@ -17,10 +17,8 @@ var allConfigs;
 //////////////////////////////////////////////////////////
 ///////////////// FONT CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
-['#fontSelect',
- '.input-fontsize > input',
- '.input-lineheight > input'
-].forEach(function(selector, idx){
+['#fontSelect', '#input-fontsize', '#input-lineheight']
+.forEach(function(selector, idx){
       switch(idx){
         // font dropdown
         case 0:
@@ -71,8 +69,14 @@ var allConfigs;
       }
   });
 
+// initialize line height percent label
+var _lhfs_r = parseInt($('#input-lineheight').val(),10) / 
+              parseInt($('#input-fontsize').val(),10);
+
+$('#lineheight-percent-label').text( Math.round(_lhfs_r*100) + '%')
+
 // trigger for initial text metrics rendering
-$('.fontmetrics-input-wrapper > input').on('keyup', onMetricsTextChange).trigger('keyup');
+$('#fontmetrics-input-wrapper').on('keyup', onMetricsTextChange).trigger('keyup');
 
 //////////////////////////////////////////////////////////
 ///////////////// RATIO SELECTION ////////////////////////

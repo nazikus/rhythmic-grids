@@ -1,4 +1,3 @@
-
 function getAvailableSystemFonts() {
   detective = new FontDetector();  // (c) Lalit Patel [see /js/font-detector.js]
   // alternativedetection via ComicSans (?) [see /js/font-detector-temp.js]
@@ -24,7 +23,6 @@ function getAvailableSystemFonts() {
 // font selection event handler
 function onFontChange(e) {
   var id = $(this).attr('id');  // font selection
-  if (!id)  id = $(this).parent().attr('class')  // fontsize or lineheight input text
   // console.log("onChange: %s %s", id, this.value );
 
   // remember selections between sessions
@@ -42,12 +40,16 @@ function onFontChange(e) {
     drawText();
     break;
 
+  // min-max limits for enetered values
   case 'input-fontsize':
       $('.example-text').css('font-size', parseInt(this.value)+'px');
+      $('.example-text').css('line-height', parseInt($('.input-lineheight > input').val())+'px');
       $('.text').css('font-size', parseInt(this.value)+'px');
+      $('#input-lineheight').trigger('change');
       break;
   case 'input-lineheight':
       $('.example-text').css('line-height', parseInt(this.value)+'px');
+      
       break;
   }
 
@@ -58,20 +60,51 @@ function onFontChange(e) {
 
 /////////////////////////////////////////////////////////////////////////////
 function onKeyDown(e) {
-    var input = $(e.target);
-    var code = (e.which || e.keyCode);
-      // [down, left]
-      if( [40/*, 37*/].indexOf(code) > -1 ) {
-        input.val(parseInt(input.val())-1+'px')
-        e.preventDefault();
-        $(this).trigger('change');  
-      }
-      // [up, right]
-      if( [38/*, 39*/].indexOf(code) > -1 ) {
-        input.val(parseInt(input.val())+1+'px')
-        e.preventDefault();
-        $(this).trigger('change');  
-      }
+    var int = function(pStr) { return parseInt(pStr, 10); }
+
+    var input = $(e.target),
+        val = int(input.val()),
+        id = input.parent().attr('class'),
+        limit = null,
+        fs = int($('#input-fontsize').val()), // font size
+        code = (e.which || e.keyCode);
+
+    if (id === 'input-fontsize') 
+      limit = {min: 14, max: 21};
+    if (id === 'input-lineheight')
+      limit = {min: Math.round(fs*1.0), max: Math.round(fs*2.0)};
+    
+    var keyFlag = false;
+    // [down, left]
+    if( [40/*, 37*/].indexOf(code) > -1 ) {
+      val = val > limit.min ? val-1 : val;
+      input.val(val+'px' )
+      e.preventDefault();
+      input.trigger('change'); 
+      keyFlag = true;
+    }
+
+    // [up, right]
+    if( [38/*, 39*/].indexOf(code) > -1 ) {
+      val = val < limit.max ? val+1 : val;
+      input.val(val +'px')
+      e.preventDefault();
+      input.trigger('change');
+      keyFlag = true;
+    }
+
+    if (id === 'input-fontsize' && keyFlag)
+      $('#input-lineheight').val( Math.round(_lhfs_r*val) + 'px').trigger('chage');
+
+    if (id === 'input-lineheight') 
+      _lhfs_r = val / int( $('#input-fontsize').val() ); // _LineHeight-FontSize ratio
+
+    if (keyFlag || code === 13)
+      $('#lineheight-percent-label').text( Math.round(
+          int($('#input-lineheight').val())/int($('#input-fontsize').val()) * 100
+        ) + '%');
+
+   // console.log("LH/FS: %2f", _lhfs_r);
 }
 
 
@@ -104,7 +137,9 @@ function onMetricsTextChange(e) {
 
 function getFontList() {
   return [
-    "Abadi MT Condensed Light", "Academy Engraved LET", "ADOBE CASLON PRO", 
+  //"Helvetica", "Georgia", "Baskerville", "Charter", "Avenir", "PT Serif", "PT Sans"
+/**/
+    "Georgia","Abadi MT Condensed Light", "Academy Engraved LET", "ADOBE CASLON PRO", 
     "Adobe Garamond", "ADOBE GARAMOND PRO", "Agency FB", "Aharoni", 
     "Albertus Extra Bold", "Albertus Medium", "Algerian", "Amazone BT", 
     "American Typewriter", "American Typewriter Condensed", "AmerType Md BT", 
@@ -200,5 +235,6 @@ function getFontList() {
     "Vrinda", "Westminster", "WHITNEY", "Wide Latin", "ZapfEllipt BT", 
     "ZapfHumnst BT", "ZapfHumnst Dm BT", "Zapfino", "Zurich BlkEx BT",
     "Zurich Ex BT", "ZWAdobeF"
+    /**/
   ];
 }
