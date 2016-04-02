@@ -9,7 +9,8 @@ var gulp      = require('gulp'),
     watch     = require('gulp-watch'),
     inject    = require('gulp-inject'),
     merge     = require('merge-stream'), // for multiple src in a single task
-    spawn     = require('child_process').spawn; // auto-reload gulp process on Gulpfile.js change
+    spawn     = require('child_process').spawn, // auto-reload gulp process on Gulpfile.js change
+    customProps = require('gulp-custom-props');
 
 // paths
 var dist = 'dist',
@@ -64,11 +65,6 @@ gulp.task('images', function() {
 // js task
 gulp.task('js', function() {
     var appStream = gulp.src([
-            // tesseract
-            jsSrc + '/vendor/pre3d.js',
-            jsSrc + '/vendor/shapeutils.js',
-            jsSrc + '/vendor/tesseract.js',
-            
             // font metrics & detect
             jsSrc + '/vendor/canvas-fontmetrics.js', // redifines Canvas2D.prototype.measureText()
             jsSrc + '/vendor/lorem.js',
@@ -89,13 +85,15 @@ gulp.task('js', function() {
 
     var scriptsStream = 
         gulp.src([
+            jsSrc + '/vendor/pre3d.js',
+            jsSrc + '/vendor/shapeutils.js',
             './node_modules/jquery/dist/jquery.min.js',
             './node_modules/dotdotdot/src/js/jquery.dotdotdot.js',
+            './node_modules/custom-props/dist/custom-props.min.js',
             './../JavaScript/RhythmicGridGenerator.js'
         ])
         .pipe(gulp.dest(jsDist))
         .pipe(connect.reload());
-
 
     return merge(appStream, scriptsStream);
 });
@@ -110,7 +108,11 @@ gulp.task('injecthtml', function () {
         .pipe(inject(
             gulp.src([
                 jsDist + '/jquery.min.js',
-                jsDist + '/jquery.dotdotdot.js'
+                jsDist + '/jquery.dotdotdot.js',
+                jsDist + '/pre3d.js',
+                jsDist + '/shapeutils.js',
+                jsDist + '/custom-props.min.js',
+                jsDist + '/RhythmicGridGenerator.js',
             ] , {read: false}),
             { 
                 transform: generateScriptTag, 
@@ -119,8 +121,7 @@ gulp.task('injecthtml', function () {
         ))
         .pipe(inject(
             gulp.src([
-                jsDist + '/RhythmicGridGenerator.js',
-                jsDist + '/app.js', 
+                jsDist + '/app.js'
             ], {read: false}),
             { transform: generateScriptTag }
         ))
@@ -133,6 +134,7 @@ gulp.task('styles', function() {
     return gulp.src(lessSrc + '/*.**')
         .pipe(less())
         .pipe(minifyCss())
+        .pipe(customProps())
         .pipe(gulp.dest(cssDist))
         .pipe(connect.reload());
 });

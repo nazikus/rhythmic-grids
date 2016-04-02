@@ -11,6 +11,7 @@
     // border: thin solid green;
 }
 
+// canvas with metrics & labels
 #metrics-canvas {
     width: @metrics-canvas-width;
     height: @metrics-canvas-height;
@@ -18,8 +19,29 @@
     position: absolute;
     z-index: 100;
     // border: thin solid orange;
+
+    --metrics-font-size: 130px; // actually, this should belong to #text-canvas
+    --metrics-label-font: 16px serif;
+    --metrics-upm-label-font: 11px sans;
+
+    --metrics-baseline-top: 70%;
+    --metrics-baseline-width: 3px;
+    --metrics-line-width: 1px;
+    
+    --metrics-baseline-color: 'lightseagreen';
+    --metrics-baseline-font-color: 'lightseagreen';
+    --metrics-x-height-color: 'red';
+    --metrics-x-height-font-color: 'red';
+    --metrics-cap-height-color: 'chocolate';
+    --metrics-cap-height-font-color: 'chocolate';
+    --metrics-ascent-descent-color: 'lightgray';
+    --metrics-ascent-descent-font-color: 'gray';
+    --metrics-safebox-color: rgba(0, 107, 255, .3);
+    --metrics-upm-label-color: rgba(0, 107, 255, .75);
+
 }
 
+// canvas with big text only
 #text-canvas {
     width: @metrics-canvas-width - (@text-canvas-margin-left+@text-canvas-margin-right);
     height: @metrics-canvas-height;

@@ -1,3 +1,11 @@
+// helper function to retrieve 'custom css properties'
+var custProp = function(prop, intFlag) { 
+  intFlag = (intFlag || false);
+  var prop = CustomProps.read($('#metrics-canvas'), prop);
+  return intFlag ? parseInt(prop, 10) : prop;
+}
+
+
 var metricsContext = (function(){
 
   var int = function(str){ return parseInt(str,10); }
@@ -10,10 +18,7 @@ var metricsContext = (function(){
   _canvas.height  = int( $(_canvas).css('height') );
   _canvasT.width  = int( $(_canvasT).css('width') );
   _canvasT.height = int( $(_canvasT).css('height') );
-
-  // console.log('Metrics canvas %sx%s\nText canvasT %sx%s',
-  //  canvas.width,  canvas.height, canvasT.width, canvasT.height);
-
+  
   return {
     canvas  : _canvas,
     canvasT : _canvasT,
@@ -22,7 +27,7 @@ var metricsContext = (function(){
     
     // reference alphabet is used for determining metrics for current font
     reference_alphabet: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-    metrics_fontsize: 140,
+    metrics_fontsize: custProp('metrics-font-size', true),
     metrics_fallback: '30px sans', // in case font detector give false positive
     
     // global vars (accessed by event handlers)
@@ -31,9 +36,9 @@ var metricsContext = (function(){
     curr_mtext_width: 0,
     
     // drawing layout & styles
-    label_font: '16px serif',
-    'label_font_upm': '11px sans',
-    baseline_y: Math.round( _canvas.height*.70 ),
+    label_font: custProp('metrics-label-font'),
+    label_font_upm: custProp('metrics-upm-label-font'),
+    baseline_y: Math.round( _canvas.height * custProp('metrics-baseline-top',true)/100 ),
     xOffL: int( $(_canvasT).css('margin-left') ),  // left offset (margin)
     xOffR: int( $(_canvasT).css('margin-right') ), // right offset (margin)
     
@@ -141,8 +146,7 @@ function drawMetrics() {
 
   // SAFEBOX rectangle
   ctx.beginPath();
-  ctx.fillStyle = 'rgba(0, 107, 255, .3)';
-  ctx.lineWidth = 2;
+  ctx.fillStyle = custProp('metrics-safebox-color');
   ctx.fillRect(xOffL, baseline_y-safebox_h, line_length-xOffL, safebox_h);
 
   // SAFEBOX label
@@ -153,9 +157,9 @@ function drawMetrics() {
 
   // BASELINE line
   ctx.beginPath();
-  ctx.strokeStyle = 'lightseagreen';
-  ctx.fillStyle = ctx.strokeStyle;
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = custProp('metrics-baseline-color');
+  ctx.fillStyle = custProp('metrics-baseline-font-color');
+  ctx.lineWidth = custProp('metrics-baseline-width', true);
   ctx.moveTo(xOffL, baseline_y + Math.floor(ctx.lineWidth/2));
   ctx.lineTo(line_length, baseline_y + Math.floor(ctx.lineWidth/2));
   ctx.stroke();
@@ -175,9 +179,9 @@ function drawMetrics() {
 
   // X-HEIGHT line
   ctx.beginPath();
-  ctx.strokeStyle = 'red';
-  ctx.fillStyle = ctx.strokeStyle;
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = custProp('metrics-x-height-color');
+  ctx.fillStyle = custProp('metrics-x-height-font-color');
+  ctx.lineWidth = custProp('metrics-line-width', true);
   ctx.moveTo(xOffL, baseline_y - x_height);
   ctx.lineTo(line_length, baseline_y - x_height);
   ctx.stroke();
@@ -194,7 +198,7 @@ function drawMetrics() {
   ctx.textBaseline = 'bottom';
   ctx.textAlign = 'left';
   ctx.font = metricsContext.label_font_upm;
-  ctx.fillStyle = 'rgba(0, 107, 255, .9)';
+  ctx.fillStyle = custProp('metrics-upm-label-color');
   if (/*xdev != 0*/1) { // omit zero UPM or not
     if (false){
       // vertical label, in UPMs
@@ -214,9 +218,9 @@ function drawMetrics() {
 
   // ASCENT & DESCENT lines
   ctx.beginPath();
-  ctx.strokeStyle = 'lightgray';
-  ctx.fillStyle = 'gray';
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = custProp('metrics-ascent-descent-color');
+  ctx.fillStyle = custProp('metrics-ascent-descent-font-color');
+  ctx.lineWidth = custProp('metrics-line-width');
   ctx.moveTo(xOffL, baseline_y-ascent);
   ctx.lineTo(line_length, baseline_y-ascent);
   ctx.stroke();
@@ -237,9 +241,9 @@ function drawMetrics() {
 
   // CAP HEIGHT line
   ctx.beginPath();
-  ctx.strokeStyle = 'chocolate';
-  ctx.fillStyle = ctx.strokeStyle;
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = custProp('metrics-cap-height-color');
+  ctx.fillStyle = custProp('metrics-cap-height-font-color');
+  ctx.lineWidth = custProp('metrics-line-width');
   ctx.moveTo(xOffL, baseline_y - cap_height);
   ctx.lineTo(line_length, baseline_y - cap_height);
   ctx.stroke();
