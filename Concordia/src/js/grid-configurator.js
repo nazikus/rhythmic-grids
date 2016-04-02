@@ -144,6 +144,9 @@ function drawRhythmicGrid(gridConfig){
         //val[2] - number of blocks (columns) in current row
         // see @class Grid (RhythmicGridGenerator.js)
         for (var i=1; i<=val[2]; i++){
+            if (idx===arr.length-1 && val[0]>=1000) 
+                continue; // skip if the last row and block is wider than
+
             var inner = $('<div>').addClass('inner').addClass('inner'+i);
             
             // pairwise image & text for odd-even blocks
