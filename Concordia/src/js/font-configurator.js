@@ -1,3 +1,5 @@
+var _int = function(pStr) { return parseInt(pStr, 10); }
+
 function getAvailableSystemFonts() {
   detective = new FontDetector();  // (c) Lalit Patel [see /js/font-detector.js]
   // alternativedetection via ComicSans (?) [see /js/font-detector-temp.js]
@@ -35,23 +37,28 @@ function onFontChange(e) {
     $('.text').css('font-family', this.value+",monospace");
     metricsContext.curr_typeface = this.value; // global var for metrics drawing
 
-    // // re-draw font metrics
+    // re-draw font metrics
     drawMetrics();
     drawText();
     break;
 
-  // min-max limits for enetered values
   case 'input-fontsize':
+      $('#input-lineheight').val( Math.round(_lhfs_r*_int(this.value)) + 'px');
       $('.example-text').css('font-size', parseInt(this.value)+'px');
       $('.example-text').css('line-height', parseInt($('.input-lineheight > input').val())+'px');
       $('.text').css('font-size', parseInt(this.value)+'px');
-      $('#input-lineheight').trigger('change');
       break;
+
   case 'input-lineheight':
-      $('.example-text').css('line-height', parseInt(this.value)+'px');
-      
+      _lhfs_r = _int(this.value) / _int( $('#input-fontsize').val() ); // _LineHeight-FontSize ratio
+      $('.example-text').css('line-height', _int(this.value)+'px');
       break;
   }
+
+  $('#lineheight-percent-label')
+    .text( Math.round(
+      _int($('#input-lineheight').val()) / _int($('#input-fontsize').val()) * 100
+    ) + '%');
 
   // fixes the problem of onChange event firing twice
   $(this).off('change').blur().on('change', onFontChange);
@@ -59,54 +66,30 @@ function onFontChange(e) {
 };
 
 /////////////////////////////////////////////////////////////////////////////
+
 function onKeyDown(e) {
-    var int = function(pStr) { return parseInt(pStr, 10); }
-
     var input = $(e.target),
-        val = int(input.val()),
-        id = input.parent().attr('class'),
-        limit = null,
-        fs = int($('#input-fontsize').val()), // font size
-        code = (e.which || e.keyCode);
+        val = _int(input.val()),
+        code = (e.which || e.keyCode),
+        limit = null;
 
-    if (id === 'input-fontsize') 
-      limit = {min: 14, max: 21};
-    if (id === 'input-lineheight')
-      limit = {min: Math.round(fs*1.0), max: Math.round(fs*2.0)};
-    
-    var keyFlag = false;
-    // [down, left]
-    if( [40/*, 37*/].indexOf(code) > -1 ) {
-      val = val > limit.min ? val-1 : val;
-      input.val(val+'px' )
-      e.preventDefault();
-      input.trigger('change'); 
-      keyFlag = true;
+    if (input.attr('id') === 'input-fontsize')
+        limit = {min: 14, max: 21};
+    if (input.attr('id') === 'input-lineheight'){
+        var fsVal = _int($('#input-fontsize').val());
+        limit = {min: Math.round(fsVal*1.0), max: Math.round(fsVal*2.0)};
     }
 
-    // [up, right]
-    if( [38/*, 39*/].indexOf(code) > -1 ) {
-      val = val < limit.max ? val+1 : val;
+    // uparrow,downarrow key
+    if ([38,40].indexOf(code) > -1){
+      if(code === 40) val = val > limit.min ? val - 1 : val;
+      if(code === 38) val = val < limit.max ? val + 1 : val;
       input.val(val +'px')
       e.preventDefault();
       input.trigger('change');
-      keyFlag = true;
     }
 
-    if (id === 'input-fontsize' && keyFlag)
-      $('#input-lineheight').val( Math.round(_lhfs_r*val) + 'px').trigger('chage');
-
-    if (id === 'input-lineheight') 
-      _lhfs_r = val / int( $('#input-fontsize').val() ); // _LineHeight-FontSize ratio
-
-    if (keyFlag || code === 13)
-      $('#lineheight-percent-label').text( Math.round(
-          int($('#input-lineheight').val())/int($('#input-fontsize').val()) * 100
-        ) + '%');
-
-   // console.log("LH/FS: %2f", _lhfs_r);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -131,7 +114,6 @@ function onMetricsTextChange(e) {
   // $(canvasT).trigger( jQuery.Event('DOMMouseScroll') );
   // $(canvasT).trigger( jQuery.Event('mousewheel') );
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 
