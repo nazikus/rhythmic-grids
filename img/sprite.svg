@@ -5,8 +5,7 @@
     <desc>Created with Sketch Beta.</desc>
     <defs></defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-        <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="0" y="0" width="500" height="500"></rect>
-        <text id="+" sketch:type="MSTextLayer" transform="translate(155.849242, 5.849242) rotate(-315.000000) translate(-155.849242, -5.849242) " font-family="Larsseit" font-size="24" font-weight="normal" sketch:alignment="middle" letter-spacing="1.02127659" fill="#FFFFFF">
+        <text id="+" sketch:type="MSTextLayer" transform="translate(155.849242, 5.849242) rotate(-315.000000) translate(-155.849242, -5.849242) " font-family="Larsseit" font-size="24" font-weight="normal" sketch:alignment="middle" letter-spacing="1.02127659" fill="#000000">
             <tspan x="149.674604" y="14.3492424">+</tspan>
         </text>
         <path d="M114.043478,5.20730444 L110.317478,5.20730444 C109.87713,5.20730444 109.38513,5.80450667 109.38513,6.60337556 L109.38513,9.37669556 L114.043478,9.37669556 L114.043478,13.3293622 L109.38513,13.3293622 L109.38513,25.1997311 L104.987391,25.1997311 L104.987391,13.3293622 L101,13.3293622 L101,9.37669556 L104.987391,9.37669556 L104.987391,7.05 C104.987391,3.71389556 107.233739,1 110.317478,1 L114.043478,1 L114.043478,5.20730444 L114.043478,5.20730444 Z" id="Shape" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
