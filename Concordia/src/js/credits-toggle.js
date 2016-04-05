@@ -14,8 +14,10 @@
 			if (isCreditsActive) {
 				showTrigger.removeClass('hidden');
 				showTrigger.data('credits-visible', false);
-				initialSection.removeClass("hidden");
 				creditsSection.addClass("hidden");
+				window.setTimeout(function () {
+					initialSection.removeClass("hidden");
+				}, 300);
 			} else {
 				showTrigger.addClass('hidden');
 				showTrigger.data('credits-visible', true);

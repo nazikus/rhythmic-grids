@@ -37,15 +37,9 @@
 }
 .credits-section {
 	// general styles
-	transition: opacity 0.2s ease;
+	transition: all 0.3s ease;
 	transition-delay: 0.1s;
 	opacity: 1;
-	&.hidden {
-		opacity: 0;
-		h2 {
-
-		}
-	}
 	p {
 		margin-top: 0;
 	}
@@ -54,8 +48,6 @@
 		line-height: 1.1;
 		letter-spacing: 1.32px;
 		margin: 80px 0 15px;
-		transition: opacity 0.2s ease;
-		transition-delay: 0.1s;
 	}
 	h4 {
 		font-weight: 400;
@@ -64,8 +56,6 @@
 	hr {
 		border-color: @color-blue;
 		margin-bottom: 40px;
-		transition: opacity 0.2s ease;
-		transition-delay: 0.1s;
 	}
 	.created-by {
 		margin-bottom: 80px;
@@ -87,7 +77,6 @@
 	// hidden state
 	&.hidden {
 		opacity: 0;
-		visibility: hidden;
 	}
 	a {
 		color: @color-blue;
