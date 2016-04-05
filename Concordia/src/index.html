@@ -35,22 +35,78 @@
 						<div class="flex-child">
 							<!-- Credits -->
 							<div class="credits text-right">
-								<a href="#">
-									Credits
+								<a href="#" class="credits-toggle" id="credits-toggle" data-credits-visible="false">
+									<span class="credits-label-on">Credits</span>
+									<span class="credits-label-off"></span>
 								</a>
 							</div>
-							
 						</div>
 					</div>
 				</header>
 				<div class="text-center text-vertical-center">
-					<h1>
-						No rhythm<br>no hip-hop
+					<h1 class="initial-section" id="initial-section">
+						<div class="animation-top">
+							No rhythm
+						</div>
+						<div class="animation-bottom">
+							no hip-hop
+						</div>
 					</h1>
 				</div>
+				<!-- Credits content (initially hidden) -->
+				<div class="credits-section text-vertical-center hidden" id="credits-section">
+					<h2>
+						Created with mind turned <br>into the future
+					</h2>
+					<hr>
+					<div class="flex-row">
+						<div class="flex-child">
+							<p class="desc">
+								We believe that precise calculations can be the key to change the way we do our daily work as designers and developers. Concordia is a first step into discovering the complex world of calculations in design process. 
+							</p>
+						</div>
+						<div class="flex-child">
+							<h4 class="credits-heading">
+								Created by
+							</h4>
+							<div class="created-by flex-row">
+								<div class="flex-child">
+									<div class="name">Ross Sokolovski</div>
+									<div class="position">Design</div>
+								</div>
+								<div class="flex-child">
+									<div class="name">Nazar Grabovskiy</div>
+									<div class="position">Code</div>
+								</div>
+								<div class="flex-child">
+									<div class="name">Arsen Batyuchok</div>
+									<div class="position">Front-end</div>
+								</div>
+							</div>
+							<div class="contributors flex-row">
+								<div class="flex-child">
+									<h4 class="credits-heading">Contributors & Consultants</h4>
+									<p>
+										Serhiy Shelpuk, Nazar Kondratyuk, <br>Dmytro Borchuk, Anton Iatsenko
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div class="flex-row">
+						<div class="flex-child"></div>
+						<div class="flex-child">
+							<div class="participate">
+								<p>
+									You can particitape by sharing your thoughts and <br>comments via <a href="mailto:contact@concordia.com">contact@concordia.com</a>
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- END Credits content -->
 			</div>
-
-			
 		</section>
 		<section>
 			<h2 class="text-center">
@@ -395,11 +451,11 @@
 					</div>
 					<div class="flex-child">
 						<!-- Credits -->
-						<div class="credits text-right">
+						<!-- <div class="credits text-right">
 							<a href="#">
 								Credits
 							</a>
-						</div>
+						</div> -->
 						
 					</div>
 				</div>

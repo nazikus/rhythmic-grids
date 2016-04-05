@@ -7,6 +7,7 @@ var gulp      = require('gulp'),
     runSequence = require('gulp-run-sequence'),
     connect   = require('gulp-connect'),
     watch     = require('gulp-watch'),
+    prefix    = require('gulp-autoprefixer'),
     inject    = require('gulp-inject'),
     merge     = require('merge-stream'), // for multiple src in a single task
     spawn     = require('child_process').spawn, // auto-reload gulp process on Gulpfile.js change
@@ -78,6 +79,7 @@ gulp.task('js', function() {
             jsSrc + '/grid-configurator.js',
             jsSrc + '/metrics-drawing.js',
             jsSrc + '/metrics-panning.js',
+            jsSrc + '/credits-toggle.js',
             jsSrc + '/app.js'
         ])
         .pipe(concat('app.js'))
@@ -134,6 +136,7 @@ gulp.task('styles', function() {
     return gulp.src(lessSrc + '/*.**')
         .pipe(less())
         .pipe(minifyCss())
+        .pipe(prefix('last 4 versions'))
         .pipe(customProps())
         .pipe(gulp.dest(cssDist))
         .pipe(connect.reload());
