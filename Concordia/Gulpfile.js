@@ -10,8 +10,7 @@ var gulp      = require('gulp'),
     prefix    = require('gulp-autoprefixer'),
     inject    = require('gulp-inject'),
     merge     = require('merge-stream'), // for multiple src in a single task
-    spawn     = require('child_process').spawn, // auto-reload gulp process on Gulpfile.js change
-    customProps = require('gulp-custom-props');
+    spawn     = require('child_process').spawn; // auto-reload gulp process on Gulpfile.js change
 
 // paths
 var dist = 'dist',
@@ -66,6 +65,9 @@ gulp.task('images', function() {
 // js task
 gulp.task('js', function() {
     var appStream = gulp.src([
+            // tesseract
+            jsSrc + '/vendor/tesseract.js',
+            
             // font metrics & detect
             jsSrc + '/vendor/canvas-fontmetrics.js', // redifines Canvas2D.prototype.measureText()
             jsSrc + '/vendor/lorem.js',
@@ -91,11 +93,11 @@ gulp.task('js', function() {
             jsSrc + '/vendor/shapeutils.js',
             './node_modules/jquery/dist/jquery.min.js',
             './node_modules/dotdotdot/src/js/jquery.dotdotdot.js',
-            './node_modules/custom-props/dist/custom-props.min.js',
             './../JavaScript/RhythmicGridGenerator.js'
         ])
         .pipe(gulp.dest(jsDist))
         .pipe(connect.reload());
+
 
     return merge(appStream, scriptsStream);
 });
@@ -113,8 +115,6 @@ gulp.task('injecthtml', function () {
                 jsDist + '/jquery.dotdotdot.js',
                 jsDist + '/pre3d.js',
                 jsDist + '/shapeutils.js',
-                jsDist + '/custom-props.min.js',
-                jsDist + '/RhythmicGridGenerator.js',
             ] , {read: false}),
             { 
                 transform: generateScriptTag, 
@@ -123,7 +123,8 @@ gulp.task('injecthtml', function () {
         ))
         .pipe(inject(
             gulp.src([
-                jsDist + '/app.js'
+                jsDist + '/RhythmicGridGenerator.js',
+                jsDist + '/app.js', 
             ], {read: false}),
             { transform: generateScriptTag }
         ))
@@ -137,7 +138,6 @@ gulp.task('styles', function() {
         .pipe(less())
         .pipe(minifyCss())
         .pipe(prefix('last 4 versions'))
-        .pipe(customProps())
         .pipe(gulp.dest(cssDist))
         .pipe(connect.reload());
 });
