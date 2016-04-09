@@ -763,7 +763,9 @@ function drawRhythmicGrid(gridConfig){
     
     /////// GENERATE BLOCK DIVS ///////////
     var container = allConfigs.gridContainer,
-        c = 0;
+        c = 0,
+        rulersWrapperVertical = $('<div>').addClass('rulers-wrapper-vertical'),
+        rulersWrapperHorizontal = $('<div>').addClass('rulers-wrapper-horizontal');
 
     container.empty();
     gridConfig.rhythmicGrid.blocks.forEach( function(val, idx, arr){
@@ -796,6 +798,17 @@ function drawRhythmicGrid(gridConfig){
         container.append(row);
     });
 
+    /////// GENERATE VERTICAL RULERS ///////////
+    for (var i = 0; i < gridConfig.columnsNum; i++) {
+        rulersWrapperVertical.append('<div class="ruler-vertical-outer"><div class="ruler-vertical"></div></div>');
+    }
+    /////// GENERATE HORIZONTAL RULERS ///////////
+    for (var i = 0; i < 220; i++) {
+        rulersWrapperHorizontal.append('<div class="ruler-horizontal"></div>');
+    }
+    container.append(rulersWrapperVertical);
+    container.append(rulersWrapperHorizontal);
+
 
     //////////  SET BLOCK CSS RULES  ///////////
     var g = gridConfig.gutter.W;
@@ -809,15 +822,24 @@ function drawRhythmicGrid(gridConfig){
         'max-width': gridConfig.rhythmicGrid.W+'px'
     });
 
-    $('.row').css({
-        'margin-left': g/2,
-        'margin-right': g/2
+    $('.row, .rulers-wrapper-vertical').css({
+        'margin-left': -(g/2),
+        'margin-right': -(g/2)
+    });
+
+    $('.ruler-horizontal').css({
+        'margin-bottom': gridConfig.baseline - 1 // border takes 1px
     });
     
     $('.column').css({
         'padding-left': g/2,
         'padding-right': g/2,
         'margin-bottom': g
+    });
+
+    $('.ruler-vertical-outer').css({
+        'padding-left': g/2,
+        'padding-right': g/2
     });
 
     $('.text').css({
