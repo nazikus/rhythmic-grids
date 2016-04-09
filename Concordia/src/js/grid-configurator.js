@@ -182,8 +182,8 @@ function drawRhythmicGrid(gridConfig){
     });
 
     $('.row').css({
-        'margin-left': g/2,
-        'margin-right': g/2
+        'margin-left': -(g/2),
+        'margin-right': -(g/2)
     });
     
     $('.column').css({
