@@ -13,7 +13,7 @@ function restrictRange(transdelta){
   // console.log('Scrolling lastX: %s; delta: %s; translated: %s; width: %s', 
      // mCtx.lastX, transdelta-mCtx.translated, mCtx.translated, mtextW);
   
-  var pm = 0.15; // panning margin factor, normalized
+  var pm = 0; // 0.15; // panning margin factor, normalized
   // if text fits within canvas width completely
   if (mtextW < width)
     return transdelta > width-mtextW*(1-pm) ? width-mtextW*(1-pm) :

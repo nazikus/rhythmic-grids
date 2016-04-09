@@ -118,8 +118,8 @@ function onMetricsTextChange(e) {
 
 function getFontList() {
   return [
-  //"Helvetica", "Georgia", "Baskerville", "Charter", "Avenir", "PT Serif", "PT Sans"
-/**/
+  "Helvetica", "Georgia", "Baskerville", "Charter", "Avenir", "PT Serif", "PT Sans"
+/*
     "Georgia","Abadi MT Condensed Light", "Academy Engraved LET", "ADOBE CASLON PRO", 
     "Adobe Garamond", "ADOBE GARAMOND PRO", "Agency FB", "Aharoni", 
     "Albertus Extra Bold", "Albertus Medium", "Algerian", "Amazone BT", 
