@@ -467,9 +467,6 @@ function onFontChange(e) {
       _int($('#input-lineheight').val()) / _int($('#input-fontsize').val()) * 100
     ) + '%');
 
-  // fixes the problem of onChange event firing twice
-  $(this).off('change').blur().on('change', onFontChange);
-  $(this).focus();
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -482,16 +479,18 @@ function onKeyDown(e) {
 
     if (input.attr('id') === 'input-fontsize')
         limit = {min: 14, max: 21};
+
     if (input.attr('id') === 'input-lineheight'){
         var fsVal = _int($('#input-fontsize').val());
         limit = {min: Math.round(fsVal*1.0), max: Math.round(fsVal*2.0)};
     }
 
-    // uparrow,downarrow key
-    if ([38,40].indexOf(code) > -1){
-      if(code === 40) val = val > limit.min ? val - 1 : val;
-      if(code === 38) val = val < limit.max ? val + 1 : val;
-      input.val(val +'px')
+    // [uparrow,downarrow,enter] keys
+    if ([38,40,13].indexOf(code) > -1){
+      if (code === 40) val = val > limit.min ? val - 1 : val;
+      if (code === 38) val = val < limit.max ? val + 1 : val;
+      if (code === 13) val = val < limit.min ? limit.min : val > limit.max ? limit.max : val;
+      input.val((isNaN(val) ? limit.min : val) +'px');
       e.preventDefault();
       input.trigger('change');
     }
@@ -506,7 +505,7 @@ function onMetricsTextChange(e) {
   // console.log('metrics key: %s', code);
 
   // do nothing if pressed key is an arrow key
-  // [left, up, right, down), shift, ctrl, alt]
+  // [left, up, right, down, shift, ctrl, alt]
   if( [37, 38, 39, 40, 16, 17, 18].indexOf(code) > -1 ) {
       return;
   }
@@ -1169,12 +1168,12 @@ window.onmouseup = function(){
 
 
 // SCROLL PANNING
-// TODO drag cursor for Chrome
-// TODO block further wheel event propagation
+// stop scrolling propagation for FF
+// TODO horizontal scroll-panning (currently only in FF)
 // TODO kinectic scrolling: http://ariya.ofilabs.com/2013/11/javascript-kinetic-scrolling-part-2.html
-// TODO horizontal scroll-panning (currently only in FireFox)
-// canvasT.addEventListener('DOMMouseScroll', mouseWheelEvent);
-// canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
+
+metricsContext.canvasT.addEventListener('DOMMouseScroll', mouseWheelEvent);
+metricsContext.canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
 
 function mouseWheelEvent(e){
     var mCtx = metricsContext;
@@ -1198,6 +1197,9 @@ function mouseWheelEvent(e){
     // translated += delta;
 
     drawText();
+    e.preventDefault();
+    e.stopPropagation();
+
     // mouseController.wheel(e);
     return false; 
 };
