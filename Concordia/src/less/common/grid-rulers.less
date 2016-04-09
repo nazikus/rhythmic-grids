@@ -1,0 +1,46 @@
+.rulers-wrapper-vertical {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	z-index: 1;
+	.ruler-vertical-outer {
+		flex: 1 1 100%;
+		height: 100%;
+		.ruler-vertical {			
+			position: relative;
+			width: 100%;
+    		height: 100%;
+			&:before, &:after {
+				content: " ";
+				position: absolute;
+				display: block;
+				width: 1px;
+				height: 100%;
+				border-left: 1px solid rgba(30, 28, 245, 0.5);
+			}
+			&:before {
+				left: -1px;
+			}
+			&:after {
+				right: -1px;
+			}
+		}
+	}
+	
+}
+.rulers-wrapper-horizontal {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow: hidden;
+	.ruler-horizontal {
+		position: relative;
+		width: 100%;
+		border-top: 1px solid rgba(255, 24, 24, 0.5);
+	}
+}
