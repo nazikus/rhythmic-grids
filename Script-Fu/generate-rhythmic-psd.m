@@ -1,0 +1,1 @@
+% % octave CLI parameters: --no-gui, --eval <code>, --exec-path <path>, --no-line-editing, --no-window-system, --norc, --quite, <filepath_with_commands>
