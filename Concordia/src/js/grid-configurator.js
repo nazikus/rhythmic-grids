@@ -154,7 +154,7 @@ function drawRhythmicGrid(gridConfig){
             if ( val[2]===3 && i===1 && !(c%2) ) c++; // if 3 columns, always start with an image
             if (c%2 || idx+1===arr.length/*the last biggest block is better with an image*/){
                 var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
-                inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg');
+                inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg)');
                 // console.log(inner.attr('style'));
             } else {
                 var txtmck = allConfigs.textMocks[idx];
