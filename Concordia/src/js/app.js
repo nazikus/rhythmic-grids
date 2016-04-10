@@ -12,6 +12,7 @@ var allConfigs;
 // clear selections from previous sesssions
 // localStorage.clear()
 
+// TOFIX for some reason, key event handling for font size input stops working with $(document).ready(...)
 // $(document).ready(function(){
 
 //////////////////////////////////////////////////////////
@@ -153,5 +154,30 @@ allConfigs = (function(){
 
 // create radio items based on the grid config above
 setupRadioItems(allConfigs);
+
+// initialize 'hide grid' button
+$('#grid-toggle').on('click', function(e){
+    e.preventDefault();
+    gridToggleBtn = $(e.target);
+    
+    if (gridToggleBtn.data('grid-toggle') === 'on') {
+        $('.rulers-wrapper-vertical').addClass('hidden');
+        $('.rulers-wrapper-horizontal').addClass('hidden');
+        gridToggleBtn.text('Show grid');
+        gridToggleBtn.data('grid-toggle', 'off');
+    } else {
+        $('.rulers-wrapper-vertical').removeClass('hidden');
+        $('.rulers-wrapper-horizontal').removeClass('hidden');
+        gridToggleBtn.text('Hide grid');
+        gridToggleBtn.data('grid-toggle', 'on');
+    }
+
+    localStorage.setItem('gridToggle', gridToggleBtn.data('grid-toggle'));
+
+});
+
+$('#grid-toggle')
+    .data('grid-toggle', localStorage.getItem('gridToggle')==='off' ? 'on' : 'off')
+    .trigger('click');
 
 // }); // <-- $(document).ready()

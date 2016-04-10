@@ -258,8 +258,16 @@ function drawRhythmicGrid(gridConfig){
     $('.ruler-horizontal').css({
         'margin-bottom': gridConfig.baseline - 1 // border takes 1px
     });
-    
 
+    if ($('#grid-toggle').data('grid-toggle') === 'on'){
+        $('.rulers-wrapper-vertical').removeClass('hidden');
+        $('.rulers-wrapper-horizontal').removeClass('hidden');
+    } else {
+        $('.rulers-wrapper-vertical').addClass('hidden');
+        $('.rulers-wrapper-horizontal').addClass('hidden');
+    }
+    
+    // $('#grid-toggle').toggle('click');
 
     var timing = performance.now() - startTime;
     // console.log('... grid rendering finished (%.1dms).', timing);
