@@ -143,18 +143,26 @@ function drawRhythmicGrid(gridConfig){
     gridConfig.rhythmicGrid.blocks.forEach( function(val, idx, arr){
         var row = $('<div>').addClass('row');
 
-        //val[2] - number of blocks (columns) in current row
+        //val[2] - number of blocks in current row
         // see @class Grid (RhythmicGridGenerator.js)
-        for (var i=1; i<=val[2]; i++){
-            if (idx===arr.length-1 && val[0]>=1000) 
-                continue; // skip if the last row and block is wider than
+        var blocksInRow = val[2],
+            blockWidth = val[0];
+
+        if (blocksInRow > 9) // no need to show very small micro-blocks
+            return;
+
+        for (var i=1; i<=blocksInRow; i++){
+            if (idx===arr.length-1 && blockWidth>=1000)
+                continue; // skip if the last row and block is wider than 1000
 
             var inner = $('<div>').addClass('inner').addClass('inner'+i);
             
-            // pairwise image & text for odd-even blocks
             c++;
+            // pairwise image & text blocks (if c odd - image, if c even - text)
+            
             if (i===1 && !(c%2) ) c++; // first column in row always start with an image, not text
-            if (c%2 || idx+1===arr.length/*the last biggest block is better with an image*/){
+            
+            if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
                 var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
                 inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg)');
                 // console.log(inner.attr('style'));
