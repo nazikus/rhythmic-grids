@@ -133,11 +133,11 @@ function drawRhythmicGrid(gridConfig){
     var startTime = performance.now();
     // console.log('Rhythmic config: '); console.log(gridConfig);
     
+    ///////////////////////////////////////
     /////// GENERATE BLOCK DIVS ///////////
+    ///////////////////////////////////////
     var container = allConfigs.gridContainer,
-        c = 0,
-        rulersWrapperVertical = $('<div>').addClass('rulers-wrapper-vertical'),
-        rulersWrapperHorizontal = $('<div>').addClass('rulers-wrapper-horizontal');
+        c = 0;
 
     container.empty();
     gridConfig.rhythmicGrid.blocks.forEach( function(val, idx, arr){
@@ -170,19 +170,10 @@ function drawRhythmicGrid(gridConfig){
         container.append(row);
     });
 
-    /////// GENERATE VERTICAL RULERS ///////////
-    for (var i = 0; i < gridConfig.columnsNum; i++) {
-        rulersWrapperVertical.append('<div class="ruler-vertical-outer"><div class="ruler-vertical"></div></div>');
-    }
-    /////// GENERATE HORIZONTAL RULERS ///////////
-    for (var i = 0; i < 220; i++) {
-        rulersWrapperHorizontal.append('<div class="ruler-horizontal"></div>');
-    }
-    container.append(rulersWrapperVertical);
-    container.append(rulersWrapperHorizontal);
 
-
+    ////////////////////////////////////////////
     //////////  SET BLOCK CSS RULES  ///////////
+    ////////////////////////////////////////////
     var g = gridConfig.gutter.W;
     console.log('Blocks: ' + gridConfig.rhythmicGrid.blocks.map(function(v){ return v[0]+"x"+v[1] }));
 
@@ -194,24 +185,15 @@ function drawRhythmicGrid(gridConfig){
         'max-width': gridConfig.rhythmicGrid.W+'px'
     });
 
-    $('.row, .rulers-wrapper-vertical').css({
+    $('.row').css({
         'margin-left': -(g/2),
         'margin-right': -(g/2)
     });
 
-    $('.ruler-horizontal').css({
-        'margin-bottom': gridConfig.baseline - 1 // border takes 1px
-    });
-    
     $('.column').css({
         'padding-left': g/2,
         'padding-right': g/2,
         'margin-bottom': g
-    });
-
-    $('.ruler-vertical-outer').css({
-        'padding-left': g/2,
-        'padding-right': g/2
     });
 
     $('.text').css({
@@ -243,6 +225,41 @@ function drawRhythmicGrid(gridConfig){
     //     .map(function(me) { return document.styleSheets[e] })
     //     .filter(function(fe) { return /grid\.css/.test(e.href); })[0];
     // gridRules = gridRules.cssRules || gridRules.rules;
+
+
+    ///////////////////////////////////
+    /////// GENERATE RULERS ///////////
+    ///////////////////////////////////
+    var rulersWrapperVertical = $('<div>').addClass('rulers-wrapper-vertical'),
+        rulersWrapperHorizontal = $('<div>').addClass('rulers-wrapper-horizontal'),
+        currentGridHeight = allConfigs.gridContainer.height();
+
+    for (var i = 0; i < Math.ceil(currentGridHeight / gridConfig.baseline)+1; i++) {
+        rulersWrapperHorizontal.append('<div class="ruler-horizontal"></div>');
+    }
+
+    for (var i = 0; i < gridConfig.columnsNum; i++) {
+        rulersWrapperVertical.append('<div class="ruler-vertical-outer"><div class="ruler-vertical"></div></div>');
+    }
+
+    container.append(rulersWrapperVertical);
+    container.append(rulersWrapperHorizontal);
+
+    $('.rulers-wrapper-vertical').css({
+        'margin-left': -(g/2),
+        'margin-right': -(g/2)
+    });
+
+    $('.ruler-vertical-outer').css({
+        'padding-left': g/2,
+        'padding-right': g/2
+    });
+
+    $('.ruler-horizontal').css({
+        'margin-bottom': gridConfig.baseline - 1 // border takes 1px
+    });
+    
+
 
     var timing = performance.now() - startTime;
     // console.log('... grid rendering finished (%.1dms).', timing);
