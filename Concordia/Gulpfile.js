@@ -76,6 +76,7 @@ gulp.task('js', function() {
             // jsSrc + '/vendor/font-detector-temp.js',
             
             // app code
+            jsSrc + '/google-analytics.js',
             jsSrc + '/tesseract-drawing.js',
             jsSrc + '/font-configurator.js',
             jsSrc + '/grid-configurator.js',
