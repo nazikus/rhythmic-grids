@@ -7,7 +7,7 @@ window.addEventListener('load', drawTesseract, false);
 
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
-var allConfigs;
+var allConfigs = null;
 
 // clear selections from previous sesssions
 // localStorage.clear()
@@ -70,11 +70,18 @@ var allConfigs;
       }
   });
 
-// initialize line height percent label
-var _lhfs_r = parseInt($('#input-lineheight').val(),10) / 
+/////////////////////////////////////////
+///////// SHARED GLOBAL VARS ////////////
+/////////////////////////////////////////
+// LineHeight/FontSize Ratio, value for line-height percent label
+var _LHFS_R = parseInt($('#input-lineheight').val(),10) / 
               parseInt($('#input-fontsize').val(),10);
 
-$('#lineheight-percent-label').text( Math.round(_lhfs_r*100) + '%')
+// LineHeight/BaseLine Factor, value for grid baseline
+var _LHBL_F = (function(){
+    var lh = parseInt($('#input-lineheight').val(),10);
+    return !(lh%3) ? 3 : !(lh%2) ? 2  : 1;
+})();
 
 // trigger for initial text metrics rendering
 $('#fontmetrics-input-wrapper').on('keyup', onMetricsTextChange).trigger('keyup');

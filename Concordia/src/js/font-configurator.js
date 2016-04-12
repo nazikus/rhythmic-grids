@@ -2,7 +2,7 @@ var _int = function(pStr) { return parseInt(pStr, 10); }
 
 function getAvailableSystemFonts() {
   detective = new FontDetector();  // (c) Lalit Patel [see /js/font-detector.js]
-  // alternativedetection via ComicSans (?) [see /js/font-detector-temp.js]
+  // alternative (wierd) detection via ComicSans (?) [see /js/font-detector-temp.js]
   // font.setup();
 
   var fontList = getFontList(),
@@ -24,7 +24,9 @@ function getAvailableSystemFonts() {
 
 // font selection event handler
 function onFontChange(e) {
-  var id = $(this).attr('id');  // font selection
+  var id = $(this).attr('id'),  // curr element id (typeface OR font size OR line height)
+      lhEl = $('#input-lineheight'),
+      fsEl = $('#input-fontsize');
   // console.log("onChange: %s %s", id, this.value );
 
   // remember selections between sessions
@@ -43,22 +45,62 @@ function onFontChange(e) {
     break;
 
   case 'input-fontsize':
-      $('#input-lineheight').val( Math.round(_lhfs_r*_int(this.value)) + 'px');
-      $('.example-text').css('font-size', parseInt(this.value)+'px');
-      $('.example-text').css('line-height', parseInt($('.input-lineheight > input').val())+'px');
+      lhEl.val( Math.round(_LHFS_R*_int(this.value)) + 'px');
+      $('.example-text').css('font-size', _int(this.value)+'px');
+      $('.example-text').css('line-height', _int(lhEl.val())+'px');
       $('.text').css('font-size', parseInt(this.value)+'px');
       break;
 
   case 'input-lineheight':
-      _lhfs_r = _int(this.value) / _int( $('#input-fontsize').val() ); // _LineHeight-FontSize ratio
+      _LHFS_R = _int(this.value) / _int( fsEl.val() ); // _LineHeight-FontSize ratio
       $('.example-text').css('line-height', _int(this.value)+'px');
       break;
   }
 
-  $('#lineheight-percent-label')
-    .text( Math.round(
-      _int($('#input-lineheight').val()) / _int($('#input-fontsize').val()) * 100
-    ) + '%');
+  var lh = _int($('#input-lineheight').val());
+
+  // if line height IS divisible by 2 or by 3
+  if (lh%2==0 || lh%3==0) {
+    _LHBL_F = lh%2 ? 3 : 2;
+
+    // ENABLE all radios and restore previous value, if switched from bad line height
+    // if (lhEl.css('background-color') {
+      lhEl.css('background-color', '');
+      if (allConfigs){
+        allConfigs.radioForms.each( function(_, el){
+          $('input', el).each(function(idx){
+            $(this).prop('disabled', false);
+            var prevSelection = localStorage.getItem($(el).attr('id'));
+            if (prevSelection)
+              $('input[value="'+prevSelection+'"]', el).prop('checked', true);
+          });
+        });
+        // select baseline corresponding to line height (div2/3)
+        $('#gridBaseline > input[value='+lh/_LHBL_F+']').prop('checked', true);
+        allConfigs.radioForms.eq(0).trigger('change');
+      } // <-- if (allConfigs)
+    // }  // <-- if .css('background-color')
+
+  } else {
+    _LHBL_F = lh/lh; //implicit 1
+    lhEl.css('background-color', 'lightpink');
+    
+    // DISABLE all radios and deselect all and clear grid
+    if (allConfigs){
+      allConfigs.gridContainer.empty();
+      allConfigs.radioForms.each( function(_, el){
+        $('input', el).each(function(){
+          $(this).prop('disabled', true).val([]);
+        });
+      });
+    }
+  }
+  console.log("line height: %d; baseline: %d", lh, lh/_LHBL_F);
+
+
+  $('#lineheight-percent-label').text( 
+    Math.round( _int(lhEl.val())/_int(fsEl.val() ) *100) + '%'
+  );
 
 };
 
