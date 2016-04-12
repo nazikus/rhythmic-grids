@@ -10,7 +10,7 @@ window.addEventListener('load', drawTesseract, false);
 var allConfigs = null;
 
 // clear selections from previous sesssions
-// localStorage.clear()
+localStorage.clear();
 
 // TOFIX for some reason, key event handling for font size input stops working with $(document).ready(...)
 // $(document).ready(function(){

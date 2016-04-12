@@ -10,6 +10,14 @@ function setupRadioItems(allConfigs){
         if (prevSelection)
             $('input[value="'+prevSelection+'"]', el).prop('checked', true);
 
+        // set default ratio selected in ratio section as well
+        if ($(el).attr('id') === 'gridRatio'){
+            var ratioStr = $('#gridRatio > input:checked').val();
+            console.log("ratioStr: %s", ratioStr);
+            $('.ratio-selector input[name=ratioSelector][id=ratio'+ratioStr+']')
+                .prop('checked', true);
+        }
+
         $(el).on('change', onGridChange);
     });
 
