@@ -23,6 +23,7 @@ function getAvailableSystemFonts() {
 /////////////////////////////////////////////////////////////////////////////
 
 // font selection event handler
+// TOFIX called too many times
 function onFontChange(e) {
   var id = $(this).attr('id'),  // curr element id (typeface OR font size OR line height)
       lhEl = $('#input-lineheight'),
@@ -96,7 +97,7 @@ function onFontChange(e) {
       });
     }
   }
-  console.log("line height: %d; baseline: %d", lh, lh/_LHBL_F);
+  // console.log("line height: %d; baseline: %d", lh, lh/_LHBL_F);
 
 
   $('#lineheight-percent-label').text( 

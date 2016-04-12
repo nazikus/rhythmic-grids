@@ -104,14 +104,15 @@ $('.ratio-selector .flex-row').on('change', function(){
 //////////////////////////////////////////////////////////
 
 allConfigs = (function(){
-    var rgg = RhythmicGridGenerator;
+    var startTime = performance.now();
 
-    // grid config range
-    var widthArr    = [960, 1280, 1440];
-    var ratioArr    = ['1x1', '3x2', '16x9'];
-    var baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-    var columnsArr  = [5, 6, 9, 12];
-    var gutter2baselineFactorArr = [0, 1, 2, 3];
+    // grid config
+    var rgg = RhythmicGridGenerator,
+        widthArr    = [960, 1280, 1440],
+        ratioArr    = ['1x1', '4x3', '3x2', '5x3', '16x9'],
+        baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        columnsArr  = [5, 6, 9, 12],
+        gutter2baselineFactorArr = [0, 1, 2, 3];
 
     // you can specify a predicate validator which difines a valid grid and filters
     // invalid ones during generation. The default validator:
@@ -131,6 +132,8 @@ allConfigs = (function(){
     columnsArr  = allValidGrids.map(function(g){ return g.columnsNum }).unique().sort(srt);
     gutter2baselineFactorArr  = allValidGrids.map(function(g){ return g.gutterBaselineFactor }).unique().sort(srt);
 
+    var timing = performance.now() - startTime;
+    console.log('... pre-computed %d grids (%ss).', allValidGrids.length, (timing/1000).toFixed(2));
     return {
         widthArr     : widthArr,
         ratioArr     : ratioArr,
