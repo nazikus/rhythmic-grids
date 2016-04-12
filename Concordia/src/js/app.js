@@ -163,12 +163,12 @@ $('#grid-toggle').on('click', function(e){
     if (gridToggleBtn.data('grid-toggle') === 'on') {
         $('.rulers-wrapper-vertical').addClass('hidden');
         $('.rulers-wrapper-horizontal').addClass('hidden');
-        gridToggleBtn.text('Show grid');
+        gridToggleBtn.text('Show rulers');
         gridToggleBtn.data('grid-toggle', 'off');
     } else {
         $('.rulers-wrapper-vertical').removeClass('hidden');
         $('.rulers-wrapper-horizontal').removeClass('hidden');
-        gridToggleBtn.text('Hide grid');
+        gridToggleBtn.text('Hide rulers');
         gridToggleBtn.data('grid-toggle', 'on');
     }
 
