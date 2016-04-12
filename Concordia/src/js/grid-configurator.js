@@ -60,21 +60,19 @@ function createRadioInputs(inputName, valueRange){
 
 // process ALL radio selections on every single change in grid config
 function onGridChange(e){
+    var getAllSelections = function(){
+        return $('input:checked', allConfigs.radioForms)
+                .map(function() {
+                    var val = $(this).val(); 
+                    return isNaN(val) ? val : ~~val;
+                 }).toArray();
+    }
+
     var el = $(e.target).parent();  // .form-group element
-    var allGridSelections =
-    $('input:checked', allConfigs.radioForms) 
-        .map(function() {var val = $(this).val(); return isNaN(val) ? val : ~~val; })
-        .toArray();
-    
+    var allGridSelections = getAllSelections();
+
     refreshRadioInputs(allConfigs.radioForms, allGridSelections); // NB! this might modify the selection
-
-    var gridConfig = RhythmicGridGenerator.selectGrid(
-                allConfigs.allValidGrids, allGridSelections );
-
-    if (gridConfig)
-        drawRhythmicGrid(gridConfig);
-    else
-        allConfigs.gridContainer.empty();
+    allGridSelections = getAllSelections(); // update if selection modified
 
     var selected = $('input:checked', el);
 
@@ -88,12 +86,22 @@ function onGridChange(e){
     // if baseline form: change line height in font selector, and in text samples
     if (el.attr('id') === 'gridBaseline'){
         $('#input-lineheight').val(selected.val()*_LHBL_F).trigger('change');
+        return ; // to avoid grid double-generation, onLineheightChange generates it anyway
     }
 
     // save current selection for the future sessions
     localStorage.setItem(el.attr('id'), selected.val());
 
     // console.log("Grid conifg: [%s]", allGridSelections.join(', '));
+
+    // re-draw the grid
+    var gridConfig = RhythmicGridGenerator.selectGrid(
+                allConfigs.allValidGrids, allGridSelections );
+
+    if (gridConfig)
+        drawRhythmicGrid(gridConfig);
+    else
+        allConfigs.gridContainer.empty();
 }   
 
 ////////////////////////////////////////////////////////////////////////////////

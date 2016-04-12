@@ -68,13 +68,14 @@ function onFontChange(e) {
       lhEl.css('background-color', '');
       if (allConfigs){
         allConfigs.radioForms.each( function(_, el){
-          $('input', el).each(function(idx){
+          $('input', el).each(function(){
             $(this).prop('disabled', false);
-            var prevSelection = localStorage.getItem($(el).attr('id'));
-            if (prevSelection)
-              $('input[value="'+prevSelection+'"]', el).prop('checked', true);
+            var prevSelection = localStorage.getItem($(el).attr('id')),
+                selector = prevSelection ? 'input[value="'+prevSelection+'"]' : 'input:first';
+            $(selector, el).prop('checked', true);
           });
         });
+
         // select baseline corresponding to line height (div2/3)
         $('#gridBaseline > input[value='+lh/_LHBL_F+']').prop('checked', true);
         allConfigs.radioForms.eq(0).trigger('change');
@@ -89,9 +90,9 @@ function onFontChange(e) {
     if (allConfigs){
       allConfigs.gridContainer.empty();
       allConfigs.radioForms.each( function(_, el){
-        $('input', el).each(function(){
-          $(this).prop('disabled', true).val([]);
-        });
+        if ($('input:checked', $(el)).val())
+          localStorage.setItem($(el).attr('id'), $('input:checked', $(el)).val());
+        $('input', el).each(function(){  $(this).prop('disabled', true).val([]); });
       });
     }
   }
