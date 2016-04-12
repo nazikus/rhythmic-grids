@@ -327,12 +327,12 @@
 					<div class="flex-child">
 						<div class="downloads">
 							<a href="/img/mocks/1.jpg" 
-							   onclick="_gaq.push(['_trackEvent', 'exports', 'download', 'web', 5, true]);" 
+							   onclick="ga('send', 'event', 'Exports', 'Web', gaConfig.eventDetails);" 
 							   download>
 								Web
 							</a>
 							<a href="/img/mocks/2.jpg" 
-							   onclick="_gaq.push(['_trackEvent', 'exports', 'download', 'sketch', 5, true]);"
+							   onclick="ga('send', 'event', 'Exports', 'Sketch', gaConfig.eventDetails);"
 							   download>
 								Sketch
 							</a>

@@ -6,4 +6,23 @@
 
 		ga('create', 'UA-76281500-1', 'auto');
 		ga('send', 'pageview');
+
 // END GOOGLE ANALYTICS GENERATED CODE
+
+var gaConfig = {
+	eventDetails: null,
+	setValues: function (config) {
+		var arr = [];
+		var configObj = {
+			width: 'w' + config.rhythmicGrid.W,
+			ratio: 'r' + config.ratio.str,
+			baseline: 'b' + config.baseline,
+			gutter: 'g' + config.gutter.W
+		}
+		for (key in configObj) {
+			arr.push(configObj[key]);
+		}
+		this.eventDetails = arr.join();
+	}
+}
+
