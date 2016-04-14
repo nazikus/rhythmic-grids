@@ -20,9 +20,6 @@ h2 {
 label {
 	cursor: pointer;
 }
-#lineheight-percent-label {
-    color: #AFAFAF;
-}
 
 // Header
 .logo {
@@ -124,8 +121,16 @@ section {
 .font-select-wrapper,
 .input-fontsize,
 .input-lineheight {
-	display: inline-block;
+	display: inline;
+	margin-left: 10px;
 }
+
+#lineheight-percent-label{
+	color: darken(@color-gray-light, 15%);
+	vertical-align: -1px;
+	cursor: unser;
+}
+
 .font-select-wrapper {
 	width: 48%;
 	label {
