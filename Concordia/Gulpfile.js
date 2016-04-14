@@ -65,24 +65,13 @@ gulp.task('images', function() {
 // js task
 gulp.task('js', function() {
     var appStream = gulp.src([
-            // tesseract
-            jsSrc + '/vendor/tesseract.js',
-            
-            // font metrics & detect
-            jsSrc + '/vendor/canvas-fontmetrics.js', // redifines Canvas2D.prototype.measureText()
-            jsSrc + '/vendor/lorem.js',
-            jsSrc + '/vendor/font-detector.js',
-            // wierd implementation of font detector using ComicSans, but keep it for comparison
-            // jsSrc + '/vendor/font-detector-temp.js',
-            
-            // app code
-            jsSrc + '/google-analytics.js',
             jsSrc + '/tesseract-drawing.js',
+            jsSrc + '/credits-toggle.js',
             jsSrc + '/font-configurator.js',
             jsSrc + '/grid-configurator.js',
             jsSrc + '/metrics-drawing.js',
             jsSrc + '/metrics-panning.js',
-            jsSrc + '/credits-toggle.js',
+            jsSrc + '/google-analytics.js',
             jsSrc + '/app.js'
         ])
         .pipe(concat('app.js'))
@@ -90,6 +79,14 @@ gulp.task('js', function() {
 
     var scriptsStream = 
         gulp.src([
+            // font metrics & detect
+            jsSrc + '/vendor/canvas-fontmetrics.js', // redifines Canvas2D.prototype.measureText()
+            jsSrc + '/vendor/lorem.js',
+            jsSrc + '/vendor/font-detector.js',
+            // wierd implementation of font detector using ComicSans, but keep it for comparison
+            jsSrc + '/vendor/font-detector-temp.js',
+            
+            // app code
             jsSrc + '/vendor/pre3d.js',
             jsSrc + '/vendor/shapeutils.js',
             './node_modules/jquery/dist/jquery.min.js',
@@ -116,6 +113,11 @@ gulp.task('injecthtml', function () {
                 jsDist + '/jquery.dotdotdot.js',
                 jsDist + '/pre3d.js',
                 jsDist + '/shapeutils.js',
+                jsDist + '/canvas-fontmetrics.js',
+                jsDist + '/font-detector.js',
+                jsDist + '/font-detector-temp.js',
+                jsDist + '/lorem.js',
+                jsDist + '/RhythmicGridGenerator.js',
             ] , {read: false}),
             { 
                 transform: generateScriptTag, 
@@ -124,7 +126,6 @@ gulp.task('injecthtml', function () {
         ))
         .pipe(inject(
             gulp.src([
-                jsDist + '/RhythmicGridGenerator.js',
                 jsDist + '/app.js', 
             ], {read: false}),
             { transform: generateScriptTag }
