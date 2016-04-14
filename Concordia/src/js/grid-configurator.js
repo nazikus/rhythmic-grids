@@ -13,7 +13,6 @@ function setupRadioItems(allConfigs){
         // set default ratio selected in ratio section as well
         if ($(el).attr('id') === 'gridRatio'){
             var ratioStr = $('#gridRatio > input:checked').val();
-            console.log("ratioStr: %s", ratioStr);
             $('.ratio-selector input[name=ratioSelector][id=ratio'+ratioStr+']')
                 .prop('checked', true);
         }
@@ -66,7 +65,6 @@ function createRadioInputs(inputName, valueRange){
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// process ALL radio selections on every single change in grid config
 function onGridChange(e){
     var getAllSelections = function(){
         return $('input:checked', allConfigs.radioForms)
@@ -79,6 +77,9 @@ function onGridChange(e){
     var el = $(e.target).parent();  // .form-group element
     var allGridSelections = getAllSelections();
 
+    console.log("id: %s; grid config: %s  [%s^]", el.attr('id'), allGridSelections.join(', '), arguments.callee.name);
+
+    // process ALL radio selections on every single change in grid config
     refreshRadioInputs(allConfigs.radioForms, allGridSelections); // NB! this might modify the selection
     allGridSelections = getAllSelections(); // update if selection modified
 
@@ -93,14 +94,19 @@ function onGridChange(e){
 
     // if baseline form: change line height in font selector, and in text samples
     if (el.attr('id') === 'gridBaseline'){
-        $('#input-lineheight').val(selected.val()*_LHBL_F).trigger('change');
-        return ; // to avoid grid double-generation, onLineheightChange generates it anyway
+        var newLH = selected.val()*_LHBL_F;
+        $('#input-lineheight').val( newLH );
+        $('.example-text').css('line-height', newLH+'px');
+
+        // update percent label
+        _LHFS_R = newLH / parseInt( $('#input-fontsize').val() );
+        $('#lineheight-percent-label').text( 
+            Math.round( newLH / parseInt($('#input-fontsize').val()) * 100)+'%'
+        );
     }
 
     // save current selection for the future sessions
     localStorage.setItem(el.attr('id'), selected.val());
-
-    // console.log("Grid conifg: [%s]", allGridSelections.join(', '));
 
     // re-draw the grid
     var gridConfig = RhythmicGridGenerator.selectGrid(
@@ -156,6 +162,16 @@ function refreshRadioInputs(radioForms, selectedInputs){
 function drawRhythmicGrid(gridConfig){
     var startTime = performance.now();
     // console.log('Rhythmic config: '); console.log(gridConfig);
+    console.log('blocks: %s  [%s>%s^]', 
+        gridConfig
+            .rhythmicGrid
+            .blocks
+            .map(function(v){ return v[0]+"x"+v[1] })
+            .join(', '),
+        arguments.callee.caller.name,
+        arguments.callee.name
+    );
+
     
     ///////////////////////////////////////
     /////// GENERATE BLOCK DIVS ///////////
@@ -207,7 +223,6 @@ function drawRhythmicGrid(gridConfig){
     ////////////  SET BLOCKS STYLE  ////////////
     ////////////////////////////////////////////
     var g = gridConfig.gutter.W;
-    console.log('Blocks: ' + gridConfig.rhythmicGrid.blocks.map(function(v){ return v[0]+"x"+v[1] }));
 
     $('.grid-outer-wrapper').css({
         'max-width': gridConfig.maxCanvasWidth+'px'

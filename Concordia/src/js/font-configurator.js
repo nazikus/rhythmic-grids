@@ -15,7 +15,8 @@ function getAvailableSystemFonts() {
     }
   });
 
-  console.log('Available system fonts %s/%s', availableFonts.length, fontList.length);
+  console.log('Available system fonts %s/%s  [%s>%s^]', 
+    availableFonts.length, fontList.length, "main", arguments.callee.name);
   return availableFonts;
 };
 
@@ -81,6 +82,8 @@ function onFontChange(e) {
         $('#gridBaseline > input[value='+lh/_LHBL_F+']').prop('checked', true);
         allConfigs.radioForms.eq(0).trigger('change');
       } // <-- if (allConfigs)
+      resetBaselineSelections();
+
     // }  // <-- if .css('background-color')
 
   } else {
@@ -97,7 +100,7 @@ function onFontChange(e) {
       });
     }
   }
-  // console.log("line height: %d; baseline: %d", lh, lh/_LHBL_F);
+  console.log("line height: %d; baseline: %d  [%s$]", lh, lh/_LHBL_F, arguments.callee.name);
 
 
   $('#lineheight-percent-label').text( 
@@ -108,6 +111,49 @@ function onFontChange(e) {
 
 /////////////////////////////////////////////////////////////////////////////
 
+// set baseline selection valid only for meaningful lineheight values
+// callen by onLineHeightChange
+function resetBaselineSelections(){
+    var blEl = $('#gridBaseline'), // baseline form
+        fsVal = _int($('#input-fontsize').val()), // font size
+        lhVal = _int($('#input-lineheight').val()),
+        lhMin = Math.round(fsVal * allConfigs.lineHeightLimit.min), // line height
+        lhMax = Math.round(fsVal * allConfigs.lineHeightLimit.max), // line height
+        blRange = [], // baseline
+        labelStr = 'gridBaseline'; 
+
+    for (var lh = lhMin; lh<=lhMax; lh++){
+        if (lh % _LHBL_F == 0){
+            blRange.push(lh/_LHBL_F);
+        }
+    }
+    console.log('factor: %s, baselines: %s  [%s>%s^] ', _LHBL_F, blRange.join(', '), arguments.callee.caller.name, arguments.callee.name);
+
+    blEl.empty();
+    blRange.forEach(function(value,i){
+        var input = $('<input>').prop({
+                type: "radio",
+                id: labelStr+String(value),
+                name: labelStr,
+                value: value
+            });
+        
+        // select recommended baseline (divisible by factor 2 or 3)
+        if (value*_LHBL_F == lhVal) 
+          input.prop('checked', true); 
+
+        var label = $('<label>').prop('for', labelStr+value).text(value);
+
+        blEl.append(input).append(label);
+    });
+
+    return ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
 function onKeyDown(e) {
     var input = $(e.target),
         val = _int(input.val()),
@@ -115,11 +161,12 @@ function onKeyDown(e) {
         limit = null;
 
     if (input.attr('id') === 'input-fontsize')
-        limit = {min: 14, max: 21};
+        limit = allConfigs.fontSizeLimit;
 
     if (input.attr('id') === 'input-lineheight'){
         var fsVal = _int($('#input-fontsize').val());
-        limit = {min: Math.round(fsVal*1.0), max: Math.round(fsVal*2.0)};
+        limit = { min: Math.round(fsVal*allConfigs.lineHeightLimit.min),
+                  max: Math.round(fsVal*allConfigs.lineHeightLimit.max) };
     }
 
     // [uparrow,downarrow,enter] keys

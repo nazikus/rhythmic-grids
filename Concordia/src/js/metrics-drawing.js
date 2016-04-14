@@ -250,6 +250,6 @@ function drawMetrics() {
   ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
 
   var timing = performance.now() - startTime;
-  console.log('... metrics rendering finished (%.1dms).', timing);
+  console.log('... metrics rendering finished (%.1dms).  [%s>%s]', timing, arguments.callee.caller.name, arguments.callee.name);
 };
 

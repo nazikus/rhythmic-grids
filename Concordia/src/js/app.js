@@ -6,14 +6,77 @@ window.addEventListener('load', drawTesseract, false);
 
 
 //////////////////////////////////////////////////////////
+////////////////  GENERAL CONFIGS ////////////////////////
 //////////////////////////////////////////////////////////
-var allConfigs = null;
 
 // clear selections from previous sesssions
 localStorage.clear();
 
 // TOFIX for some reason, key event handling for font size input stops working with $(document).ready(...)
 // $(document).ready(function(){
+
+var allConfigs = Object.freeze((function(){
+    var startTime = performance.now();
+
+    // grid config
+    var rgg = RhythmicGridGenerator,
+        widthArr    = [960, 1280, 1440],
+        ratioArr    = ['1x1', '4x3', '3x2', '5x3', '16x9'],
+        baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+        columnsArr  = [5, 6, 9, 12],
+        gutter2baselineFactorArr = [0, 1, 2, 3];
+
+
+    // you can specify a predicate validator which difines a valid grid and filters
+    // invalid ones during generation. The default validator:
+    // console.log('Current grid validator:\n' + 
+    //               rgg.isValidGrid.toString().replace(/$\s*\/\/.*/gm, '') + '\n');
+
+    // generate all possible grids from given configuration range
+    var allValidGrids = rgg.generateAllRhytmicGrids(
+        widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr);
+
+    // comparator for sort function
+    var srt = function(a,b){ return parseInt(a) > parseInt(b) ? 1 : -1; };
+
+    // re-evaluate config range to remove invalid configs
+    // (e.g. no grid exists with 5 columns for current range)
+    baselineArr = allValidGrids.map(function(g){ return g.baseline }).unique().sort(srt);
+    columnsArr  = allValidGrids.map(function(g){ return g.columnsNum }).unique().sort(srt);
+    gutter2baselineFactorArr  = allValidGrids.map(function(g){ return g.gutterBaselineFactor }).unique().sort(srt);
+
+    var timing = performance.now() - startTime;
+    console.log('... pre-computed %d grids (%ss).  [%s]', allValidGrids.length, (timing/1000).toFixed(2), 'main:app.js');
+    return {
+        widthArr     : widthArr,
+        ratioArr     : ratioArr,
+        baselineArr  : baselineArr,
+        columnsArr   : columnsArr,
+        gutter2baselineFactorArr: gutter2baselineFactorArr,
+        allValidGrids: allValidGrids,
+        
+        fontSizeLimit  : {min: 14, max: 21},   // px
+        lineHeightLimit: {min: 1.0, max: 1.5}, // percent of font size
+        
+        rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
+        inputNames   : ['gridUpTo', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
+
+        gridContainer: $('.grid-container'),   
+        radioForms   : $('.grid-section > .container > .flex-row >'+
+                         ' .flex-child:lt(5) > .form-group'), // all config radio elements
+
+        imageMocks   : 9, // from 1.jpg to 9.jpg
+        textMocks    : Array.apply(null, {length: 5}) // array of 5 lorem texts of different length
+                            .map(function(_,i) {
+                                return Lorem.prototype.createText(
+                                    // 10*(i+1),
+                                    17*Math.exp(i*1.3), 
+                                    // Math.pow(20, (i+1)*0.9), 
+                                    Lorem.TYPE.WORD)
+                            })
+    }
+})());
+
 
 //////////////////////////////////////////////////////////
 ///////////////// FONT CONFIGURATION /////////////////////
@@ -70,9 +133,9 @@ localStorage.clear();
       }
   });
 
-/////////////////////////////////////////
-///////// SHARED GLOBAL VARS ////////////
-/////////////////////////////////////////
+////////////////////////////////////////////////////////////
+////////////////// SHARED GLOBAL VARS //////////////////////
+////////////////////////////////////////////////////////////
 // LineHeight/FontSize Ratio, value for line-height percent label
 var _LHFS_R = parseInt($('#input-lineheight').val(),10) / 
               parseInt($('#input-fontsize').val(),10);
@@ -102,65 +165,6 @@ $('.ratio-selector .flex-row').on('change', function(){
 //////////////////////////////////////////////////////////
 ///////////////// GRID CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
-
-allConfigs = (function(){
-    var startTime = performance.now();
-
-    // grid config
-    var rgg = RhythmicGridGenerator,
-        widthArr    = [960, 1280, 1440],
-        ratioArr    = ['1x1', '4x3', '3x2', '5x3', '16x9'],
-        baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-        columnsArr  = [5, 6, 9, 12],
-        gutter2baselineFactorArr = [0, 1, 2, 3];
-
-    // you can specify a predicate validator which difines a valid grid and filters
-    // invalid ones during generation. The default validator:
-    // console.log('Current grid validator:\n' + 
-    //               rgg.isValidGrid.toString().replace(/$\s*\/\/.*/gm, '') + '\n');
-
-    // generate all possible grids from given configuration range
-    var allValidGrids = rgg.generateAllRhytmicGrids(
-        widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr);
-
-    // comparator for sort function
-    var srt = function(a,b){ return parseInt(a) > parseInt(b) ? 1 : -1; };
-
-    // re-evaluate config range to remove invalid configs
-    // (e.g. no grid exists with 5 columns for current range)
-    baselineArr = allValidGrids.map(function(g){ return g.baseline }).unique().sort(srt);
-    columnsArr  = allValidGrids.map(function(g){ return g.columnsNum }).unique().sort(srt);
-    gutter2baselineFactorArr  = allValidGrids.map(function(g){ return g.gutterBaselineFactor }).unique().sort(srt);
-
-    var timing = performance.now() - startTime;
-    console.log('... pre-computed %d grids (%ss).', allValidGrids.length, (timing/1000).toFixed(2));
-    return {
-        widthArr     : widthArr,
-        ratioArr     : ratioArr,
-        baselineArr  : baselineArr,
-        columnsArr   : columnsArr,
-        gutter2baselineFactorArr: gutter2baselineFactorArr,
-        allValidGrids: allValidGrids,
-        
-        rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
-        inputNames   : ['gridUpTo', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
-        
-
-        gridContainer: $('.grid-container'),   
-        radioForms   : $('.grid-section > .container > .flex-row >'+
-                         ' .flex-child:lt(5) > .form-group'), // all config radio elements
-
-        imageMocks   : 9, // from 1.jpg to 9.jpg
-        textMocks    : Array.apply(null, {length: 5}) // array of 5 lorem texts of different length
-                            .map(function(_,i) {
-                                return Lorem.prototype.createText(
-                                    // 10*(i+1),
-                                    17*Math.exp(i*1.3), 
-                                    // Math.pow(20, (i+1)*0.9), 
-                                    Lorem.TYPE.WORD)
-                            })
-    }
-})();
 
 // create radio items based on the grid config above
 setupRadioItems(allConfigs);
