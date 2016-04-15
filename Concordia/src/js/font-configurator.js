@@ -36,7 +36,7 @@ function onFontChange(e) {
 
   // update text sample according to the selected item
   switch(id){
-  case 'fontSelect':
+  case 'select-font':
     $('.example-text').css('font-family', this.value+",monospace"); //fallback: Helvetica,Arial,monospace
     $('.text').css('font-family', this.value+",monospace");
     metricsContext.curr_typeface = this.value; // global var for metrics drawing

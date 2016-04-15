@@ -22,9 +22,9 @@ var allConfigs = Object.freeze((function(){
     var rgg = RhythmicGridGenerator,
         widthArr    = [960, 1280, 1440],
         ratioArr    = ['1x1', '4x3', '3x2', '5x3', '16x9'],
-        baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+        baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
         columnsArr  = [5, 6, 9, 12],
-        gutter2baselineFactorArr = [0, 1, 2, 3];
+        gutter2baselineFactorArr = [0, 1, 2, 3, 4];
 
 
     // you can specify a predicate validator which difines a valid grid and filters
@@ -70,7 +70,7 @@ var allConfigs = Object.freeze((function(){
                             .map(function(_,i) {
                                 return Lorem.prototype.createText(
                                     // 10*(i+1),
-                                    17*Math.exp(i*1.3), 
+                                    27*Math.exp(i*1.3), 
                                     // Math.pow(20, (i+1)*0.9), 
                                     Lorem.TYPE.WORD)
                             })
@@ -81,7 +81,7 @@ var allConfigs = Object.freeze((function(){
 //////////////////////////////////////////////////////////
 ///////////////// FONT CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
-['#fontSelect', '#input-fontsize', '#input-lineheight']
+['#select-font', '#input-fontsize', '#input-lineheight']
 .forEach(function(selector, idx){
       switch(idx){
         // font dropdown

@@ -185,8 +185,9 @@ function drawRhythmicGrid(gridConfig){
 
         //val[2] - number of blocks in current row
         // see @class Grid (RhythmicGridGenerator.js)
-        var blocksInRow = val[2],
-            blockWidth = val[0];
+        var blockWidth  = val[0],
+            blockHeight = val[1],
+            blocksInRow = val[2];
 
         if (blocksInRow > 9) // no need to show very small micro-blocks
             return;
@@ -207,8 +208,9 @@ function drawRhythmicGrid(gridConfig){
                 inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg)');
                 // console.log(inner.attr('style'));
             } else {
-                var txtmck = allConfigs.textMocks[idx];
-                inner.append( $('<div>').addClass('text').text(txtmck) );
+                var txtmck = 'Hdxp ' + allConfigs.textMocks[idx] + '.';
+                inner.append( $('<div>').addClass('text').text(txtmck)
+                    .width(blockWidth).height(blockHeight) );
             }
 
             var column = $('<div>').addClass('column').append(inner);
@@ -243,35 +245,23 @@ function drawRhythmicGrid(gridConfig){
         'margin-bottom': g
     });
 
-    $('.text').css({
-        // 'text-decoration': 'underline',
-        'font-family': $('#fontSelect').val()+",monospace",
-        'font-size': parseInt($('.input-fontsize > input').val(), 10)+'px'
-    });
-
     // TOFIX a problem with relative flex values and floats, eg 66.666667%
     $('.column .inner').css('padding-bottom', 100/gridConfig.ratio.R+'%')
 
-
+    // text formatting AND aligning with horizontal ruler
+    var lh = parseInt($('#input-lineheight').val()),
+        fs = parseInt($('#input-fontsize').val());
     $('.column .inner .text').css({
-        'line-height': 1+(gridConfig.baseline-3)/10+'em',
-        // 'display': 'inline-block',
+        'font-family': $('#select-font').val()+",monospace",
+        'font-size': parseInt($('#input-fontsize').val())+'px',
+        'line-height': parseInt($('#input-lineheight').val())+'px',
+        'padding': + Math.ceil((lh-fs)/2+3)+'px 0',
+        'overflow': 'hidden',
+        // 'text-decoration': 'underline',
+        // 'vertical-align': 'text-top',
         // 'white-space': 'nowrap',
-        // 'overflow': 'hidden',
-        'text-overflow': 'ellipsis'
-    });
-
-
-    // truncate overflow text
-    // TOFIX not working with grid divs
-    // $(".column .inner .text").dotdotdot();
-
-
-    // var gridRules = Object
-    //     .keys(document.styleSheets)
-    //     .map(function(me) { return document.styleSheets[e] })
-    //     .filter(function(fe) { return /grid\.css/.test(e.href); })[0];
-    // gridRules = gridRules.cssRules || gridRules.rules;
+        // 'text-overflow': 'ellipsis' // not working
+    }).dotdotdot({ellipsis: '...', tolerance : 15});
 
 
     /////////////////////////////////////////
