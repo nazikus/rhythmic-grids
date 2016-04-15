@@ -77,7 +77,7 @@ function onGridChange(e){
     var el = $(e.target).parent();  // .form-group element
     var allGridSelections = getAllSelections();
 
-    console.log("id: %s; grid config: %s  [%s^]", el.attr('id'), allGridSelections.join(', '), arguments.callee.name);
+    // console.log("id: %s; grid config: %s  [%s^]", el.attr('id'), allGridSelections.join(', '), arguments.callee.name);
 
     // process ALL radio selections on every single change in grid config
     refreshRadioInputs(allConfigs.radioForms, allGridSelections); // NB! this might modify the selection
