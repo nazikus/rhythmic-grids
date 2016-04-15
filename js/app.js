@@ -1,387 +1,3 @@
-/**
-  This library rewrites the Canvas2D "measureText" function
-  so that it returns a more complete metrics object.
-
-  Author: Mike "Pomax" Kamermans
-**/
-(function(){
-  var NAME = "FontMetrics Library"
-  var VERSION = "1-2011.0927.1431";
-  var debug = false;
-
-  // if there is no getComputedStyle, this library won't work.
-  if(!document.defaultView.getComputedStyle) {
-    throw("ERROR: 'document.defaultView.getComputedStyle' not found. This library only works in browsers that can report computed CSS values.");
-  }
-
-  // store the old text metrics function on the Canvas2D prototype
-  CanvasRenderingContext2D.prototype.measureTextWidth = CanvasRenderingContext2D.prototype.measureText;
-
-  /**
-   *  shortcut function for getting computed CSS values
-   */
-  var getCSSValue = function(element, property) {
-    return document.defaultView.getComputedStyle(element,null).getPropertyValue(property);
-  };
-
-  // debug function
-  var show = function(canvas, ctx, xstart, w, h, metrics)
-  {
-    document.body.appendChild(canvas);
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-
-    ctx.beginPath();
-    ctx.moveTo(xstart,0);
-    ctx.lineTo(xstart,h);
-    ctx.closePath();
-    ctx.stroke(); 
-
-    ctx.beginPath();
-    ctx.moveTo(xstart+metrics.bounds.maxx,0);
-    ctx.lineTo(xstart+metrics.bounds.maxx,h);
-    ctx.closePath();
-    ctx.stroke(); 
-
-    ctx.beginPath();
-    ctx.moveTo(0,h/2-metrics.ascent);
-    ctx.lineTo(w,h/2-metrics.ascent);
-    ctx.closePath();
-    ctx.stroke(); 
-
-    ctx.beginPath();
-    ctx.moveTo(0,h/2+metrics.descent);
-    ctx.lineTo(w,h/2+metrics.descent);
-    ctx.closePath();
-    ctx.stroke();
-  }
-
-  /**
-   * The new text metrics function
-   */
-  CanvasRenderingContext2D.prototype.measureText = function(textstring) {
-    var metrics = this.measureTextWidth(textstring);
-        fontFamily = getCSSValue(this.canvas,"font-family"),
-        fontSize = getCSSValue(this.canvas,"font-size").replace("px","");
-        metrics.fontsize = fontSize;
-    var canvas = document.createElement("canvas");
-    var padding = 100;
-    canvas.width = metrics.width + padding;
-    canvas.height = 3*fontSize;
-    canvas.style.opacity = 1;
-    canvas.style.fontFamily = fontFamily;
-    canvas.style.fontSize = fontSize;
-    var ctx = canvas.getContext("2d");
-    ctx.font = fontSize + "px " + fontFamily;
-
-    // for text lead values, we meaure a multiline text container.
-    var leadDiv = document.createElement("div");
-    leadDiv.style.position = "absolute";
-    leadDiv.style.opacity = 0;
-    leadDiv.style.font = fontSize + "px " + fontFamily;
-    leadDiv.innerHTML = textstring + "<br/>" + textstring;
-    document.body.appendChild(leadDiv);
-
-    var w = canvas.width,
-        h = canvas.height,
-        baseline = h/2;
-
-    // Set all canvas pixeldata values to 255, with all the content
-    // data being 0. This lets us scan for data[i] != 255.
-    ctx.fillStyle = "white";
-    ctx.fillRect(-1, -1, w+2, h+2);
-    ctx.fillStyle = "black";
-    ctx.fillText(textstring, padding/2, baseline);
-    var pixelData = ctx.getImageData(0, 0, w, h).data;
-
-    // canvas pixel data is w*4 by h*4, because R, G, B and A are separate,
-    // consecutive values in the array, rather than stored as 32 bit ints.
-    var i = 0,
-        w4 = w * 4,
-        len = pixelData.length;
-
-    // Finding the ascent uses a normal, forward scanline
-    while (++i < len && pixelData[i] === 255) {}
-    var ascent = (i/w4)|0;
-
-    // Finding the descent uses a reverse scanline
-    i = len - 1;
-    while (--i > 0 && pixelData[i] === 255) {}
-    var descent = (i/w4)|0;
-
-    // find the min-x coordinate
-    for(i = 0; i<len && pixelData[i] === 255; ) {
-      i += w4;
-      if(i>=len) { i = (i-len) + 4; }}
-    var minx = ((i%w4)/4) | 0;
-
-    // find the max-x coordinate
-    var step = 1;
-    for(i = len-3; i>=0 && pixelData[i] === 255; ) {
-      i -= w4;
-      if(i<0) { i = (len - 3) - (step++)*4; }}
-    var maxx = ((i%w4)/4) + 1 | 0;
-
-    // set font metrics
-    metrics.ascent = (baseline - ascent);
-    metrics.descent = (descent - baseline);
-    metrics.bounds = { minx: minx - (padding/2),
-                       maxx: maxx - (padding/2),
-                       miny: 0,
-                       maxy: descent-ascent };
-    metrics.height = 1+(descent - ascent);
-                       
-    // make some initial guess at the text leading (using the standard TeX ratio)
-    metrics.leading = 1.2 * fontSize;
-
-    // then we try to get the real value from the browser
-    var leadDivHeight = getCSSValue(leadDiv,"height");
-    leadDivHeight = leadDivHeight.replace("px","");
-    if (leadDivHeight >= fontSize * 2) { metrics.leading = (leadDivHeight/2) | 0; }
-    document.body.removeChild(leadDiv); 
-
-    // show the canvas and bounds if required
-    if(debug){show(canvas, ctx, 50, w, h, metrics);}
-
-    return metrics;
-  };
-}());
-var Lorem;
-(function() {
-
-    //Create a class named Lorem and constructor
-    Lorem = function() {
-        //Default values.
-        this.type = null;
-        this.query = null;
-        this.data = null;
-    };
-    //Static variables
-    Lorem.IMAGE = 1;
-    Lorem.TEXT = 2;
-    Lorem.TYPE = {
-        PARAGRAPH: 1,
-        SENTENCE: 2,
-        WORD: 3
-    };
-    //Words to create lorem ipsum text.
-    Lorem.WORDS = [
-        "lorem", "ipsum", "dolor", "sit", "amet,", "consectetur", "adipiscing", "elit", "ut", "aliquam,", "purus", "sit", "amet", "luctus", "venenatis,", "lectus", "magna", "fringilla", "urna,", "porttitor", "rhoncus", "dolor", "purus", "non", "enim", "praesent", "elementum", "facilisis", "leo,", "vel", "fringilla", "est", "ullamcorper", "eget", "nulla", "facilisi", "etiam", "dignissim", "diam", "quis", "enim", "lobortis", "scelerisque", "fermentum", "dui", "faucibus", "in", "ornare", "quam", "viverra", "orci", "sagittis", "eu", "volutpat", "odio", "facilisis", "mauris", "sit", "amet", "massa", "vitae", "tortor", "condimentum", "lacinia", "quis", "vel", "eros", "donec", "ac", "odio", "tempor", "orci", "dapibus", "ultrices", "in", "iaculis", "nunc", "sed", "augue", "lacus,", "viverra", "vitae", "congue", "eu,", "consequat", "ac", "felis", "donec", "et", "odio", "pellentesque", "diam", "volutpat", "commodo", "sed", "egestas", "egestas", "fringilla", "phasellus", "faucibus", "scelerisque", "eleifend", "donec", "pretium", "vulputate", "sapien", "nec", "sagittis", "aliquam", "malesuada", "bibendum", "arcu", "vitae", "elementum",
-        "curabitur", "vitae", "nunc", "sed", "velit", "dignissim", "sodales", "ut", "eu", "sem", "integer", "vitae", "justo", "eget", "magna", "fermentum", "iaculis", "eu", "non", "diam", "phasellus", "vestibulum", "lorem", "sed", "risus", "ultricies", "tristique", "nulla", "aliquet", "enim", "tortor,", "at", "auctor", "urna", "nunc", "id", "cursus", "metus", "aliquam", "eleifend", "mi", "in", "nulla", "posuere", "sollicitudin", "aliquam", "ultrices", "sagittis", "orci,", "a", "scelerisque", "purus", "semper", "eget", "duis", "at", "tellus", "at", "urna", "condimentum", "mattis", "pellentesque", "id", "nibh", "tortor,", "id", "aliquet", "lectus", "proin", "nibh", "nisl,", "condimentum", "id", "venenatis", "a,", "condimentum", "vitae", "sapien", "pellentesque", "habitant", "morbi", "tristique", "senectus", "et", "netus", "et", "malesuada", "fames", "ac", "turpis", "egestas", "sed", "tempus,", "urna", "et", "pharetra", "pharetra,", "massa", "massa", "ultricies", "mi,", "quis", "hendrerit", "dolor", "magna", "eget", "est", "lorem", "ipsum", "dolor", "sit", "amet,", "consectetur", "adipiscing", "elit", "pellentesque", "habitant", "morbi", "tristique", "senectus", "et", "netus", "et", "malesuada", "fames", "ac", "turpis", "egestas", "integer", "eget", "aliquet", "nibh", "praesent", "tristique", "magna", "sit", "amet", "purus", "gravida", "quis", "blandit", "turpis", "cursus", "in", "hac", "habitasse", "platea", "dictumst", "quisque", "sagittis,", "purus", "sit", "amet", "volutpat", "consequat,", "mauris", "nunc", "congue", "nisi,", "vitae", "suscipit", "tellus", "mauris", "a", "diam",
-        "maecenas", "sed", "enim", "ut", "sem", "viverra", "aliquet", "eget", "sit", "amet", "tellus", "cras", "adipiscing", "enim", "eu", "turpis", "egestas", "pretium", "aenean", "pharetra,", "magna", "ac", "placerat", "vestibulum,", "lectus", "mauris", "ultrices", "eros,", "in", "cursus", "turpis", "massa", "tincidunt", "dui", "ut", "ornare", "lectus", "sit", "amet", "est", "placerat", "in", "egestas", "erat", "imperdiet", "sed", "euismod", "nisi", "porta", "lorem", "mollis", "aliquam", "ut", "porttitor", "leo", "a", "diam", "sollicitudin", "tempor", "id", "eu", "nisl", "nunc", "mi", "ipsum,", "faucibus", "vitae", "aliquet", "nec,", "ullamcorper", "sit", "amet", "risus", "nullam", "eget", "felis", "eget", "nunc", "lobortis", "mattis", "aliquam", "faucibus", "purus", "in", "massa", "tempor", "nec", "feugiat", "nisl", "pretium", "fusce", "id", "velit", "ut", "tortor", "pretium", "viverra", "suspendisse", "potenti", "nullam", "ac", "tortor", "vitae", "purus", "faucibus", "ornare", "suspendisse", "sed", "nisi", "lacus,", "sed", "viverra", "tellus", "in", "hac", "habitasse", "platea", "dictumst", "vestibulum", "rhoncus", "est", "pellentesque", "elit", "ullamcorper", "dignissim", "cras", "tincidunt", "lobortis", "feugiat", "vivamus", "at", "augue", "eget", "arcu", "dictum", "varius", "duis", "at", "consectetur", "lorem",
-        "donec", "massa", "sapien,", "faucibus", "et", "molestie", "ac,", "feugiat", "sed", "lectus", "vestibulum", "mattis", "ullamcorper", "velit", "sed", "ullamcorper", "morbi", "tincidunt", "ornare", "massa,", "eget", "egestas", "purus", "viverra", "accumsan", "in", "nisl", "nisi,", "scelerisque", "eu", "ultrices", "vitae,", "auctor", "eu", "augue", "ut", "lectus", "arcu,", "bibendum", "at", "varius", "vel,", "pharetra", "vel", "turpis", "nunc", "eget", "lorem", "dolor,", "sed", "viverra", "ipsum", "nunc", "aliquet", "bibendum", "enim,", "facilisis", "gravida", "neque", "convallis", "a", "cras", "semper", "auctor", "neque,", "vitae", "tempus", "quam", "pellentesque", "nec", "nam", "aliquam", "sem", "et", "tortor", "consequat", "id", "porta", "nibh", "venenatis", "cras", "sed", "felis", "eget", "velit", "aliquet", "sagittis", "id", "consectetur", "purus", "ut", "faucibus", "pulvinar", "elementum", "integer", "enim", "neque,", "volutpat", "ac", "tincidunt", "vitae,", "semper", "quis", "lectus", "nulla", "at", "volutpat", "diam", "ut", "venenatis", "tellus", "in", "metus", "vulputate", "eu", "scelerisque", "felis", "imperdiet", "proin", "fermentum", "leo", "vel", "orci", "porta", "non", "pulvinar", "neque", "laoreet", "suspendisse", "interdum", "consectetur", "libero,", "id", "faucibus", "nisl", "tincidunt", "eget", "nullam", "non", "nisi", "est,", "sit", "amet", "facilisis", "magna",
-        "etiam", "tempor,", "orci", "eu", "lobortis", "elementum,", "nibh", "tellus", "molestie", "nunc,", "non", "blandit", "massa", "enim", "nec", "dui", "nunc", "mattis", "enim", "ut", "tellus", "elementum", "sagittis", "vitae", "et", "leo", "duis", "ut", "diam", "quam", "nulla", "porttitor", "massa", "id", "neque", "aliquam", "vestibulum", "morbi", "blandit", "cursus", "risus,", "at", "ultrices", "mi", "tempus", "imperdiet", "nulla", "malesuada", "pellentesque", "elit", "eget", "gravida", "cum", "sociis", "natoque", "penatibus", "et", "magnis", "dis", "parturient", "montes,", "nascetur", "ridiculus", "mus", "mauris", "vitae", "ultricies", "leo", "integer", "malesuada", "nunc", "vel", "risus", "commodo", "viverra", "maecenas", "accumsan,", "lacus", "vel", "facilisis", "volutpat,", "est", "velit", "egestas", "dui,", "id", "ornare", "arcu", "odio", "ut", "sem", "nulla", "pharetra", "diam", "sit", "amet", "nisl", "suscipit", "adipiscing", "bibendum", "est", "ultricies", "integer", "quis", "auctor", "elit",
-        "sed", "vulputate", "mi", "sit", "amet", "mauris", "commodo", "quis", "imperdiet", "massa", "tincidunt", "nunc", "pulvinar", "sapien", "et", "ligula", "ullamcorper", "malesuada", "proin", "libero", "nunc,", "consequat", "interdum", "varius", "sit", "amet,", "mattis", "vulputate", "enim", "nulla", "aliquet", "porttitor", "lacus,", "luctus", "accumsan", "tortor", "posuere", "ac", "ut", "consequat", "semper", "viverra", "nam", "libero", "justo,", "laoreet", "sit", "amet", "cursus", "sit", "amet,", "dictum", "sit", "amet", "justo", "donec", "enim", "diam,", "vulputate", "ut", "pharetra", "sit", "amet,", "aliquam", "id", "diam", "maecenas", "ultricies", "mi", "eget", "mauris", "pharetra", "et", "ultrices", "neque", "ornare", "aenean", "euismod", "elementum", "nisi,", "quis", "eleifend", "quam", "adipiscing", "vitae", "proin", "sagittis,", "nisl", "rhoncus", "mattis", "rhoncus,", "urna", "neque", "viverra", "justo,", "nec", "ultrices", "dui", "sapien", "eget", "mi", "proin", "sed", "libero", "enim,", "sed", "faucibus", "turpis", "in", "eu", "mi", "bibendum", "neque", "egestas", "congue", "quisque", "egestas", "diam", "in", "arcu", "cursus", "euismod", "quis", "viverra", "nibh", "cras", "pulvinar", "mattis", "nunc,", "sed", "blandit", "libero", "volutpat", "sed", "cras", "ornare", "arcu", "dui", "vivamus", "arcu", "felis,", "bibendum", "ut", "tristique", "et,", "egestas", "quis", "ipsum", "suspendisse", "ultrices", "gravida", "dictum",
-        "fusce", "ut", "placerat", "orci", "nulla", "pellentesque", "dignissim", "enim,", "sit", "amet", "venenatis", "urna", "cursus", "eget", "nunc", "scelerisque", "viverra", "mauris,", "in", "aliquam", "sem", "fringilla", "ut", "morbi", "tincidunt", "augue", "interdum", "velit", "euismod", "in", "pellentesque", "massa", "placerat", "duis", "ultricies", "lacus", "sed", "turpis", "tincidunt", "id", "aliquet", "risus", "feugiat", "in", "ante", "metus,", "dictum", "at", "tempor", "commodo,", "ullamcorper", "a", "lacus", "vestibulum", "sed", "arcu", "non", "odio", "euismod", "lacinia", "at", "quis", "risus", "sed", "vulputate", "odio", "ut", "enim", "blandit", "volutpat", "maecenas", "volutpat", "blandit", "aliquam", "etiam", "erat", "velit,", "scelerisque", "in", "dictum", "non,", "consectetur", "a", "erat", "nam", "at", "lectus", "urna", "duis", "convallis", "convallis", "tellus,", "id", "interdum", "velit", "laoreet", "id", "donec", "ultrices", "tincidunt", "arcu,", "non", "sodales", "neque", "sodales", "ut", "etiam", "sit", "amet", "nisl", "purus,", "in", "mollis", "nunc",
-        "sed", "id", "semper", "risus", "in", "hendrerit", "gravida", "rutrum", "quisque", "non", "tellus", "orci,", "ac", "auctor", "augue", "mauris", "augue", "neque,", "gravida", "in", "fermentum", "et,", "sollicitudin", "ac", "orci", "phasellus", "egestas", "tellus", "rutrum", "tellus", "pellentesque", "eu", "tincidunt", "tortor", "aliquam", "nulla", "facilisi", "cras", "fermentum,", "odio", "eu", "feugiat", "pretium,", "nibh", "ipsum", "consequat", "nisl,", "vel", "pretium", "lectus", "quam", "id", "leo", "in", "vitae", "turpis", "massa", "sed", "elementum", "tempus", "egestas", "sed", "sed", "risus", "pretium", "quam", "vulputate", "dignissim", "suspendisse", "in", "est", "ante", "in", "nibh", "mauris,", "cursus", "mattis", "molestie", "a,", "iaculis", "at", "erat",
-        "pellentesque", "adipiscing", "commodo", "elit,", "at", "imperdiet", "dui", "accumsan", "sit", "amet", "nulla", "facilisi", "morbi", "tempus", "iaculis", "urna,", "id", "volutpat", "lacus", "laoreet", "non", "curabitur", "gravida", "arcu", "ac", "tortor", "dignissim", "convallis", "aenean", "et", "tortor", "at", "risus", "viverra", "adipiscing", "at", "in", "tellus", "integer", "feugiat", "scelerisque", "varius", "morbi", "enim", "nunc,", "faucibus", "a", "pellentesque", "sit", "amet,", "porttitor", "eget", "dolor", "morbi", "non", "arcu", "risus,", "quis", "varius", "quam", "quisque", "id", "diam", "vel", "quam", "elementum", "pulvinar", "etiam", "non", "quam", "lacus", "suspendisse", "faucibus", "interdum", "posuere", "lorem", "ipsum", "dolor", "sit", "amet,", "consectetur", "adipiscing", "elit", "duis", "tristique", "sollicitudin", "nibh", "sit", "amet", "commodo", "nulla", "facilisi",
-        "nullam", "vehicula", "ipsum", "a", "arcu", "cursus", "vitae", "congue", "mauris", "rhoncus", "aenean", "vel", "elit", "scelerisque", "mauris", "pellentesque", "pulvinar", "pellentesque", "habitant", "morbi", "tristique", "senectus", "et", "netus", "et", "malesuada", "fames", "ac", "turpis", "egestas", "maecenas", "pharetra", "convallis", "posuere", "morbi", "leo", "urna,", "molestie", "at", "elementum", "eu,", "facilisis", "sed", "odio", "morbi", "quis", "commodo", "odio", "aenean", "sed", "adipiscing", "diam", "donec", "adipiscing", "tristique", "risus", "nec", "feugiat", "in", "fermentum", "posuere", "urna", "nec", "tincidunt", "praesent", "semper", "feugiat", "nibh", "sed", "pulvinar", "proin", "gravida", "hendrerit", "lectus", "a", "molestie"
-    ];
-    //random integer method.
-    Lorem.prototype.randomInt = function (min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-    //text creator method with parameters: how many, what
-    Lorem.prototype.createText = function(count, type) {
-        switch (type) {
-            //paragraphs are loads of sentences.
-            case Lorem.TYPE.PARAGRAPH:
-                var paragraphs = new Array;
-                for (var i = 0; i < count; i++) {
-                    var paragraphLength = this.randomInt(10, 20);
-                    var paragraph = this.createText(paragraphLength, Lorem.TYPE.SENTENCE);
-                    paragraphs.push('<p>'+paragraph+'</p>');
-                }
-                return paragraphs.join('\n');
-                break;
-            //sentences are loads of words.
-            case Lorem.TYPE.SENTENCE:
-                var sentences = new Array;
-                for (var i = 0; i < count; i++) {
-                    var sentenceLength = this.randomInt(5, 10);
-                    var words = this.createText(sentenceLength, Lorem.TYPE.WORD).split(' ');
-                    words[0] = words[0].substr(0, 1).toUpperCase() + words[0].substr(1);
-                    var sentence = words.join(' ');
-
-                    sentences.push(sentence);
-                }
-                return (sentences.join('. ') + '.').replace(/(\.\,|\,\.)/g, '.');
-                break;
-            //words are words
-            case Lorem.TYPE.WORD:
-                var wordIndex = this.randomInt(0, Lorem.WORDS.length - count - 1);
-
-                return Lorem.WORDS.slice(wordIndex, wordIndex + count).join(' ').replace(/\.|\,/g, '');
-                break;
-        }
-    };
-    Lorem.prototype.createLorem = function(element) {
-
-        var lorem = new Array;
-        var count;
-        
-        if (/\d+-\d+[psw]/.test(this.query)){
-            var range = this.query.replace(/[a-z]/,'').split("-");
-            count = Math.floor(Math.random() * parseInt(range[1])) + parseInt(range[0]);
-        }else{
-            count = parseInt(this.query); 
-        }
-        
-        if (/\d+p/.test(this.query)) {
-            var type = Lorem.TYPE.PARAGRAPH;
-        }
-        else if (/\d+s/.test(this.query)) {
-            var type = Lorem.TYPE.SENTENCE;
-        }
-        else if (/\d+w/.test(this.query)) {
-            var type = Lorem.TYPE.WORD;
-        }
-
-        lorem.push(this.createText(count, type));
-        lorem = lorem.join(' ');
-
-        if (element) {
-            if (this.type == Lorem.TEXT)
-                element.innerHTML += lorem;
-            else if (this.type == Lorem.IMAGE) {
-                //TODO: for now, using lorempixum.
-                var path = '';
-                var options = this.query.split(' ');
-                if (options[0] == 'gray') {
-                    path += '/g';
-                    options[0] = '';
-                }
-                if (element.getAttribute('width'))
-                    path += '/' + element.getAttribute('width');
-
-                if (element.getAttribute('height'))
-                    path += '/' + element.getAttribute('height');
-
-                path += '/' + options.join(' ').replace(/(^\s+|\s+$)/, '');
-                element.src = 'http://lorempixum.com'+path.replace(/\/\//, '/');
-            }
-        }
-
-        if (element == null)
-            return lorem;
-    };
-
-    //Register as jQuery
-    if (typeof jQuery != 'undefined') {
-        (function($) {
-            $.fn.lorem = function() {
-                $(this).each(function() {
-                    var lorem = new Lorem;
-                    lorem.type = $(this).is('img') ? Lorem.IMAGE : Lorem.TEXT;
-                    //data-lorem can be taken with data function (thanks to http://forrst.com/people/webking)
-                    lorem.query = $(this).data('lorem');
-                    lorem.createLorem(this);
-                })
-            };
-
-            //If developer run this javascript, then we can run the lorem.js
-            $(document).ready(function() {
-                $('[data-lorem]').lorem();
-            });
-        })(jQuery);
-    }
-
-})();
-/**
- * JavaScript code to detect available availability of a
- * particular font in a browser using JavaScript and CSS.
- *
- * Author : Lalit Patel
- * Website: http://www.lalit.org/lab/javascript-css-font-detect/
- * License: Apache Software License 2.0
- *          http://www.apache.org/licenses/LICENSE-2.0
- * Version: 0.15 (21 Sep 2009)
- *          Changed comparision font to default from sans-default-default,
- *          as in FF3.0 font of child element didn't fallback
- *          to parent element if the font is missing.
- * Version: 0.2 (04 Mar 2012)
- *          Comparing font against all the 3 generic font families ie,
- *          'monospace', 'sans-serif' and 'sans'. If it doesn't match all 3
- *          then that font is 100% not available in the system
- * Version: 0.3 (24 Mar 2012)
- *          Replaced sans with serif in the list of baseFonts
- */
-
-/**
- * Usage: d = new FontDetector();
- *        d.detect('font name');
- */
-var FontDetector = function() {
-    // a font will be compared against all the three default fonts.
-    // and if it doesn't match all 3 then that font is not available.
-    var baseFonts = ['monospace', 'sans-serif', 'serif'];
-
-    //we use m or w because these two characters take up the maximum width.
-    // And we use a LLi so that the same matching fonts can get separated
-    var testString = "mmmmmmmmmmlli";
-
-    //we test using 72px font size, we may use any size. I guess larger the better.
-    var testSize = '72px';
-
-    var h = document.getElementsByTagName("body")[0];
-
-    // create a SPAN in the document to get the width of the text we use to test
-    var s = document.createElement("span");
-    s.style.fontSize = testSize;
-    s.innerHTML = testString;
-    var defaultWidth = {};
-    var defaultHeight = {};
-    for (var index in baseFonts) {
-        //get the default width for the three base fonts
-        s.style.fontFamily = baseFonts[index];
-        h.appendChild(s);
-        defaultWidth[baseFonts[index]] = s.offsetWidth; //width for the default font
-        defaultHeight[baseFonts[index]] = s.offsetHeight; //height for the defualt font
-        h.removeChild(s);
-    }
-
-    function detect(font) {
-        var detected = false;
-        for (var index in baseFonts) {
-            s.style.fontFamily = font + ',' + baseFonts[index]; // name of the font along with the base font for fallback.
-            h.appendChild(s);
-            var matched = (s.offsetWidth != defaultWidth[baseFonts[index]] || s.offsetHeight != defaultHeight[baseFonts[index]]);
-            h.removeChild(s);
-            detected = detected || matched;
-        }
-        return detected;
-    }
-
-    this.detect = detect;
-};
-// GOOGLE ANALYTICS GENERATED CODE
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-		ga('create', 'UA-76281500-1', 'auto');
-		ga('send', 'pageview');
-
-// END GOOGLE ANALYTICS GENERATED CODE
-
-var gaConfig = {
-	eventDetails: null,
-	setValues: function (config) {
-		var arr = [];
-		var configObj = {
-			width: 'w' + config.rhythmicGrid.W,
-			ratio: 'r' + config.ratio.str,
-			baseline: 'b' + config.baseline,
-			gutter: 'g' + config.gutter.W
-		}
-		for (key in configObj) {
-			arr.push(configObj[key]);
-		}
-		this.eventDetails = arr.join();
-	}
-}
-
-
 function drawTesseract(){
 
   var screen_canvas = document.getElementById('tesseract');
@@ -434,11 +50,41 @@ function drawTesseract(){
   draw();
 }
 
+(function($) {
+	$(document).ready(function(){
+		var creditsToggleBtn = $('#credits-toggle'),
+		creditsSection = $('#credits-section'),
+		initialSection = $('#initial-section');
+
+		creditsToggleBtn.on('click', function(e) {
+			e.preventDefault();
+			var isCreditsActive = $(this).data('credits-visible');
+			toggleCredits(creditsToggleBtn, creditsSection, initialSection, isCreditsActive);
+		});
+
+		function toggleCredits(showTrigger, creditsSection, initialSection, isCreditsActive) {
+			if (isCreditsActive) {
+				showTrigger.removeClass('hidden');
+				showTrigger.data('credits-visible', false);
+				creditsSection.addClass("hidden");
+				window.setTimeout(function () {
+					initialSection.removeClass("hidden");
+				}, 300);
+			} else {
+				showTrigger.addClass('hidden');
+				showTrigger.data('credits-visible', true);
+				initialSection.addClass("hidden");
+				creditsSection.removeClass("hidden");
+			}
+
+		}
+	});
+})(jQuery);
 var _int = function(pStr) { return parseInt(pStr, 10); }
 
 function getAvailableSystemFonts() {
   detective = new FontDetector();  // (c) Lalit Patel [see /js/font-detector.js]
-  // alternativedetection via ComicSans (?) [see /js/font-detector-temp.js]
+  // alternative (wierd) detection via ComicSans (?) [see /js/font-detector-temp.js]
   // font.setup();
 
   var fontList = getFontList(),
@@ -451,7 +97,8 @@ function getAvailableSystemFonts() {
     }
   });
 
-  console.log('Available system fonts %s/%s', availableFonts.length, fontList.length);
+  console.log('Available system fonts %s/%s  [%s>%s^]', 
+    availableFonts.length, fontList.length, "main", arguments.callee.name);
   return availableFonts;
 };
 
@@ -459,8 +106,11 @@ function getAvailableSystemFonts() {
 /////////////////////////////////////////////////////////////////////////////
 
 // font selection event handler
+// TOFIX called too many times
 function onFontChange(e) {
-  var id = $(this).attr('id');  // font selection
+  var id = $(this).attr('id'),  // curr element id (typeface OR font size OR line height)
+      lhEl = $('#input-lineheight'),
+      fsEl = $('#input-fontsize');
   // console.log("onChange: %s %s", id, this.value );
 
   // remember selections between sessions
@@ -468,7 +118,7 @@ function onFontChange(e) {
 
   // update text sample according to the selected item
   switch(id){
-  case 'fontSelect':
+  case 'select-font':
     $('.example-text').css('font-family', this.value+",monospace"); //fallback: Helvetica,Arial,monospace
     $('.text').css('font-family', this.value+",monospace");
     metricsContext.curr_typeface = this.value; // global var for metrics drawing
@@ -479,26 +129,120 @@ function onFontChange(e) {
     break;
 
   case 'input-fontsize':
-      $('#input-lineheight').val( Math.round(_lhfs_r*_int(this.value)) + 'px');
-      $('.example-text').css('font-size', parseInt(this.value)+'px');
-      $('.example-text').css('line-height', parseInt($('.input-lineheight > input').val())+'px');
+      lhEl.val( Math.round(_LHFS_R*_int(this.value)) + 'px');
+      $('.example-text').css('font-size', _int(this.value)+'px');
+      $('.example-text').css('line-height', _int(lhEl.val())+'px');
       $('.text').css('font-size', parseInt(this.value)+'px');
       break;
 
   case 'input-lineheight':
-      _lhfs_r = _int(this.value) / _int( $('#input-fontsize').val() ); // _LineHeight-FontSize ratio
+      _LHFS_R = _int(this.value) / _int( fsEl.val() ); // _LineHeight-FontSize ratio
       $('.example-text').css('line-height', _int(this.value)+'px');
       break;
   }
 
-  $('#lineheight-percent-label')
-    .text( Math.round(
-      _int($('#input-lineheight').val()) / _int($('#input-fontsize').val()) * 100
-    ) + '%');
+  
+  ////////////////// CHECK LINE HEIGHT DIVISIBILITY ///////////////
+  
+  var lh = _int(lhEl.val());
+  // if line height is divisible by 2 or by 3
+  if (lh%2==0 || lh%3==0) {
+    _LHBL_F = lh%2 ? 3 : 2;
+
+    // ENABLE all radios and restore previous value, if switched from bad line height
+    // if (lhEl.css('background-color') {
+      lhEl.css('background-color', '');
+      if (allConfigs){
+        el = allConfigs.radioForms[2]; // baseline form
+        $('input', el).each(function(){  $(this).prop('disabled', false); });
+        var prevSelection = localStorage.getItem($(el).attr('id')),
+            selector = prevSelection ? 'input[value="'+prevSelection+'"]' : 'input:first';
+        $(selector, el).prop('checked', true);
+
+        // select baseline corresponding to line height (div2/3)
+        $('#gridBaseline > input[value='+lh/_LHBL_F+']').prop('checked', true);
+        $('.rulers-wrapper-horizontal').removeClass('hidden');
+        // $('.rulers-wrapper-vertical').removeClass('hidden');
+        // $('.text').removeClass('hidden');
+        allConfigs.radioForms.eq(0).trigger('change');
+      } // <-- if (allConfigs)
+
+
+      resetBaselineSelections();
+
+    // }  // <-- if .css('background-color')
+
+  } else {
+    _LHBL_F = lh/lh; //implicit 1
+    lhEl.css('background-color', 'lightpink');
+    
+    // DISABLE baseline form
+    if (allConfigs){
+      el = allConfigs.radioForms[2];
+
+      if ($('input:checked', $(el)).val())
+        localStorage.setItem($(el).attr('id'), $('input:checked', $(el)).val());
+      
+      $('input', el).each(function(){  $(this).prop('disabled', true).val([]); });
+      $('.text').css('line-height', lh+'px');
+      $('.rulers-wrapper-horizontal').addClass('hidden');
+      // $('.rulers-wrapper-vertical').addClass('hidden');
+      // $('.text').addClass('hidden');
+    }
+  }
+  // console.log("line height: %d; baseline: %d  [%s$]", lh, lh/_LHBL_F, arguments.callee.name);
+
+
+  $('#lineheight-percent-label').text( 
+    Math.round( _int(lhEl.val())/_int(fsEl.val() ) *100) + '%'
+  );
 
 };
 
 /////////////////////////////////////////////////////////////////////////////
+
+// set baseline selection valid only for meaningful lineheight values
+// callen by onLineHeightChange
+function resetBaselineSelections(){
+    var blEl = $('#gridBaseline'), // baseline form
+        fsVal = _int($('#input-fontsize').val()), // font size
+        lhVal = _int($('#input-lineheight').val()),
+        lhMin = Math.round(fsVal * allConfigs.lineHeightLimit.min), // line height
+        lhMax = Math.round(fsVal * allConfigs.lineHeightLimit.max), // line height
+        blRange = [], // baseline
+        labelStr = 'gridBaseline'; 
+
+    for (var lh = lhMin; lh<=lhMax; lh++){
+        if (lh % _LHBL_F == 0){
+            blRange.push(lh/_LHBL_F);
+        }
+    }
+    // console.log('factor: %s, baselines: %s  [%s>%s^] ', _LHBL_F, blRange.join(', '), arguments.callee.caller.name, arguments.callee.name);
+
+    blEl.empty();
+    blRange.forEach(function(value,i){
+        var input = $('<input>').prop({
+                type: "radio",
+                id: labelStr+String(value),
+                name: labelStr,
+                value: value
+            });
+        
+        // select recommended baseline (divisible by factor 2 or 3)
+        if (value*_LHBL_F == lhVal) 
+          input.prop('checked', true); 
+
+        var label = $('<label>').prop('for', labelStr+value).text(value);
+
+        blEl.append(input).append(label);
+    });
+
+    return ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
 
 function onKeyDown(e) {
     var input = $(e.target),
@@ -507,11 +251,12 @@ function onKeyDown(e) {
         limit = null;
 
     if (input.attr('id') === 'input-fontsize')
-        limit = {min: 14, max: 21};
+        limit = allConfigs.fontSizeLimit;
 
     if (input.attr('id') === 'input-lineheight'){
         var fsVal = _int($('#input-fontsize').val());
-        limit = {min: Math.round(fsVal*1.0), max: Math.round(fsVal*2.0)};
+        limit = { min: Math.round(fsVal*allConfigs.lineHeightLimit.min),
+                  max: Math.round(fsVal*allConfigs.lineHeightLimit.max) };
     }
 
     // [uparrow,downarrow,enter] keys
@@ -554,171 +299,45 @@ function onMetricsTextChange(e) {
 
 function getFontList() {
   return [
-  "Helvetica", "Georgia", "Baskerville", "Charter", "Avenir", "PT Serif", "PT Sans"
-/*
-    "Georgia","Abadi MT Condensed Light", "Academy Engraved LET", "ADOBE CASLON PRO", 
-    "Adobe Garamond", "ADOBE GARAMOND PRO", "Agency FB", "Aharoni", 
-    "Albertus Extra Bold", "Albertus Medium", "Algerian", "Amazone BT", 
-    "American Typewriter", "American Typewriter Condensed", "AmerType Md BT", 
-    "Andalus", "Angsana New", "AngsanaUPC", "Antique Olive", "Aparajita", 
-    "Apple Chancery", "Apple Color Emoji", "Apple SD Gothic Neo", 
-    "Arabic Typesetting", "ARCHER", "ARNO PRO", "Arrus BT", "Aurora Cn BT", 
-    "AvantGarde Bk BT", "AvantGarde Md BT", "AVENIR", "Ayuthaya", "Bandy", 
-    "Bangla Sangam MN", "Bank Gothic", "BankGothic Md BT", "Baskerville", 
-    "Baskerville Old Face", "Batang", "BatangChe", "Bauer Bodoni", "Bauhaus 93",
-    "Bazooka", "Bell MT", "Bembo", "Benguiat Bk BT", "Berlin Sans FB",
-    "Berlin Sans FB Demi", "Bernard MT Condensed", "BernhardFashion BT", 
-    "BernhardMod BT", "Big Caslon", "BinnerD", "Blackadder ITC", 
-    "BlairMdITC TT", "Bodoni 72", "Bodoni 72 Oldstyle", "Bodoni 72 Smallcaps",
-    "Bodoni MT", "Bodoni MT Black", "Bodoni MT Condensed", 
-    "Bodoni MT Poster Compressed", "Bookshelf Symbol 7", "Boulder", 
-    "Bradley Hand", "Bradley Hand ITC", "Bremen Bd BT", "Britannic Bold", 
-    "Broadway", "Browallia New", "BrowalliaUPC", "Brush Script MT", 
-    "Californian FB", "Calisto MT", "Calligrapher", "Candara", 
-    "CaslonOpnface BT", "Castellar", "Centaur", "Cezanne", "CG Omega", 
-    "CG Times", "Chalkboard", "Chalkboard SE", "Chalkduster", "Charlesworth", 
-    "Charter Bd BT", "Charter BT", "Chaucer", "ChelthmITC Bk BT", "Chiller", 
-    "Clarendon", "Clarendon Condensed", "CloisterBlack BT", "Cochin", 
-    "Colonna MT", "Constantia", "Cooper Black", "Copperplate", 
-    "Copperplate Gothic", "Copperplate Gothic Bold", "Copperplate Gothic Light",
-    "CopperplGoth Bd BT", "Corbel", "Cordia New", "CordiaUPC", 
-    "Cornerstone", "Coronet", "Cuckoo", "Curlz MT", "DaunPenh", "Dauphin", 
-    "David", "DB LCD Temp", "DELICIOUS", "Denmark", "DFKai-SB", "Didot", 
-    "DilleniaUPC", "DIN", "DokChampa", "Dotum", "DotumChe", "Ebrima", 
-    "Edwardian Script ITC", "Elephant", "English 111 Vivace BT", "Engravers MT",
-    "EngraversGothic BT", "Eras Bold ITC", "Eras Demi ITC", "Eras Light ITC", 
-    "Eras Medium ITC", "EucrosiaUPC", "Euphemia", "Euphemia UCAS",
-    "EUROSTILE", "Exotc350 Bd BT", "FangSong", "Felix Titling", "Fixedsys", 
-    "FONTIN", "Footlight MT Light", "Forte", "FrankRuehl", "Fransiscan", 
-    "Freefrm721 Blk BT", "FreesiaUPC", "Freestyle Script", "French Script MT",
-    "FrnkGothITC Bk BT", "Fruitger", "FRUTIGER", "Futura", "Futura Bk BT", 
-    "Futura Lt BT", "Futura Md BT", "Futura ZBlk BT", "FuturaBlack BT", 
-    "Gabriola", "Galliard BT", "Gautami", "Geeza Pro", "Geometr231 BT", 
-    "Geometr231 Hv BT", "Geometr231 Lt BT", "GeoSlab 703 Lt BT", 
-    "GeoSlab 703 XBd BT", "Gigi", "Gill Sans", "Gill Sans MT", 
-    "Gill Sans MT Condensed", "Gill Sans MT Ext Condensed Bold", 
-    "Gill Sans Ultra Bold", "Gill Sans Ultra Bold Condensed", "Gisha", 
-    "Gloucester MT Extra Condensed", "GOTHAM", "GOTHAM BOLD", 
-    "Goudy Old Style", "Goudy Stout", "GoudyHandtooled BT", "GoudyOLSt BT", 
-    "Gujarati Sangam MN", "Gulim", "GulimChe", "Gungsuh", "GungsuhChe", 
-    "Gurmukhi MN", "Haettenschweiler", "Harlow Solid Italic", "Harrington", 
-    "Heather", "Heiti SC", "Heiti TC", "HELV", "Helvetica", "Herald", "High Tower Text", 
-    "Hiragino Kaku Gothic ProN", "Hiragino Mincho ProN", "Hoefler Text", 
-    "Humanst 521 Cn BT", "Humanst521 BT", "Humanst521 Lt BT", 
-    "Imprint MT Shadow", "Incised901 Bd BT", "Incised901 BT", 
-    "Incised901 Lt BT", "INCONSOLATA", "Informal Roman", "Informal011 BT", 
-    "INTERSTATE", "IrisUPC", "Iskoola Pota", "JasmineUPC", "Jazz LET", 
-    "Jenson", "Jester", "Jokerman", "Juice ITC", "Kabel Bk BT", 
-    "Kabel Ult BT", "Kailasa", "KaiTi", "Kalinga", "Kannada Sangam MN", 
-    "Kartika", "Kaufmann Bd BT", "Kaufmann BT", "Khmer UI", "KodchiangUPC", 
-    "Kokila", "Korinna BT", "Kristen ITC", "Krungthep", "Kunstler Script", 
-    "Lao UI", "Latha", "Leelawadee", "Letter Gothic", "Levenim MT", "LilyUPC",
-    "Lithograph", "Lithograph Light", "Long Island", "Lydian BT", "Magneto", 
-    "Maiandra GD", "Malayalam Sangam MN", "Malgun Gothic", "Mangal", "Marigold", 
-    "Marion", "Marker Felt", "Market", "Marlett", "Matisse ITC",
-    "Matura MT Script Capitals", "Meiryo", "Meiryo UI", "Microsoft Himalaya", 
-    "Microsoft JhengHei", "Microsoft New Tai Lue", "Microsoft PhagsPa", 
-    "Microsoft Tai Le", "Microsoft Uighur", "Microsoft YaHei", 
-    "Microsoft Yi Baiti", "MingLiU", "MingLiU_HKSCS", "MingLiU_HKSCS-ExtB", 
-    "MingLiU-ExtB", "Minion", "Minion Pro", "Miriam", "Miriam Fixed", "Mistral", 
-    "Modern", "Modern No. 20", "Mona Lisa Solid ITC TT", "Mongolian Baiti",
-    "MONO", "MoolBoran", "Mrs Eaves", "MS LineDraw", "MS Mincho", "MS PMincho", 
-    "MS Reference Specialty", "MS UI Gothic", "MT Extra", "MUSEO", "MV Boli", 
-    "Nadeem", "Narkisim", "NEVIS", "News Gothic", "News GothicMT",
-    "NewsGoth BT", "Niagara Engraved", "Niagara Solid", "Noteworthy", "NSimSun", 
-    "Nyala", "OCR A Extended", "Old Century", "Old English Text MT", "Onyx",
-    "Onyx BT", "OPTIMA", "Oriya Sangam MN", "OSAKA", "OzHandicraft BT", 
-    "Palace Script MT", "Papyrus", "Parchment", "Party LET", "Pegasus", 
-    "Perpetua", "Perpetua Titling MT", "PetitaBold", "Pickwick", 
-    "Plantagenet Cherokee", "Playbill", "PMingLiU", "PMingLiU-ExtB", 
-    "Poor Richard", "Poster", "PosterBodoni BT", "PRINCETOWN LET", "Pristina",
-    "PTBarnum BT", "Pythagoras", "Raavi", "Rage Italic", "Ravie", 
-    "Ribbon131 Bd BT", "Rockwell", "Rockwell Condensed", "Rockwell Extra Bold",
-    "Rod", "Roman", "Sakkal Majalla", "Santa Fe LET", "Savoye LET",
-    "Sceptre", "Script", "Script MT Bold", "SCRIPTINA", "Serifa", "Serifa BT", 
-    "Serifa Th BT", "ShelleyVolante BT", "Sherwood", "Shonar Bangla", 
-    "Showcard Gothic", "Shruti", "Signboard", "SILKSCREEN", "SimHei", 
-    "Simplified Arabic", "Simplified Arabic Fixed", "SimSun", "SimSun-ExtB", 
-    "Sinhala Sangam MN", "Sketch Rockwell", "Skia", "Small Fonts", "Snap ITC",
-    "Snell Roundhand", "Socket", "Souvenir Lt BT", "Staccato222 BT", "Steamer",
-    "Stencil", "Storybook", "Styllo", "Subway", "Swis721 BlkEx BT",
-    "Swiss911 XCm BT", "Sylfaen", "Synchro LET", "System", "Tamil Sangam MN", 
-    "Technical", "Teletype", "Telugu Sangam MN", "Tempus Sans ITC", "Terminal",
-    "Thonburi", 'Times New Roman', "Traditional Arabic", "Trajan", "TRAJAN PRO",
-    "Tristan", "Tubular", "Tunga", "Tw Cen MT", "Tw Cen MT Condensed",
-    "Tw Cen MT Condensed Extra Bold", "TypoUpright BT", "Unicorn", "Univers", 
-    "Univers CE 55 Medium", "Univers Condensed", "Utsaah", "Vagabond", "Vani",
-    "Verdana", "Vijaya", "Viner Hand ITC", "VisualUI", "Vivaldi", "Vladimir Script",
-    "Vrinda", "Westminster", "WHITNEY", "Wide Latin", "ZapfEllipt BT", 
-    "ZapfHumnst BT", "ZapfHumnst Dm BT", "Zapfino", "Zurich BlkEx BT",
-    "Zurich Ex BT", "ZWAdobeF"
-    /**/
+    "Helvetica", "Georgia", "Baskerville", "Charter", "Avenir", "PT Serif", "PT Sans"
   ];
 }
 function setupRadioItems(allConfigs){
+    allConfigs.radioForms.each( function(idx, el){
+        $(el).empty(); // clear default (index.html) radio options
+        // append <input> and <label> for each config value
+        $(el).append( createRadioInputs(allConfigs.inputNames[idx], 
+                                        allConfigs.rangeArrs[idx]) );
 
-	var getAllSelected = function(){
-		return $('input:checked', allConfigs.radioForms) 
-				.map(function() {  
-					var val = $(this).val();
-					return isNaN(val) ? val : ~~val;
-				})
-				.toArray(); 
-	};
+        // restore selection from previous session (if any)
+        var prevSelection = localStorage.getItem($(el).attr('id'));
+        if (prevSelection)
+            $('input[value="'+prevSelection+'"]', el).prop('checked', true);
 
-	allConfigs.radioForms.each( function(idx, el){
-		// clear default radio options
-		$(el).empty();
+        // set default ratio selected in ratio section as well
+        if ($(el).attr('id') === 'gridRatio'){
+            var ratioStr = $('#gridRatio > input:checked').val();
+            $('.ratio-selector input[name=ratioSelector][id=ratio'+ratioStr+']')
+                .prop('checked', true);
+        }
 
-		// append <input> and <label> for each config value
-		$(el).append( createRadioInputs(allConfigs.inputNames[idx], 
-										allConfigs.rangeArrs[idx]) );
+        $(el).on('change', onGridChange);
+    });
 
-		// restore selection from previous session (if any)
-		var prevSelection = localStorage.getItem($(el).attr('id'));
-		if (prevSelection)
-			$('input[value="'+prevSelection+'"]', el).prop('checked', true);
+    // append extra baseline radio selection for degenerated baseline
+    // (when line height is not divisible by 2 nor by 3)
+    // var gBLin = allConfigs.inputNames[2]; // 'gridBaseline' input name
+    // $('#'+gBLin)
+    //     .append( $('<input>').attr({'type':'radio', 'id':gBLin+'X', 'name':gBLin}).val(0))
+    //     .append( $('<label>').attr('for', gBLin+'X').text(0) );
 
-		// process ALL radio selections on every single change in grid config
-		$(el).on('change', function(){
-			var allGridSelections = getAllSelected();
-			refreshRadioInputs(allConfigs.radioForms, allGridSelections); // this might modify the selection
-
-			var gridConfig = RhythmicGridGenerator.selectGrid(
-						allConfigs.allValidGrids, allGridSelections );
-		  
-			if (gridConfig) {
-				drawRhythmicGrid(gridConfig);
-				gaConfig.setValues(gridConfig);
-			}
-			else {
-				allConfigs.gridContainer.empty();
-		  	}
-
-			var selected = $('input:checked', el);
-		
-			// if ratio form: change-back the grphic ratio selector (from previous section)
-			if ($(el).attr('id') === 'gridRatio') {
-				var ratioStr = selected.val();
-				$('.ratio-selector input[name=ratioSelector][id=ratio'+ratioStr+']')
-				.prop('checked', true);
-			}
-
-			// save current selection for the future session
-			localStorage.setItem($(el).attr('id'), selected.val());
-
-			// console.log("Grid conifg: [%s]", allGridSelections.join(', '));
-		}); // <-- .on('chnage', ... )
-	 });  // <-- radioForms.forEach()
-
-	// trigger onChange event to refresh radio inputs at startup
-	$(allConfigs.radioForms[0]).trigger('change');
+    // refresh radio inputs by triggering fontSize -> lineHeight -> grid onChange
+    $('#input-fontsize').trigger('change');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-// called several times during initializeRadioItems()
+// called several times during setupRadioItems()
 function createRadioInputs(inputName, valueRange){
 	var elements = [];
 	valueRange.forEach(function(value,i){
@@ -747,6 +366,61 @@ function createRadioInputs(inputName, valueRange){
 
 	return elements;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+function onGridChange(e){
+    var getAllSelections = function(){
+        return $('input:checked', allConfigs.radioForms)
+                .map(function() {
+                    var val = $(this).val(); 
+                    return isNaN(val) ? val : ~~val;
+                 }).toArray();
+    }
+
+    var el = $(e.target).parent();  // .form-group element
+    var allGridSelections = getAllSelections();
+
+    // console.log("id: %s; grid config: %s  [%s^]", el.attr('id'), allGridSelections.join(', '), arguments.callee.name);
+
+    // process ALL radio selections on every single change in grid config
+    refreshRadioInputs(allConfigs.radioForms, allGridSelections); // NB! this might modify the selection
+    allGridSelections = getAllSelections(); // update if selection modified
+
+    var selected = $('input:checked', el);
+
+    // if ratio form: change-back the grphic ratio selector (from previous section)
+    if (el.attr('id') === 'gridRatio'){
+        var ratioStr = selected.val();
+        $('.ratio-selector input[name=ratioSelector][id=ratio'+ratioStr+']')
+            .prop('checked', true);
+    }
+
+    // if baseline form: change line height in font selector, and in text samples
+    if (el.attr('id') === 'gridBaseline'){
+        var newLH = selected.val()*_LHBL_F;
+        $('#input-lineheight').val( newLH );
+        $('.example-text').css('line-height', newLH+'px');
+
+        // update percent label
+        _LHFS_R = newLH / parseInt( $('#input-fontsize').val() );
+        $('#lineheight-percent-label').text( 
+            Math.round( newLH / parseInt($('#input-fontsize').val()) * 100)+'%'
+        );
+    }
+
+    // save current selection for the future sessions
+    localStorage.setItem(el.attr('id'), selected.val());
+
+    // re-draw the grid
+    var gridConfig = RhythmicGridGenerator.selectGrid(
+                allConfigs.allValidGrids, allGridSelections );
+
+    if (gridConfig)
+        drawRhythmicGrid(gridConfig);
+    else
+        allConfigs.gridContainer.empty();
+}   
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -790,156 +464,156 @@ function refreshRadioInputs(radioForms, selectedInputs){
 ////////////////////////////////////////////////////////////////////////////////
 
 function drawRhythmicGrid(gridConfig){
-	var startTime = performance.now();
-	// console.log('Rhythmic config: '); console.log(gridConfig);
-	
-	///////////////////////////////////////
-	/////// GENERATE BLOCK DIVS ///////////
-	///////////////////////////////////////
-	var container = allConfigs.gridContainer,
-		c = 0;
+    var startTime = performance.now();
+    // console.log('Rhythmic config: '); console.log(gridConfig);
+    console.log('blocks: %s  [%s>%s^]', 
+        gridConfig
+            .rhythmicGrid
+            .blocks
+            .map(function(v){ return v[0]+"x"+v[1] })
+            .join(', '),
+        arguments.callee.caller.name,
+        arguments.callee.name
+    );
 
-	container.empty();
-	gridConfig.rhythmicGrid.blocks.forEach( function(val, idx, arr){
-		var row = $('<div>').addClass('row');
+    
+    ///////////////////////////////////////
+    /////// GENERATE BLOCK DIVS ///////////
+    ///////////////////////////////////////
+    var container = allConfigs.gridContainer,
+        c = 0;
 
-		//val[2] - number of blocks in current row
-		// see @class Grid (RhythmicGridGenerator.js)
-		var blocksInRow = val[2],
-			blockWidth = val[0];
+    container.empty();
+    gridConfig.rhythmicGrid.blocks.forEach( function(val, idx, arr){
+        var row = $('<div>').addClass('row');
 
-		if (blocksInRow > 9) // no need to show very small micro-blocks
-			return;
+        //val[2] - number of blocks in current row
+        // see @class Grid (RhythmicGridGenerator.js)
+        var blockWidth  = val[0],
+            blockHeight = val[1],
+            blocksInRow = val[2];
 
-		for (var i=1; i<=blocksInRow; i++){
-			if (idx===arr.length-1 && blockWidth>=1000)
-				continue; // skip if the last row and block is wider than 1000
+        if (blocksInRow > 9) // no need to show very small micro-blocks
+            return;
 
-			var inner = $('<div>').addClass('inner').addClass('inner'+i);
-			
-			c++;
-			// pairwise image & text blocks (if c odd - image, if c even - text)
-			
-			if (i===1 && !(c%2) ) c++; // first column in row always start with an image, not text
-			
-			if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
-				var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
-				inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg)');
-				// console.log(inner.attr('style'));
-			} else {
-				var txtmck = allConfigs.textMocks[idx];
-				inner.append( $('<div>').addClass('text').text(txtmck) );
-			}
+        for (var i=1; i<=blocksInRow; i++){
+            if (idx===arr.length-1 && blockWidth>=1000)
+                continue; // skip if the last row and block is wider than 1000
 
-			var column = $('<div>').addClass('column').append(inner);
-			row.append(column);
-		}
+            var inner = $('<div>').addClass('inner').addClass('inner'+i);
+            
+            c++;
+            // pairwise image & text blocks (if c odd - image, if c even - text)
+            
+            if (i===1 && !(c%2) ) c++; // first column in row always start with an image, not text
+            
+            if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
+                var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
+                inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg)');
+                // console.log(inner.attr('style'));
+            } else {
+                var txtmck = 'Hdxp ' + allConfigs.textMocks[idx] + '.';
+                inner.append( $('<div>').addClass('text').text(txtmck)
+                    .width(blockWidth).height(blockHeight) );
+            }
 
-		container.append(row);
-	});
+            var column = $('<div>').addClass('column').append(inner);
+            row.append(column);
+        }
 
-
-	////////////////////////////////////////////
-	//////////  SET BLOCK CSS RULES  ///////////
-	////////////////////////////////////////////
-	var g = gridConfig.gutter.W;
-	console.log('Blocks: ' + gridConfig.rhythmicGrid.blocks.map(function(v){ return v[0]+"x"+v[1] }));
-
-	$('.grid-outer-wrapper').css({
-		'max-width': gridConfig.maxCanvasWidth+'px'
-	});
-
-	$('.grid-container').css({
-		'max-width': gridConfig.rhythmicGrid.W+'px'
-	});
-
-	$('.row').css({
-		'margin-left': -(g/2),
-		'margin-right': -(g/2)
-	});
-
-	$('.column').css({
-		'padding-left': g/2,
-		'padding-right': g/2,
-		'margin-bottom': g
-	});
-
-	$('.text').css({
-		// 'text-decoration': 'underline',
-		'font-family': $('#fontSelect').val()+",monospace",
-		'font-size': parseInt($('.input-fontsize > input').val(), 10)+'px'
-	});
-
-	// TOFIX
-	// a problem with relative flex values and floats, eg 66.666667% 
-	$('.column .inner').css('padding-bottom', 100/gridConfig.ratio.R+'%')
-
-	// TOFIX line-height vs baseline
-	$('.column .inner .text').css({
-		'line-height': 1+(gridConfig.baseline-3)/10+'em',
-		// 'display': 'inline-block',
-		// 'white-space': 'nowrap',
-		// 'overflow': 'hidden',
-		'text-overflow': 'ellipsis'
-	});
+        container.append(row);
+    });
 
 
-	// truncate overflow text
-	$(".column .inner .text").dotdotdot();
+    ////////////////////////////////////////////
+    ////////////  SET BLOCKS STYLE  ////////////
+    ////////////////////////////////////////////
+    var g = gridConfig.gutter.W;
+
+    $('.grid-outer-wrapper').css({
+        'max-width': gridConfig.maxCanvasWidth+'px'
+    });
+
+    $('.grid-container').css({
+        'max-width': gridConfig.rhythmicGrid.W+'px'
+    });
+
+    $('.row').css({
+        'margin-left': -(g/2),
+        'margin-right': -(g/2)
+    });
+
+    $('.column').css({
+        'padding-left': g/2,
+        'padding-right': g/2,
+        'margin-bottom': g
+    });
+
+    // TOFIX a problem with relative flex values and floats, eg 66.666667%
+    $('.column .inner').css('padding-bottom', 100/gridConfig.ratio.R+'%')
+
+    // text formatting AND aligning with horizontal ruler
+    var lh = parseInt($('#input-lineheight').val()),
+        fs = parseInt($('#input-fontsize').val());
+    $('.column .inner .text').css({
+        'font-family': $('#select-font').val()+",monospace",
+        'font-size': parseInt($('#input-fontsize').val())+'px',
+        'line-height': parseInt($('#input-lineheight').val())+'px',
+        'padding': + Math.ceil((lh-fs)/2+3)+'px 0',
+        'overflow': 'hidden',
+        // 'text-decoration': 'underline',
+        // 'vertical-align': 'text-top',
+        // 'white-space': 'nowrap',
+        // 'text-overflow': 'ellipsis' // not working
+    }).dotdotdot({ellipsis: '...', tolerance : 15});
 
 
-	// var gridRules = Object
-	//     .keys(document.styleSheets)
-	//     .map(function(me) { return document.styleSheets[e] })
-	//     .filter(function(fe) { return /grid\.css/.test(e.href); })[0];
-	// gridRules = gridRules.cssRules || gridRules.rules;
+    /////////////////////////////////////////
+    /////// GENERATE RULER GUIDES ///////////
+    /////////////////////////////////////////
+    var rulersWrapperVertical = $('<div>').addClass('rulers-wrapper-vertical'),
+        rulersWrapperHorizontal = $('<div>').addClass('rulers-wrapper-horizontal'),
+        currentGridHeight = allConfigs.gridContainer.height();
 
+    for (var i = 0; i < Math.ceil(currentGridHeight / gridConfig.baseline)+1; i++) {
+        rulersWrapperHorizontal.append('<div class="ruler-horizontal"></div>');
+    }
 
-	///////////////////////////////////
-	/////// GENERATE RULERS ///////////
-	///////////////////////////////////
-	var rulersWrapperVertical = $('<div>').addClass('rulers-wrapper-vertical'),
-		rulersWrapperHorizontal = $('<div>').addClass('rulers-wrapper-horizontal'),
-		currentGridHeight = allConfigs.gridContainer.height();
+    for (var i = 0; i < gridConfig.columnsNum; i++) {
+        rulersWrapperVertical.append('<div class="ruler-vertical-outer"><div class="ruler-vertical"></div></div>');
+    }
 
-	for (var i = 0; i < Math.ceil(currentGridHeight / gridConfig.baseline)+1; i++) {
-		rulersWrapperHorizontal.append('<div class="ruler-horizontal"></div>');
-	}
+    container.append(rulersWrapperVertical);
+    container.append(rulersWrapperHorizontal);
 
-	for (var i = 0; i < gridConfig.columnsNum; i++) {
-		rulersWrapperVertical.append('<div class="ruler-vertical-outer"><div class="ruler-vertical"></div></div>');
-	}
+    $('.rulers-wrapper-vertical').css({
+        'margin-left': -(g/2),
+        'margin-right': -(g/2)
+    });
 
-	container.append(rulersWrapperVertical);
-	container.append(rulersWrapperHorizontal);
+    $('.ruler-vertical-outer').css({
+        'padding-left': g/2,
+        'padding-right': g/2
+    });
 
-	$('.rulers-wrapper-vertical').css({
-		'margin-left': -(g/2),
-		'margin-right': -(g/2)
-	});
+    $('.ruler-horizontal').css({
+        'margin-bottom': gridConfig.baseline - 1 // border takes 1px
+    });
 
-	$('.ruler-vertical-outer').css({
-		'padding-left': g/2,
-		'padding-right': g/2
-	});
+    // hide/show ruler guides
+    if ($('#grid-toggle').data('grid-toggle') === 'on'){
+        $('.rulers-wrapper-vertical').removeClass('hidden');
+        $('.rulers-wrapper-horizontal').removeClass('hidden');
+    } else {
+        $('.rulers-wrapper-vertical').addClass('hidden');
+        $('.rulers-wrapper-horizontal').addClass('hidden');
+    }
+    
 
-	$('.ruler-horizontal').css({
-		'margin-bottom': gridConfig.baseline - 1 // border takes 1px
-	});
-
-	if ($('#grid-toggle').data('grid-toggle') === 'on'){
-		$('.rulers-wrapper-vertical').removeClass('hidden');
-		$('.rulers-wrapper-horizontal').removeClass('hidden');
-	} else {
-		$('.rulers-wrapper-vertical').addClass('hidden');
-		$('.rulers-wrapper-horizontal').addClass('hidden');
-	}
-	
-	// $('#grid-toggle').toggle('click');
-
-	var timing = performance.now() - startTime;
-	// console.log('... grid rendering finished (%.1dms).', timing);
-	return ;
+    ////////////////////////////////////////////////////////////////////
+    var timing = performance.now() - startTime;
+    // console.log('... grid rendering finished (%.1dms).', timing);
+    return ;
 }
 var metricsContext = (function(){
 
@@ -1193,7 +867,7 @@ function drawMetrics() {
   ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
 
   var timing = performance.now() - startTime;
-  console.log('... metrics rendering finished (%.1dms).', timing);
+  console.log('... metrics rendering finished (%.1dms).  [%s>%s]', timing, arguments.callee.caller.name, arguments.callee.name);
 };
 
 
@@ -1299,36 +973,35 @@ function pauseEvent(e){
     e.returnValue=false;
     return false;
 }
-(function($) {
-	$(document).ready(function(){
-		var creditsToggleBtn = $('#credits-toggle'),
-		creditsSection = $('#credits-section'),
-		initialSection = $('#initial-section');
+// GOOGLE ANALYTICS GENERATED CODE
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-		creditsToggleBtn.on('click', function(e) {
-			e.preventDefault();
-			var isCreditsActive = $(this).data('credits-visible');
-			toggleCredits(creditsToggleBtn, creditsSection, initialSection, isCreditsActive);
-		});
+		ga('create', 'UA-76281500-1', 'auto');
+		ga('send', 'pageview');
 
-		function toggleCredits(showTrigger, creditsSection, initialSection, isCreditsActive) {
-			if (isCreditsActive) {
-				showTrigger.removeClass('hidden');
-				showTrigger.data('credits-visible', false);
-				creditsSection.addClass("hidden");
-				window.setTimeout(function () {
-					initialSection.removeClass("hidden");
-				}, 300);
-			} else {
-				showTrigger.addClass('hidden');
-				showTrigger.data('credits-visible', true);
-				initialSection.addClass("hidden");
-				creditsSection.removeClass("hidden");
-			}
+// END GOOGLE ANALYTICS GENERATED CODE
 
+var gaConfig = {
+	eventDetails: null,
+	setValues: function (config) {
+		var arr = [];
+		var configObj = {
+			width: 'w' + config.rhythmicGrid.W,
+			ratio: 'r' + config.ratio.str,
+			baseline: 'b' + config.baseline,
+			gutter: 'g' + config.gutter.W
 		}
-	});
-})(jQuery);
+		for (key in configObj) {
+			arr.push(configObj[key]);
+		}
+		this.eventDetails = arr.join();
+	}
+}
+
+
 //////////////////////////////////////////////////////////
 /////////////////////// TESSERACT ////////////////////////
 //////////////////////////////////////////////////////////
@@ -1337,19 +1010,82 @@ window.addEventListener('load', drawTesseract, false);
 
 
 //////////////////////////////////////////////////////////
+////////////////  GENERAL CONFIGS ////////////////////////
 //////////////////////////////////////////////////////////
-var allConfigs;
 
 // clear selections from previous sesssions
-// localStorage.clear()
+localStorage.clear();
 
 // TOFIX for some reason, key event handling for font size input stops working with $(document).ready(...)
 // $(document).ready(function(){
 
+var allConfigs = Object.freeze((function(){
+    var startTime = performance.now();
+
+    // grid config
+    var rgg = RhythmicGridGenerator,
+        widthArr    = [960, 1280, 1440],
+        ratioArr    = ['1x1', '4x3', '3x2', '5x3', '16x9'],
+        baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+        columnsArr  = [5, 6, 9, 12],
+        gutter2baselineFactorArr = [0, 1, 2, 3, 4];
+
+
+    // you can specify a predicate validator which difines a valid grid and filters
+    // invalid ones during generation. The default validator:
+    // console.log('Current grid validator:\n' + 
+    //               rgg.isValidGrid.toString().replace(/$\s*\/\/.*/gm, '') + '\n');
+
+    // generate all possible grids from given configuration range
+    var allValidGrids = rgg.generateAllRhytmicGrids(
+        widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr);
+
+    // comparator for sort function
+    var srt = function(a,b){ return parseInt(a) > parseInt(b) ? 1 : -1; };
+
+    // re-evaluate config range to remove invalid configs
+    // (e.g. no grid exists with 5 columns for current range)
+    baselineArr = allValidGrids.map(function(g){ return g.baseline }).unique().sort(srt);
+    columnsArr  = allValidGrids.map(function(g){ return g.columnsNum }).unique().sort(srt);
+    gutter2baselineFactorArr  = allValidGrids.map(function(g){ return g.gutterBaselineFactor }).unique().sort(srt);
+
+    var timing = performance.now() - startTime;
+    console.log('... pre-computed %d grids (%ss).  [%s]', allValidGrids.length, (timing/1000).toFixed(2), 'main:app.js');
+    return {
+        widthArr     : widthArr,
+        ratioArr     : ratioArr,
+        baselineArr  : baselineArr,
+        columnsArr   : columnsArr,
+        gutter2baselineFactorArr: gutter2baselineFactorArr,
+        allValidGrids: allValidGrids,
+        
+        fontSizeLimit  : {min: 14, max: 21},   // px
+        lineHeightLimit: {min: 1.0, max: 1.5}, // percent of font size
+        
+        rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
+        inputNames   : ['gridUpTo', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
+
+        gridContainer: $('.grid-container'),   
+        radioForms   : $('.grid-section > .container > .flex-row >'+
+                         ' .flex-child:lt(5) > .form-group'), // all config radio elements
+
+        imageMocks   : 9, // from 1.jpg to 9.jpg
+        textMocks    : Array.apply(null, {length: 5}) // array of 5 lorem texts of different length
+                            .map(function(_,i) {
+                                return Lorem.prototype.createText(
+                                    // 10*(i+1),
+                                    27*Math.exp(i*1.3), 
+                                    // Math.pow(20, (i+1)*0.9), 
+                                    Lorem.TYPE.WORD)
+                            })
+    }
+})());
+
+
 //////////////////////////////////////////////////////////
 ///////////////// FONT CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
-['#fontSelect', '#input-fontsize', '#input-lineheight']
+['#select-font', '#input-fontsize', '#input-lineheight']
 .forEach(function(selector, idx){
       switch(idx){
         // font dropdown
@@ -1401,11 +1137,18 @@ var allConfigs;
       }
   });
 
-// initialize line height percent label
-var _lhfs_r = parseInt($('#input-lineheight').val(),10) / 
+////////////////////////////////////////////////////////////
+////////////////// SHARED GLOBAL VARS //////////////////////
+////////////////////////////////////////////////////////////
+// LineHeight/FontSize Ratio, value for line-height percent label
+var _LHFS_R = parseInt($('#input-lineheight').val(),10) / 
               parseInt($('#input-fontsize').val(),10);
 
-$('#lineheight-percent-label').text( Math.round(_lhfs_r*100) + '%')
+// LineHeight/BaseLine Factor, value for grid baseline
+var _LHBL_F = (function(){
+    var lh = parseInt($('#input-lineheight').val(),10);
+    return !(lh%3) ? 3 : !(lh%2) ? 2  : 1;
+})();
 
 // trigger for initial text metrics rendering
 $('#fontmetrics-input-wrapper').on('keyup', onMetricsTextChange).trigger('keyup');
@@ -1426,62 +1169,6 @@ $('.ratio-selector .flex-row').on('change', function(){
 //////////////////////////////////////////////////////////
 ///////////////// GRID CONFIGURATION /////////////////////
 //////////////////////////////////////////////////////////
-
-allConfigs = (function(){
-    var rgg = RhythmicGridGenerator;
-
-    // grid config range
-    var widthArr    = [960, 1280, 1440];
-    var ratioArr    = ['1x1', '3x2', '16x9'];
-    var baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-    var columnsArr  = [5, 6, 9, 12];
-    var gutter2baselineFactorArr = [0, 1, 2, 3];
-
-    // you can specify a predicate validator which difines a valid grid and filters
-    // invalid ones during generation. The default validator:
-    // console.log('Current grid validator:\n' + 
-    //               rgg.isValidGrid.toString().replace(/$\s*\/\/.*/gm, '') + '\n');
-
-    // generate all possible grids from given configuration range
-    var allValidGrids = rgg.generateAllRhytmicGrids(
-        widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr);
-
-    // comparator for sort function
-    var srt = function(a,b){ return parseInt(a) > parseInt(b) ? 1 : -1; };
-
-    // re-evaluate config range to remove invalid configs
-    // (e.g. no grid exists with 5 columns for current range)
-    baselineArr = allValidGrids.map(function(g){ return g.baseline }).unique().sort(srt);
-    columnsArr  = allValidGrids.map(function(g){ return g.columnsNum }).unique().sort(srt);
-    gutter2baselineFactorArr  = allValidGrids.map(function(g){ return g.gutterBaselineFactor }).unique().sort(srt);
-
-    return {
-        widthArr     : widthArr,
-        ratioArr     : ratioArr,
-        baselineArr  : baselineArr,
-        columnsArr   : columnsArr,
-        gutter2baselineFactorArr: gutter2baselineFactorArr,
-        allValidGrids: allValidGrids,
-        
-        rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
-        inputNames   : ['gridUpTo', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
-        
-
-        gridContainer: $('.grid-container'),   
-        radioForms   : $('.grid-section > .container > .flex-row >'+
-                         ' .flex-child:lt(5) > .form-group'), // all config radio elements
-
-        imageMocks   : 9, // from 1.jpg to 9.jpg
-        textMocks    : Array.apply(null, {length: 5}) // array of 5 lorem texts of different length
-                            .map(function(_,i) {
-                                return Lorem.prototype.createText(
-                                    // 10*(i+1),
-                                    17*Math.exp(i*1.3), 
-                                    // Math.pow(20, (i+1)*0.9), 
-                                    Lorem.TYPE.WORD)
-                            })
-    }
-})();
 
 // create radio items based on the grid config above
 setupRadioItems(allConfigs);

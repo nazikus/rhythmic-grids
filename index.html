@@ -13,6 +13,11 @@
 	<script src="./js/jquery.dotdotdot.js"></script>
 	<script src="./js/pre3d.js"></script>
 	<script src="./js/shapeutils.js"></script>
+	<script src="./js/canvas-fontmetrics.js"></script>
+	<script src="./js/font-detector.js"></script>
+	<script src="./js/font-detector-temp.js"></script>
+	<script src="./js/lorem.js"></script>
+	<script src="./js/RhythmicGridGenerator.js"></script>
 	<!-- endinject -->
 </head>
 <body>
@@ -136,6 +141,22 @@
 						</div>
 					</div>
 
+					<div class="flex-child">
+						<div class="ratio ratio-4x3">
+							<input type="radio" name="ratioSelector" id="ratio4x3" />
+							<label for="ratio4x3">
+								<div class="inner">
+									<div></div>
+								</div>
+								<div class="outer">
+									<div></div>
+								</div>
+								<div class="ratio-info">
+									4:3
+								</div>
+							</label>
+						</div>
+					</div>
 
 					<div class="flex-child">
 						<div class="ratio ratio-3x2">
@@ -149,6 +170,23 @@
 								</div>
 								<div class="ratio-info">
 									3:2
+								</div>
+							</label>
+						</div>
+					</div>
+
+					<div class="flex-child">
+						<div class="ratio ratio-5x3">
+							<input type="radio" name="ratioSelector" id="ratio5x3" />
+							<label for="ratio5x3">
+								<div class="inner">
+									<div></div>
+								</div>
+								<div class="outer">
+									<div></div>
+								</div>
+								<div class="ratio-info">
+									5:3
 								</div>
 							</label>
 						</div>
@@ -188,7 +226,7 @@
 						<div class="font-controls">
 							<div class="font-select-wrapper">
 								<label>
-									<select name="fontSelect" id="fontSelect">
+									<select name="fontSelect" id="select-font">
 										<option value="Helvetica" selected>Helvetica</option>
 										<option value="Arial">Arial</option>
 									</select>
@@ -199,7 +237,7 @@
 								<input type="text" placeholder="16px" value="16px" id="input-fontsize" />
 							</div>
 							<div class="input-lineheight">
-								<input type="text" placeholder="19px" value="19px" id="input-lineheight" />
+								<input type="text" placeholder="18px" value="18px" id="input-lineheight" />
 								<label for="input-lineheight" id="lineheight-percent-label">110%</label>
 							</div>
 						</div>
@@ -476,7 +514,6 @@
 	</div>
 	<!-- Scripts -->
     <!-- inject:js -->
-    <script src="./js/RhythmicGridGenerator.js"></script>
     <script src="./js/app.js"></script>
     <!-- endinject -->
 </body>
