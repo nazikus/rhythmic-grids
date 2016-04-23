@@ -566,7 +566,8 @@ function drawRhythmicGrid(gridConfig){
     var g = gridConfig.gutter.W;
 
     $('.grid-outer-wrapper').css({
-        'max-width': gridConfig.maxCanvasWidth+'px'
+        'max-width': gridConfig.maxCanvasWidth+'px',
+        'padding': gridConfig.rhythmicGrid.margin+'px 0'
     });
 
     $('.grid-container').css({
