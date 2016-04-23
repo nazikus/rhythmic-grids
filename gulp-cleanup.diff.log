@@ -1,0 +1,129 @@
+commit 878f183f7dfbd951b03a5f173bc980e939540231
+Author: nazikus <nazik.g@gmail.com>
+Date:   Tue Apr 12 21:54:18 2016 +0300
+
+    WebInterface: percent label + gulp cleanup
+
+diff --git a/Concordia/Gulpfile.js b/Concordia/Gulpfile.js
+index ee93210..f01c0c3 100644
+--- a/Concordia/Gulpfile.js
++++ b/Concordia/Gulpfile.js
+@@ -65,18 +65,7 @@ gulp.task('images', function() {
+ // js task
+ gulp.task('js', function() {
+     var appStream = gulp.src([
+-            // tesseract
+-            jsSrc + '/vendor/tesseract.js',
+-            
+-            // font metrics & detect
+-            jsSrc + '/vendor/canvas-fontmetrics.js', // redifines Canvas2D.prototype.measureText()
+-            jsSrc + '/vendor/lorem.js',
+-            jsSrc + '/vendor/font-detector.js',
+-            // wierd implementation of font detector using ComicSans, but keep it for comparison
+-            // jsSrc + '/vendor/font-detector-temp.js',
+-            
+-            // app code
+-            jsSrc + '/google-analytics.js',
++           // app code
+             jsSrc + '/tesseract-drawing.js',
+             jsSrc + '/font-configurator.js',
+             jsSrc + '/grid-configurator.js',
+@@ -90,6 +79,14 @@ gulp.task('js', function() {
+ 
+     var scriptsStream = 
+         gulp.src([
++            // font metrics & detect
++            jsSrc + '/vendor/canvas-fontmetrics.js', // redefines Canvas2D.prototype.measureText()
++            jsSrc + '/vendor/lorem.js',
++            jsSrc + '/vendor/font-detector.js',
++            // wierd implementation of font detector using ComicSans, but keep it for comparison
++            jsSrc + '/vendor/font-detector-temp.js',
++            
++            jsSrc + '/vendor/google-analytics.js',
+             jsSrc + '/vendor/pre3d.js',
+             jsSrc + '/vendor/shapeutils.js',
+             './node_modules/jquery/dist/jquery.min.js',
+@@ -116,6 +113,11 @@ gulp.task('injecthtml', function () {
+                 jsDist + '/jquery.dotdotdot.js',
+                 jsDist + '/pre3d.js',
+                 jsDist + '/shapeutils.js',
++                jsDist + '/font-detector.js',
++                jsDist + '/canvas-fontmetrics.js',
++                jsDist + '/lorem.js',
++                jsDist + '/font-detector-temp.js',
++                jsDist + '/RhythmicGridGenerator.js',
+             ] , {read: false}),
+             { 
+                 transform: generateScriptTag, 
+@@ -124,7 +126,6 @@ gulp.task('injecthtml', function () {
+         ))
+         .pipe(inject(
+             gulp.src([
+-                jsDist + '/RhythmicGridGenerator.js',
+                 jsDist + '/app.js', 
+             ], {read: false}),
+             { transform: generateScriptTag }
+diff --git a/Concordia/src/js/google-analytics.js b/Concordia/src/js/google-analytics.js
+deleted file mode 100644
+index bc8e1cd..0000000
+--- a/Concordia/src/js/google-analytics.js
++++ /dev/null
+@@ -1,9 +0,0 @@
+-// GOOGLE ANALYTICS GENERATED CODE
+-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+-		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+-		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+-		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+-
+-		ga('create', 'UA-76281500-1', 'auto');
+-		ga('send', 'pageview');
+-// END GOOGLE ANALYTICS GENERATED CODE
+\ No newline at end of file
+diff --git a/Concordia/src/js/vendor/google-analytics.js b/Concordia/src/js/vendor/google-analytics.js
+new file mode 100644
+index 0000000..bc8e1cd
+--- /dev/null
++++ b/Concordia/src/js/vendor/google-analytics.js
+@@ -0,0 +1,9 @@
++// GOOGLE ANALYTICS GENERATED CODE
++(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
++		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
++		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
++		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
++
++		ga('create', 'UA-76281500-1', 'auto');
++		ga('send', 'pageview');
++// END GOOGLE ANALYTICS GENERATED CODE
+\ No newline at end of file
+diff --git a/Concordia/src/less/pages/home.less b/Concordia/src/less/pages/home.less
+index 02d2f31..4c0db36 100644
+--- a/Concordia/src/less/pages/home.less
++++ b/Concordia/src/less/pages/home.less
+@@ -20,9 +20,6 @@ h2 {
+ label {
+ 	cursor: pointer;
+ }
+-#lineheight-percent-label {
+-    color: #AFAFAF;
+-}
+ 
+ // Header
+ .logo {
+@@ -124,8 +121,16 @@ section {
+ .font-select-wrapper,
+ .input-fontsize,
+ .input-lineheight {
+-	display: inline-block;
++	display: inline;
++	margin-left: 10px;
+ }
++
++#lineheight-percent-label {
++    color: darken(@color-gray-light, 15%);
++    vertical-align: -1px;
++    cursor: unset;
++}
++
+ .font-select-wrapper {
+ 	width: 48%;
+ 	label {

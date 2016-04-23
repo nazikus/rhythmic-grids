@@ -50,6 +50,40 @@ function drawTesseract(){
   draw();
 }
 
+function gridSound () {
+	var oscillator, context, AudioContext;
+	
+	AudioContext = window.AudioContext || window.webkitAudioContext;
+	context = new AudioContext();
+
+	oscillator = context.createOscillator();
+	
+	// external methods
+	function makeSound() {
+		
+		setFrequency(4);
+		oscillator.type = 'sine';
+
+		oscillator.connect(context.destination);
+		oscillator.start(0);
+
+	}
+
+	function stopSound() {
+		oscillator.stop(0);
+		oscillator.disconnect(context.destination);
+	}
+
+	function setFrequency(frequency) {
+    	oscillator.frequency.value = 5000;
+	}
+
+	return {
+		setFrequency: setFrequency,
+		makeSound: makeSound,
+		stopSound: stopSound
+	}
+}
 (function($) {
 	$(document).ready(function(){
 		var creditsToggleBtn = $('#credits-toggle'),
@@ -476,7 +510,8 @@ function drawRhythmicGrid(gridConfig){
         arguments.callee.name
     );
 
-    
+    $('#grid-width-text').text(gridConfig.rhythmicGrid.W);
+    $('#column-width-text').text(gridConfig.rhythmicGrid.blocks[0][0]);
     ///////////////////////////////////////
     /////// GENERATE BLOCK DIVS ///////////
     ///////////////////////////////////////
@@ -509,7 +544,7 @@ function drawRhythmicGrid(gridConfig){
             
             if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
                 var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
-                inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg)');
+                inner.attr('style', 'background-image: url(img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)');
                 // console.log(inner.attr('style'));
             } else {
                 var txtmck = 'Hdxp ' + allConfigs.textMocks[idx] + '.';
@@ -531,7 +566,8 @@ function drawRhythmicGrid(gridConfig){
     var g = gridConfig.gutter.W;
 
     $('.grid-outer-wrapper').css({
-        'max-width': gridConfig.maxCanvasWidth+'px'
+        'max-width': gridConfig.maxCanvasWidth+'px',
+        'padding': gridConfig.rhythmicGrid.margin+'px 0'
     });
 
     $('.grid-container').css({
@@ -1025,7 +1061,7 @@ var allConfigs = Object.freeze((function(){
     // grid config
     var rgg = RhythmicGridGenerator,
         widthArr    = [960, 1280, 1440],
-        ratioArr    = ['1x1', '4x3', '3x2', '5x3', '16x9'],
+        ratioArr    = ['1x1', '4x3', '3x2', '16x9'],
         baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
         columnsArr  = [5, 6, 9, 12],
         gutter2baselineFactorArr = [0, 1, 2, 3, 4];
@@ -1198,4 +1234,18 @@ $('#grid-toggle')
     .data('grid-toggle', localStorage.getItem('gridToggle')==='off' ? 'on' : 'off')
     .trigger('click');
 
+// 'make sound' button
+$('#sound-toggle').on('click', function (e) {
+    e.preventDefault();
+    soundToggleBtn = $(e.target);
+    if (soundToggleBtn.data('sound-toggle') === 'on') {
+        // gridSound().makeSound();
+        soundToggleBtn.data('sound-toggle', 'off');
+    } else {
+        // gridSound().stopSound();
+        soundToggleBtn.data('sound-toggle', 'on');
+    }
+    
+
+});
 // }); // <-- $(document).ready()

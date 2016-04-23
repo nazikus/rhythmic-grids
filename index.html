@@ -176,23 +176,6 @@
 					</div>
 
 					<div class="flex-child">
-						<div class="ratio ratio-5x3">
-							<input type="radio" name="ratioSelector" id="ratio5x3" />
-							<label for="ratio5x3">
-								<div class="inner">
-									<div></div>
-								</div>
-								<div class="outer">
-									<div></div>
-								</div>
-								<div class="ratio-info">
-									5:3
-								</div>
-							</label>
-						</div>
-					</div>
-
-					<div class="flex-child">
 						<div class="ratio ratio-16x9">
 							<input type="radio" name="ratioSelector" id="ratio16x9" />
 							<label for="ratio16x9">
@@ -277,7 +260,7 @@
 				<div class="flex-row">
 					<div class="flex-child">
 						<div class="form-label">
-							Grid width (up to), px
+							Canvas width (up to), px
 						</div>
 						<div class="form-group" id="gridWidth">
 							<input type="radio" id="gridUpTo960" name="gridUpTo" checked />
@@ -368,12 +351,12 @@
 					</div>
 					<div class="flex-child">
 						<div class="downloads">
-							<a href="/rhythmic-grids/img/mocks/1.jpg" 
+							<a href="/rhythmic-grids/img/1x1/1.jpg" 
 							   onclick="ga('send', 'event', 'Exports', 'Web', gaConfig.eventDetails);" 
 							   download>
 								Web
 							</a>
-							<a href="/rhythmic-grids/img/mocks/2.jpg" 
+							<a href="/rhythmic-grids/img/1x1/2.jpg" 
 							   onclick="ga('send', 'event', 'Exports', 'Sketch', gaConfig.eventDetails);"
 							   download>
 								Sketch
@@ -387,10 +370,20 @@
 				<div class="settings-links">
 					<div class="flex-row">
 						<div class="flex-child">
-							<a href="#" class="grid-toggle" id="grid-toggle" data-grid-toggle="on">Hide Rulers</a>
+							<div class="flex-row">
+								<div class="flex-child">
+									<a href="#" class="grid-toggle" id="grid-toggle" data-grid-toggle="on">Hide Rulers</a>
+								</div>
+								<div class="flex-child">
+									<a href="#" class="sound-toggle" id="sound-toggle" data-sound-toggle="on">
+										Make it sound
+									</a>
+								</div>
+							</div>
+							
 						</div>
 						<div class="flex-child">
-							Your column width is 176 px with 33 px gutter
+							Grid width: <span id="grid-width-text"></span> px, column width: <span id="column-width-text"></span>px
 						</div>
 						<div class="flex-child">
 							Share this grid settings http://crdia.io/248
@@ -402,7 +395,7 @@
 				<div class="grid-container">
 					<div class="row">
 						<div class="column">
-							<div class="inner" style="background-image: url(img/mocks/1.jpg)"></div>
+							<div class="inner" style="background-image: url(img/1x1/1.jpg)"></div>
 						</div>
 						<div class="column">
 							<div class="inner">
@@ -412,7 +405,7 @@
 							</div>
 						</div>
 						<div class="column">
-							<div class="inner" style="background-image: url(img/mocks/2.jpg)"></div>
+							<div class="inner" style="background-image: url(img/1x1/2.jpg)"></div>
 						</div>
 						<div class="column">
 							<div class="inner">
@@ -422,15 +415,15 @@
 							</div>
 						</div>
 						<div class="column">
-							<div class="inner" style="background-image: url(img/mocks/3.jpg)"></div>
+							<div class="inner" style="background-image: url(img/1x1/3.jpg)"></div>
 						</div>
 						<div class="column">
-							<div class="inner" style="background-image: url(img/mocks/4.jpg)"></div>
+							<div class="inner" style="background-image: url(img/1x1/4.jpg)"></div>
 						</div>
 					</div>
 					<div class="row">
 						<div class="column">
-							<div class="inner" style="background-image: url(img/mocks/5.jpg)"></div>
+							<div class="inner" style="background-image: url(img/1x1/5.jpg)"></div>
 						</div>
 						<div class="column">
 							<div class="inner">
@@ -440,7 +433,7 @@
 							</div>
 						</div>
 						<div class="column">
-							<div class="inner" style="background-image: url(img/mocks/6.jpg)"></div>
+							<div class="inner" style="background-image: url(img/1x1/6.jpg)"></div>
 						</div>
 						<div class="column">
 							<div class="inner">
@@ -452,7 +445,7 @@
 					</div>
 					<div class="row">
 						<div class="column">
-							<div class="inner" style="background-image: url(img/mocks/7.jpg)"></div>
+							<div class="inner" style="background-image: url(img/1x1/7.jpg)"></div>
 						</div>
 						<div class="column">
 							<div class="inner">
@@ -463,12 +456,12 @@
 							</div>
 						</div>
 						<div class="column">
-							<div class="inner" style="background-image: url(img/mocks/8.jpg)"></div>
+							<div class="inner" style="background-image: url(img/1x1/8.jpg)"></div>
 						</div>
 					</div>
 					<div class="row">
 						<div class="column">
-							<div class="inner" style="background-image: url(img/mocks/9.jpg)"></div>
+							<div class="inner" style="background-image: url(img/1x1/9.jpg)"></div>
 						</div>
 						<div class="column">
 							<div class="inner">
