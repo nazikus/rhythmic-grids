@@ -28,7 +28,8 @@
   },
   "dependencies": {
     "dotdotdot": "^1.7.0",
+    "jquery": "2.2.2",
     "normalize-css": "2.3.1",
-    "jquery": "2.2.2"
+    "octavian": "2.2.0"
   }
 }

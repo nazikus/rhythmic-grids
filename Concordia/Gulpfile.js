@@ -66,6 +66,7 @@ gulp.task('images', function() {
 gulp.task('js', function() {
     var appStream = gulp.src([
             jsSrc + '/tesseract-drawing.js',
+            jsSrc + '/audiocontext.js',
             jsSrc + '/credits-toggle.js',
             jsSrc + '/font-configurator.js',
             jsSrc + '/grid-configurator.js',
@@ -154,7 +155,7 @@ gulp.task('server', ['build-static'], function() {
   connect.server({
     root: dist,
     livereload: true,
-    port: 8080
+    port: 8081
   });
 });
 

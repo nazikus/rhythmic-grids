@@ -194,4 +194,18 @@ $('#grid-toggle')
     .data('grid-toggle', localStorage.getItem('gridToggle')==='off' ? 'on' : 'off')
     .trigger('click');
 
+// 'make sound' button
+$('#sound-toggle').on('click', function (e) {
+    e.preventDefault();
+    soundToggleBtn = $(e.target);
+    if (soundToggleBtn.data('sound-toggle') === 'on') {
+        // gridSound().makeSound();
+        soundToggleBtn.data('sound-toggle', 'off');
+    } else {
+        // gridSound().stopSound();
+        soundToggleBtn.data('sound-toggle', 'on');
+    }
+    
+
+});
 // }); // <-- $(document).ready()

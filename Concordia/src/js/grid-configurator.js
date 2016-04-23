@@ -172,7 +172,8 @@ function drawRhythmicGrid(gridConfig){
         arguments.callee.name
     );
 
-    
+    $('#grid-width-text').text(gridConfig.rhythmicGrid.W);
+    $('#column-width-text').text(gridConfig.rhythmicGrid.blocks[0][0]);
     ///////////////////////////////////////
     /////// GENERATE BLOCK DIVS ///////////
     ///////////////////////////////////////
