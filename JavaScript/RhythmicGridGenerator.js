@@ -380,7 +380,7 @@ RhythmicGridGenerator = (function () {
 
         // default validation condition:
         return grid &&  // if grid is a rhythmic grid at all
-               grid.blocks.length > 1 && // if grid has more than 1 row
+               grid.blocks.length > 2 && // if grid has more than 1 row
                grid.blocks[1][0] < grid.W; // if second row is not the biggest block (block width must be less then grid width)
     };
 
