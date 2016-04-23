@@ -201,12 +201,11 @@ function drawRhythmicGrid(gridConfig){
             
             c++;
             // pairwise image & text blocks (if c odd - image, if c even - text)
-            
             if (i===1 && !(c%2) ) c++; // first column in row always start with an image, not text
             
             if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
                 var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
-                inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg)');
+                inner.attr('style', 'background-image: url(img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)');
                 // console.log(inner.attr('style'));
             } else {
                 var txtmck = 'Hdxp ' + allConfigs.textMocks[idx] + '.';

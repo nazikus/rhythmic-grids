@@ -2,7 +2,7 @@
 /////////////////////// TESSERACT ////////////////////////
 //////////////////////////////////////////////////////////
 
-window.addEventListener('load', drawTesseract, false);
+// window.addEventListener('load', drawTesseract, false);
 
 
 //////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ var allConfigs = Object.freeze((function(){
     // grid config
     var rgg = RhythmicGridGenerator,
         widthArr    = [960, 1280, 1440],
-        ratioArr    = ['1x1', '4x3', '3x2', '5x3', '16x9'],
+        ratioArr    = ['1x1', '4x3', '3x2', '16x9'],
         baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
         columnsArr  = [5, 6, 9, 12],
         gutter2baselineFactorArr = [0, 1, 2, 3, 4];
