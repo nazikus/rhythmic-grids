@@ -155,7 +155,7 @@ gulp.task('server', ['build-static'], function() {
   connect.server({
     root: dist,
     livereload: true,
-    port: 8081
+    port: 8080
   });
 });
 
@@ -165,7 +165,7 @@ gulp.task('watch', ['server'], function() {
     gulp.watch([lessSrc + '/common/fontmetrics.less'], ['js']);
     gulp.watch([src + '/*.html'], ['injecthtml']);
     gulp.watch([jsSrc + '/**/*.js'], ['js']);
-    gulp.watch('Gulpfile.js', ['gulp-reload']);
+    // gulp.watch('Gulpfile.js', ['gulp-reload']);
     connect.reload();
 });
 
