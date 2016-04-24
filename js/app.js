@@ -336,7 +336,7 @@ function getFontList() {
     "Helvetica", "Georgia", "Baskerville", "Charter", "Avenir", "PT Serif", "PT Sans"
   ];
 }
-function setupRadioItems(allConfigs){
+function setupRadioItems(){
     allConfigs.radioForms.each( function(idx, el){
         $(el).empty(); // clear default (index.html) radio options
         // append <input> and <label> for each config value
@@ -382,8 +382,15 @@ function createRadioInputs(inputName, valueRange){
 				value: value
 			});
 		
-		// the first radio is selected by default
-		if (!i) input.prop('checked', true); 
+		// default radio selection
+        var name = allConfigs.inputNames;
+        switch (inputName) {
+            /* gridUpTo     */ case name[0]:  if(i==1) input.prop('checked', true); break;  
+            /* gridRatio    */ case name[1]:  if(i==0) input.prop('checked', true); break;  
+            /* gridBaseline */ case name[2]:  if(i==1) input.prop('checked', true); break;  
+            /* gridColumns  */ case name[3]:  if(i==2) input.prop('checked', true); break;  
+            /* gridGutter   */ case name[4]:  if(i==3) input.prop('checked', true); break;  
+        }
 
 		// special cases for Ratio and Gutter labels
 		switch(allConfigs.inputNames.indexOf(inputName)) {
@@ -532,14 +539,13 @@ function drawRhythmicGrid(gridConfig){
             return;
 
         for (var i=1; i<=blocksInRow; i++){
-            if (idx===arr.length-1 && blockWidth>=1000)
+            if (idx===arr.length-1  )
                 continue; // skip if the last row and block is wider than 1000
 
             var inner = $('<div>').addClass('inner').addClass('inner'+i);
             
             c++;
             // pairwise image & text blocks (if c odd - image, if c even - text)
-            
             if (i===1 && !(c%2) ) c++; // first column in row always start with an image, not text
             
             if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
@@ -564,14 +570,16 @@ function drawRhythmicGrid(gridConfig){
     ////////////  SET BLOCKS STYLE  ////////////
     ////////////////////////////////////////////
     var g = gridConfig.gutter.W;
+    var margin = gridConfig.rhythmicGrid.margin;
 
     $('.grid-outer-wrapper').css({
         'max-width': gridConfig.maxCanvasWidth+'px',
-        'padding': gridConfig.rhythmicGrid.margin+'px 0'
+        'padding': (margin > 30 ? 30 : margin) +'px 0'
     });
 
     $('.grid-container').css({
-        'max-width': gridConfig.rhythmicGrid.W+'px'
+        'max-width': gridConfig.rhythmicGrid.W+'px',
+        'margin-bottom': 0
     });
 
     $('.row').css({
@@ -582,7 +590,7 @@ function drawRhythmicGrid(gridConfig){
     $('.column').css({
         'padding-left': g/2,
         'padding-right': g/2,
-        'margin-bottom': g
+        'padding-bottom': g
     });
 
     // TOFIX a problem with relative flex values and floats, eg 66.666667%
@@ -596,7 +604,7 @@ function drawRhythmicGrid(gridConfig){
         'font-size': parseInt($('#input-fontsize').val())+'px',
         'line-height': parseInt($('#input-lineheight').val())+'px',
         'padding': + Math.ceil((lh-fs)/2+3)+'px 0',
-        'overflow': 'hidden',
+        'overflow': 'unset',
         // 'text-decoration': 'underline',
         // 'vertical-align': 'text-top',
         // 'white-space': 'nowrap',
