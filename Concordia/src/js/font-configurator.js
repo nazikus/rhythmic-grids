@@ -108,7 +108,7 @@ function onFontChange(e) {
       // $('.text').addClass('hidden');
     }
   }
-  console.log("line height: %d; baseline: %d  [%s$]", lh, lh/_LHBL_F, arguments.callee.name);
+  // console.log("line height: %d; baseline: %d  [%s$]", lh, lh/_LHBL_F, arguments.callee.name);
 
 
   $('#lineheight-percent-label').text( 
@@ -135,7 +135,7 @@ function resetBaselineSelections(){
             blRange.push(lh/_LHBL_F);
         }
     }
-    console.log('factor: %s, baselines: %s  [%s>%s^] ', _LHBL_F, blRange.join(', '), arguments.callee.caller.name, arguments.callee.name);
+    // console.log('factor: %s, baselines: %s  [%s>%s^] ', _LHBL_F, blRange.join(', '), arguments.callee.caller.name, arguments.callee.name);
 
     blEl.empty();
     blRange.forEach(function(value,i){
