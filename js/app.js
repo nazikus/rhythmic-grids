@@ -224,7 +224,7 @@ function onFontChange(e) {
       // $('.text').addClass('hidden');
     }
   }
-  console.log("line height: %d; baseline: %d  [%s$]", lh, lh/_LHBL_F, arguments.callee.name);
+  // console.log("line height: %d; baseline: %d  [%s$]", lh, lh/_LHBL_F, arguments.callee.name);
 
 
   $('#lineheight-percent-label').text( 
@@ -251,7 +251,7 @@ function resetBaselineSelections(){
             blRange.push(lh/_LHBL_F);
         }
     }
-    console.log('factor: %s, baselines: %s  [%s>%s^] ', _LHBL_F, blRange.join(', '), arguments.callee.caller.name, arguments.callee.name);
+    // console.log('factor: %s, baselines: %s  [%s>%s^] ', _LHBL_F, blRange.join(', '), arguments.callee.caller.name, arguments.callee.name);
 
     blEl.empty();
     blRange.forEach(function(value,i){
@@ -336,7 +336,7 @@ function getFontList() {
     "Helvetica", "Georgia", "Baskerville", "Charter", "Avenir", "PT Serif", "PT Sans"
   ];
 }
-function setupRadioItems(allConfigs){
+function setupRadioItems(){
     allConfigs.radioForms.each( function(idx, el){
         $(el).empty(); // clear default (index.html) radio options
         // append <input> and <label> for each config value
@@ -382,8 +382,15 @@ function createRadioInputs(inputName, valueRange){
 				value: value
 			});
 		
-		// the first radio is selected by default
-		if (!i) input.prop('checked', true); 
+		// default radio selection
+        var name = allConfigs.inputNames;
+        switch (inputName) {
+            /* gridUpTo     */ case name[0]:  if(i==1) input.prop('checked', true); break;  
+            /* gridRatio    */ case name[1]:  if(i==0) input.prop('checked', true); break;  
+            /* gridBaseline */ case name[2]:  if(i==1) input.prop('checked', true); break;  
+            /* gridColumns  */ case name[3]:  if(i==2) input.prop('checked', true); break;  
+            /* gridGutter   */ case name[4]:  if(i==3) input.prop('checked', true); break;  
+        }
 
 		// special cases for Ratio and Gutter labels
 		switch(allConfigs.inputNames.indexOf(inputName)) {
@@ -415,7 +422,7 @@ function onGridChange(e){
     var el = $(e.target).parent();  // .form-group element
     var allGridSelections = getAllSelections();
 
-    console.log("id: %s; grid config: %s  [%s^]", el.attr('id'), allGridSelections.join(', '), arguments.callee.name);
+    // console.log("id: %s; grid config: %s  [%s^]", el.attr('id'), allGridSelections.join(', '), arguments.callee.name);
 
     // process ALL radio selections on every single change in grid config
     refreshRadioInputs(allConfigs.radioForms, allGridSelections); // NB! this might modify the selection
@@ -532,19 +539,18 @@ function drawRhythmicGrid(gridConfig){
             return;
 
         for (var i=1; i<=blocksInRow; i++){
-            if (idx===arr.length-1 && blockWidth>=1000)
+            if (idx===arr.length-1  )
                 continue; // skip if the last row and block is wider than 1000
 
             var inner = $('<div>').addClass('inner').addClass('inner'+i);
             
             c++;
             // pairwise image & text blocks (if c odd - image, if c even - text)
-            
             if (i===1 && !(c%2) ) c++; // first column in row always start with an image, not text
             
             if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
                 var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
-                inner.attr('style', 'background-image: url(img/mocks/' + imgId +'.jpg)');
+                inner.attr('style', 'background-image: url(img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)');
                 // console.log(inner.attr('style'));
             } else {
                 var txtmck = 'Hdxp ' + allConfigs.textMocks[idx] + '.';
@@ -564,14 +570,19 @@ function drawRhythmicGrid(gridConfig){
     ////////////  SET BLOCKS STYLE  ////////////
     ////////////////////////////////////////////
     var g = gridConfig.gutter.W;
+    var margin = gridConfig.rhythmicGrid.margin;
+    $('body').css({
+        'min-width': gridConfig.maxCanvasWidth+'px'
+    });
 
     $('.grid-outer-wrapper').css({
         'max-width': gridConfig.maxCanvasWidth+'px',
-        'padding': gridConfig.rhythmicGrid.margin+'px 0'
+        'padding': (margin > 30 ? 30 : margin) +'px 0'
     });
 
     $('.grid-container').css({
-        'max-width': gridConfig.rhythmicGrid.W+'px'
+        'max-width': gridConfig.rhythmicGrid.W+'px',
+        'margin-bottom': 0
     });
 
     $('.row').css({
@@ -582,7 +593,7 @@ function drawRhythmicGrid(gridConfig){
     $('.column').css({
         'padding-left': g/2,
         'padding-right': g/2,
-        'margin-bottom': g
+        'padding-bottom': g
     });
 
     // TOFIX a problem with relative flex values and floats, eg 66.666667%
@@ -596,7 +607,7 @@ function drawRhythmicGrid(gridConfig){
         'font-size': parseInt($('#input-fontsize').val())+'px',
         'line-height': parseInt($('#input-lineheight').val())+'px',
         'padding': + Math.ceil((lh-fs)/2+3)+'px 0',
-        'overflow': 'hidden',
+        'overflow': 'unset',
         // 'text-decoration': 'underline',
         // 'vertical-align': 'text-top',
         // 'white-space': 'nowrap',
@@ -684,8 +695,8 @@ var metricsContext = (function(){
     curr_mtext_width: 0,
     
     // drawing layout & styles
-    label_font: '16px serif',
-    'label_font_upm': '11px sans',
+    label_font: '12px Helvetica',
+    'label_font_upm': '10px Helvetica',
     baseline_y: Math.round( _canvas.height*.70 ),
     xOffL: int( $(_canvasT).css('margin-left') ),  // left offset (margin)
     xOffR: int( $(_canvasT).css('margin-right') ), // right offset (margin)
@@ -758,7 +769,9 @@ function drawMetrics() {
       cap_height= ctx.measureText('H').ascent,
       safebox_h = Math.round(metrics_fontsize / 2), // safe-box height ??
       xdev = x_height / safebox_h - 1,  // x-height deviation from safe-box height
-      line_length = canvas.width - metricsContext.xOffR; //metrics.width+b*2-xoff;
+      line_length = canvas.width - metricsContext.xOffR, //metrics.width+b*2-xoff;
+      labelRectW = 58, // static label width
+      labelRectH = 15; // // static label height
 
   // console.log('Baseline Y: %sx', baseline_y);
   // console.log('Safe-box height: %s', safebox_h);
@@ -795,8 +808,62 @@ function drawMetrics() {
   // SAFEBOX rectangle
   ctx.beginPath();
   ctx.fillStyle = 'rgba(0, 107, 255, .3)';
+  ctx.lineWidth = 0;
+  var img = document.getElementById('fontmetrics-pattern');
+  var pat=ctx.createPattern(img,"repeat");
+  ctx.rect(0, baseline_y-safebox_h, line_length, safebox_h);
+  ctx.fillStyle=pat;
+  ctx.fill();
+  // ctx.fillRect(xOffL, baseline_y-safebox_h, line_length-xOffL, safebox_h);
+
+  // SAFEBOX 50% line
+  ctx.beginPath();
+  ctx.strokeStyle = '#C5C5C5';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5,2]);
+  ctx.moveTo(0, baseline_y-safebox_h-1);
+  ctx.lineTo(line_length, baseline_y-safebox_h-1);
+  ctx.stroke();
+
+  // ASCENT & DESCENT lines
+  ctx.beginPath();
+  ctx.strokeStyle = '#C5C5C5';
+  ctx.fillStyle = 'white';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5,2]);
+  ctx.moveTo(0, baseline_y-ascent);
+  ctx.lineTo(line_length, baseline_y-ascent);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(0, baseline_y+descent);
+  ctx.lineTo(line_length, baseline_y+descent);
+  ctx.stroke();
+  
+  // labels rect for ASCEND
+  ctx.beginPath();
+  ctx.setLineDash([0, 0]);
+  ctx.fillStyle = '#C5C5C5';
   ctx.lineWidth = 2;
-  ctx.fillRect(xOffL, baseline_y-safebox_h, line_length-xOffL, safebox_h);
+  ctx.fillRect(0, baseline_y-ascent-1, labelRectW, labelRectH);
+
+  // labels rect for DESCEND
+  ctx.beginPath();
+  ctx.fillStyle = '#C5C5C5';
+  ctx.lineWidth = 2;
+  ctx.fillRect(0, baseline_y+descent-labelRectH+1, labelRectW, labelRectH);
+
+  // labels rect for CAP HEIGHT
+  ctx.beginPath();
+  ctx.fillStyle = '#D0021B';
+  ctx.lineWidth = 0;
+  ctx.fillRect(canvas.width - labelRectW, baseline_y-cap_height-labelRectH, labelRectW, labelRectH);
+
+  // labels rect for BASELINE
+  ctx.beginPath();
+  ctx.fillStyle = '#D0021B';
+  ctx.lineWidth = 0;
+  ctx.fillRect(canvas.width - labelRectW, baseline_y, labelRectW, labelRectH);
 
   // SAFEBOX label
   // ctx.fillStyle = 'rgba(0, 107, 255, .8)';
@@ -806,48 +873,50 @@ function drawMetrics() {
 
   // BASELINE line
   ctx.beginPath();
-  ctx.strokeStyle = 'lightseagreen';
-  ctx.fillStyle = ctx.strokeStyle;
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#D0021B';
+  ctx.fillStyle = 'white';
+  ctx.lineWidth = 1;
   ctx.moveTo(xOffL, baseline_y + Math.floor(ctx.lineWidth/2));
   ctx.lineTo(line_length, baseline_y + Math.floor(ctx.lineWidth/2));
   ctx.stroke();
 
   // BASELINE label
-  ctx.textBaseline = 'hanging';
+  ctx.textBaseline = 'top';
   ctx.textAlign = 'right';
-  ctx.fillText('baseline', line_length, baseline_y+2);
+  ctx.fillText('baseline', line_length-5, baseline_y);
 
 
   if (error_font){
-      $('.example-text').css('color', 'white')
-      return ;
-  } else      
-      $('.example-text').css('color', '')
-
+      $('.example-text').css('color', 'white');
+      return;
+  } else {
+      $('.example-text').css('color', '');
+  }
 
   // X-HEIGHT line
   ctx.beginPath();
-  ctx.strokeStyle = 'red';
+  ctx.strokeStyle = '#14CF74';
   ctx.fillStyle = ctx.strokeStyle;
   ctx.lineWidth = 1;
-  ctx.moveTo(xOffL, baseline_y - x_height);
+  ctx.moveTo(0, baseline_y - x_height);
   ctx.lineTo(line_length, baseline_y - x_height);
   ctx.stroke();
 
-  // X-HEIGHT label
-  ctx.textBaseline = 'hanging';
-  ctx.textAlign = 'right';
-  ctx.fillText('x-height', line_length, baseline_y-x_height+1);
+  // labels rect for 50%
+  ctx.beginPath();
+  ctx.setLineDash([0, 0]);
+  ctx.fillStyle = '#C5C5C5';
+  ctx.lineWidth = 2;
+  ctx.fillRect(0, baseline_y-safebox_h-2, labelRectW, labelRectH);
 
   // TODO color heat interpolation (for UPM label and for safebox or partial safebox)
   // http://stackoverflow.com/questions/340209/generate-colors-between-red-and-green-for-a-power-meter/340214#340214
   
   // X-HEIGHT deviation from "safe zone" (500UPMs)
   ctx.textBaseline = 'bottom';
-  ctx.textAlign = 'left';
+  ctx.textAlign = 'right';
   ctx.font = metricsContext.label_font_upm;
-  ctx.fillStyle = 'rgba(0, 107, 255, .9)';
+  ctx.fillStyle = 'black';
   if (/*xdev != 0*/1) { // omit zero UPM or not
     if (false){
       // vertical label, in UPMs
@@ -860,47 +929,39 @@ function drawMetrics() {
       // horizontal label in % or UPMs
       // ctx.fillText((xdev>=0?'+':'-') + Math.round(xdev*1000)/10 + '%', line_length, baseline_y-x_height+1);
       ctx.fillText( (xdev>0?'+':'') + Math.round(xdev*500) + ' UPM',
-           line_length+3, baseline_y-x_height+5); 
+           line_length, baseline_y-x_height); 
     }
   }
   ctx.font = metricsContext.label_font;
 
-  // ASCENT & DESCENT lines
-  ctx.beginPath();
-  ctx.strokeStyle = 'lightgray';
-  ctx.fillStyle = 'gray';
-  ctx.lineWidth = 2;
-  ctx.moveTo(xOffL, baseline_y-ascent);
-  ctx.lineTo(line_length, baseline_y-ascent);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(xOffL, baseline_y+descent);
-  ctx.lineTo(line_length, baseline_y+descent);
-  ctx.stroke();
-
   // ASCENT & DESCENT labels
-  ctx.textBaseline = 'bottom';
+  ctx.fillStyle = 'white';
+  ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('ascent', xOffL, baseline_y-ascent-2);
+  ctx.fillText('ascend', 9, baseline_y-ascent-1);
 
-  ctx.textBaseline = 'hanging';
+  ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('descent', xOffL, baseline_y+descent);
+  ctx.fillText('descend', 6, baseline_y+descent-labelRectH+1);
+
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'left';
+  ctx.fillText('50%', 19, baseline_y-safebox_h-1);
 
   // CAP HEIGHT line
   ctx.beginPath();
-  ctx.strokeStyle = 'chocolate';
-  ctx.fillStyle = ctx.strokeStyle;
+  ctx.strokeStyle = '#D0021B';
+  ctx.fillStyle = 'white';
+  ctx.setLineDash([0, 0]);
   ctx.lineWidth = 1;
   ctx.moveTo(xOffL, baseline_y - cap_height);
   ctx.lineTo(line_length, baseline_y - cap_height);
   ctx.stroke();
 
-  // CAP HEIGHT line
-  ctx.textBaseline = 'bottom';
+  // CAP HEIGHT text
+  ctx.textBaseline = 'top';
   ctx.textAlign = 'right';
-  ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
+  ctx.fillText('cap height', line_length-1, baseline_y-cap_height-labelRectH);
 
   var timing = performance.now() - startTime;
   console.log('... metrics rendering finished (%.1dms).  [%s>%s]', timing, arguments.callee.caller.name, arguments.callee.name);
@@ -1061,7 +1122,7 @@ var allConfigs = Object.freeze((function(){
     // grid config
     var rgg = RhythmicGridGenerator,
         widthArr    = [960, 1280, 1440],
-        ratioArr    = ['1x1', '4x3', '3x2', '5x3', '16x9'],
+        ratioArr    = ['1x1', '4x3', '3x2', '16x9'],
         baselineArr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
         columnsArr  = [5, 6, 9, 12],
         gutter2baselineFactorArr = [0, 1, 2, 3, 4];
