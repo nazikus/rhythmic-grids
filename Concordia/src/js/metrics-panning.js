@@ -56,8 +56,8 @@ window.onmouseup = function(){
 // TODO horizontal scroll-panning (currently only in FF)
 // TODO kinectic scrolling: http://ariya.ofilabs.com/2013/11/javascript-kinetic-scrolling-part-2.html
 
-metricsContext.canvasT.addEventListener('DOMMouseScroll', mouseWheelEvent);
-metricsContext.canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
+// metricsContext.canvasT.addEventListener('DOMMouseScroll', mouseWheelEvent);
+// metricsContext.canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
 
 function mouseWheelEvent(e){
     var mCtx = metricsContext;
