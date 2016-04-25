@@ -145,31 +145,61 @@ function drawMetrics() {
   ctx.beginPath();
   ctx.fillStyle = 'rgba(0, 107, 255, .3)';
   ctx.lineWidth = 0;
-  ctx.fillRect(xOffL, baseline_y-safebox_h, line_length-xOffL, safebox_h);
+  var img = document.getElementById('fontmetrics-pattern');
+  var pat=ctx.createPattern(img,"repeat");
+  ctx.rect(0, baseline_y-safebox_h, line_length, safebox_h);
+  ctx.fillStyle=pat;
+  ctx.fill();
+  // ctx.fillRect(xOffL, baseline_y-safebox_h, line_length-xOffL, safebox_h);
 
-  // LABELS RECTANGLE FOR ASCEND
+  // SAFEBOX 50% line
+  ctx.beginPath();
+  ctx.strokeStyle = '#C5C5C5';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5,2]);
+  ctx.moveTo(0, baseline_y-safebox_h-1);
+  ctx.lineTo(line_length, baseline_y-safebox_h-1);
+  ctx.stroke();
+
+  // ASCENT & DESCENT lines
+  ctx.beginPath();
+  ctx.strokeStyle = '#C5C5C5';
+  ctx.fillStyle = 'white';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5,2]);
+  ctx.moveTo(0, baseline_y-ascent);
+  ctx.lineTo(line_length, baseline_y-ascent);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(0, baseline_y+descent);
+  ctx.lineTo(line_length, baseline_y+descent);
+  ctx.stroke();
+  
+  // labels rect for ASCEND
+  ctx.beginPath();
+  ctx.setLineDash([0, 0]);
+  ctx.fillStyle = '#C5C5C5';
+  ctx.lineWidth = 2;
+  ctx.fillRect(0, baseline_y-ascent-1, labelRectW, labelRectH);
+
+  // labels rect for DESCEND
   ctx.beginPath();
   ctx.fillStyle = '#C5C5C5';
   ctx.lineWidth = 2;
-  ctx.fillRect(0, baseline_y-ascent, labelRectW, baseline_y-ascent-labelRectH);
+  ctx.fillRect(0, baseline_y+descent-labelRectH+1, labelRectW, labelRectH);
 
-  // LABELS RECTANGLE FOR DESCEND
-  ctx.beginPath();
-  ctx.fillStyle = '#C5C5C5';
-  ctx.lineWidth = 2;
-  ctx.fillRect(0, baseline_y+descent, labelRectW, baseline_y-ascent-labelRectH);
-
-  // LABELS RECTANGLE FOR CAP HEIGHT
+  // labels rect for CAP HEIGHT
   ctx.beginPath();
   ctx.fillStyle = '#D0021B';
   ctx.lineWidth = 0;
-  ctx.fillRect(canvas.width - labelRectW, baseline_y-cap_height, line_length+xOffL, baseline_y-cap_height-labelRectH);
+  ctx.fillRect(canvas.width - labelRectW, baseline_y-cap_height-labelRectH, labelRectW, labelRectH);
 
-  // LABELS RECTANGLE FOR BASELINE
+  // labels rect for BASELINE
   ctx.beginPath();
   ctx.fillStyle = '#D0021B';
   ctx.lineWidth = 0;
-  ctx.fillRect(canvas.width - labelRectW, baseline_y, line_length+xOffL, baseline_y-ascent-labelRectH);
+  ctx.fillRect(canvas.width - labelRectW, baseline_y, labelRectW, labelRectH);
 
   // SAFEBOX label
   // ctx.fillStyle = 'rgba(0, 107, 255, .8)';
@@ -189,24 +219,31 @@ function drawMetrics() {
   // BASELINE label
   ctx.textBaseline = 'top';
   ctx.textAlign = 'right';
-  ctx.fillText('baseline', line_length, baseline_y);
+  ctx.fillText('baseline', line_length-5, baseline_y);
 
 
   if (error_font){
-      $('.example-text').css('color', 'white')
-      return ;
-  } else      
-      $('.example-text').css('color', '')
-
+      $('.example-text').css('color', 'white');
+      return;
+  } else {
+      $('.example-text').css('color', '');
+  }
 
   // X-HEIGHT line
   ctx.beginPath();
-  ctx.strokeStyle = '#D0021B';
+  ctx.strokeStyle = '#14CF74';
   ctx.fillStyle = ctx.strokeStyle;
   ctx.lineWidth = 1;
-  ctx.moveTo(xOffL, baseline_y - x_height);
+  ctx.moveTo(0, baseline_y - x_height);
   ctx.lineTo(line_length, baseline_y - x_height);
   ctx.stroke();
+
+  // labels rect for 50%
+  ctx.beginPath();
+  ctx.setLineDash([0, 0]);
+  ctx.fillStyle = '#C5C5C5';
+  ctx.lineWidth = 2;
+  ctx.fillRect(0, baseline_y-safebox_h-2, labelRectW, labelRectH);
 
   // TODO color heat interpolation (for UPM label and for safebox or partial safebox)
   // http://stackoverflow.com/questions/340209/generate-colors-between-red-and-green-for-a-power-meter/340214#340214
@@ -228,34 +265,24 @@ function drawMetrics() {
       // horizontal label in % or UPMs
       // ctx.fillText((xdev>=0?'+':'-') + Math.round(xdev*1000)/10 + '%', line_length, baseline_y-x_height+1);
       ctx.fillText( (xdev>0?'+':'') + Math.round(xdev*500) + ' UPM',
-           line_length, baseline_y-x_height+3); 
+           line_length, baseline_y-x_height); 
     }
   }
   ctx.font = metricsContext.label_font;
 
-  // ASCENT & DESCENT lines
-  ctx.beginPath();
-  ctx.strokeStyle = '#C5C5C5';
-  ctx.fillStyle = 'white';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([5,2]);
-  ctx.moveTo(0, baseline_y-ascent);
-  ctx.lineTo(line_length, baseline_y-ascent);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(0, baseline_y+descent);
-  ctx.lineTo(line_length, baseline_y+descent);
-  ctx.stroke();
-
   // ASCENT & DESCENT labels
+  ctx.fillStyle = 'white';
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('ascend', 7, baseline_y-ascent+1);
+  ctx.fillText('ascend', 9, baseline_y-ascent-1);
 
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('descend', 5, baseline_y+descent);
+  ctx.fillText('descend', 6, baseline_y+descent-labelRectH+1);
+
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'left';
+  ctx.fillText('50%', 19, baseline_y-safebox_h-1);
 
   // CAP HEIGHT line
   ctx.beginPath();
@@ -270,7 +297,7 @@ function drawMetrics() {
   // CAP HEIGHT text
   ctx.textBaseline = 'top';
   ctx.textAlign = 'right';
-  ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
+  ctx.fillText('cap height', line_length-1, baseline_y-cap_height-labelRectH);
 
   var timing = performance.now() - startTime;
   console.log('... metrics rendering finished (%.1dms).  [%s>%s]', timing, arguments.callee.caller.name, arguments.callee.name);

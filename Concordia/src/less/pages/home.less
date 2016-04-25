@@ -123,6 +123,9 @@ section {
 .input-fontsize,
 .input-lineheight {
 	display: inline;
+}
+.input-fontsize,
+.input-lineheight {
 	margin-left: 10px;
 }
 
@@ -297,8 +300,12 @@ section {
 		margin-left: -5px;
 		margin-right: -5px;
 		margin-top: 16px;
-		a {
+		a, span {
 			margin: 0 5px;
+		}
+		.link-disabled {
+			cursor: not-allowed;
+			color: #D6D6D6;
 		}
 	}
 	.settings-links {

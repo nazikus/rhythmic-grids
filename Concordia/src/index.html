@@ -5,7 +5,7 @@
 	<title>Concordia Grid</title>
 	<meta name="description" content="No rhythm no hip-hop" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-	<link rel="icon" type="image/png" href="favicon.png">
+	<link rel="icon" type="image/png" href="img/favicon.png">
 	<link rel="stylesheet" href="css/main.css" />
 	<link rel="stylesheet" href="css/grid.css" />
 	<!-- inject:head:js -->
@@ -14,7 +14,6 @@
 <body>
 	<!-- Main wrapper -->
 	<div class="outer-wrapper">
-		
 		<section class="banner">
 			<canvas id="tesseract" class="tesseract" width="5240"  height="3500"></canvas>
 			<div class="container height-full p-rel">
@@ -109,9 +108,67 @@
 			</div>
 		</section>
 		<section>
+			<h2 class="text-center">
+				Set your body copy
+			</h2>
+			<div class="container">
+				<div class="flex-row">
+					<div class="flex-child half">
+						<div class="font-source">
+							<span>Detected</span>
+							<span class="font-source-separator"> / </span>
+							<a href="#">Add your own</a>
+						</div>
+						<div class="font-controls">
+							<div class="font-select-wrapper">
+								<label>
+									<select name="fontSelect" id="select-font">
+										<option value="Helvetica" selected>Helvetica</option>
+										<option value="Arial">Arial</option>
+									</select>
+									<div class="triangle">▾</div>
+								</label>
+							</div>
+							<div class="input-fontsize">
+								<input type="text" placeholder="16px" value="16px" id="input-fontsize" />
+							</div>
+							<div class="input-lineheight">
+								<input type="text" placeholder="18px" value="18px" id="input-lineheight" />
+								<label for="input-lineheight" id="lineheight-percent-label">110%</label>
+							</div>
+						</div>
+						<p class="example-text" contenteditable="true">
+							Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media proportion of your taste. Concordia will do the rest and will generate a modular grid just for you. Now, choose any of your system fonts above.
+						</p>
+						<div class="baseline-info">
+							Your baseline value will be 
+							<span>8</span> px
+						</div>
+					</div>
+					<div class="flex-child half">
+						<p>Adjust properties to improve legibility</p>
+						<div class="fontmetrics-input-wrapper">
+							<input type="text" value="Hdxp" id="fontmetrics-input-wrapper" />
+						</div>
+						<div class="fontmetrics-wrapper">
+							<canvas id="metrics-canvas" class="disable-select">
+								Sorry, your browser doesn't support the &lt;canvas&gt; element.
+							</canvas>
+							<canvas id="text-canvas" class="disable-select">
+								Sorry again, your browser doesn't support the &lt;canvas&gt; element.
+							</canvas>
+						</div>
+						<p class="fontmetrics-helper-info">
+							Keep in mind, that x-height value of your body copy should be as close as possible to 500UPM in order to be legible on the web.
+						</p>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section>
 			<div class="container ratio-selector">
 				<h2 class="text-center">
-					Choose your ratio
+					Now choose your ratio
 					<div class="heading-arrow">↓</div>
 				</h2>
 				<div class="flex-row">
@@ -181,64 +238,6 @@
 								</div>
 							</label>
 						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-		<section>
-			<h2 class="text-center">
-				Now set your body copy
-			</h2>
-			<div class="container">
-				<div class="flex-row">
-					<div class="flex-child half">
-						<div class="font-source">
-							<a href="#">Local</a>
-							<span class="font-source-separator"> / </span>
-							<span>Google fonts <span class="color-gray">(coming soon)</span></span>
-						</div>
-						<div class="font-controls">
-							<div class="font-select-wrapper">
-								<label>
-									<select name="fontSelect" id="select-font">
-										<option value="Helvetica" selected>Helvetica</option>
-										<option value="Arial">Arial</option>
-									</select>
-									<div class="triangle">▾</div>
-								</label>
-							</div>
-							<div class="input-fontsize">
-								<input type="text" placeholder="16px" value="16px" id="input-fontsize" />
-							</div>
-							<div class="input-lineheight">
-								<input type="text" placeholder="18px" value="18px" id="input-lineheight" />
-								<label for="input-lineheight" id="lineheight-percent-label">110%</label>
-							</div>
-						</div>
-						<p class="example-text" contenteditable="true">
-							Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media proportion of your taste. Concordia will do the rest and will generate a modular grid just for you. Now, choose any of your system fonts above.
-						</p>
-						<div class="baseline-info">
-							Your baseline value will be 
-							<span>8</span> px
-						</div>
-					</div>
-					<div class="flex-child half">
-						<p>Adjust properties to improve legibility</p>
-						<div class="fontmetrics-input-wrapper">
-							<input type="text" value="Hdxp" id="fontmetrics-input-wrapper" />
-						</div>
-						<div class="fontmetrics-wrapper">
-							<canvas id="metrics-canvas" class="disable-select">
-								Sorry, your browser doesn't support the &lt;canvas&gt; element.
-							</canvas>
-							<canvas id="text-canvas" class="disable-select">
-								Sorry again, your browser doesn't support the &lt;canvas&gt; element.
-							</canvas>
-						</div>
-						<p class="fontmetrics-helper-info">
-							Keep in mind, that x-height value of your body copy should be as close as possible to 500UPM in order to be legible on the web.
-						</p>
 					</div>
 				</div>
 			</div>
@@ -342,7 +341,7 @@
 					</div>
 					<div class="flex-child">
 						<div class="downloads">
-							<a href="/rhythmic-grids/img/1x1/1.jpg" 
+							<!-- <a href="/rhythmic-grids/img/1x1/1.jpg" 
 							   onclick="ga('send', 'event', 'Exports', 'Web', gaConfig.eventDetails);" 
 							   download>
 								Web
@@ -351,10 +350,18 @@
 							   onclick="ga('send', 'event', 'Exports', 'Sketch', gaConfig.eventDetails);"
 							   download>
 								Sketch
-							</a>
-							<a href="#">
+							</a> -->
+							<a href="/rhythmic-grids/img/1x1/1.jpg" 
+							   onclick="ga('send', 'event', 'Exports', 'Photoshop', gaConfig.eventDetails);" 
+							   download>
 								Photoshop
 							</a>
+							<span class="link-disabled">
+								Web
+							</span>
+							<span class="link-disabled">
+								Sketch
+							</span>
 						</div>
 					</div>
 				</div>
@@ -365,11 +372,11 @@
 								<div class="flex-child">
 									<a href="#" class="grid-toggle" id="grid-toggle" data-grid-toggle="on">Hide Rulers</a>
 								</div>
-								<div class="flex-child">
+								<!-- <div class="flex-child">
 									<a href="#" class="sound-toggle" id="sound-toggle" data-sound-toggle="on">
 										Make it sound
 									</a>
-								</div>
+								</div> -->
 							</div>
 							
 						</div>
@@ -494,6 +501,7 @@
 					</div>
 				</div>
 			</div>
+			<img src="img/fontmetrics-pattern.jpg" id="fontmetrics-pattern" style="display: none;">
 		</footer>
 	</div>
 	<!-- Scripts -->
