@@ -571,6 +571,7 @@ function drawRhythmicGrid(gridConfig){
     ////////////////////////////////////////////
     var g = gridConfig.gutter.W;
     var margin = gridConfig.rhythmicGrid.margin;
+
     $('body').css({
         'min-width': gridConfig.maxCanvasWidth+'px'
     });
