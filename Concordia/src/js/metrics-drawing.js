@@ -31,8 +31,8 @@ var metricsContext = (function(){
     curr_mtext_width: 0,
     
     // drawing layout & styles
-    label_font: '16px serif',
-    'label_font_upm': '11px sans',
+    label_font: '12px Helvetica',
+    'label_font_upm': '10px Helvetica',
     baseline_y: Math.round( _canvas.height*.70 ),
     xOffL: int( $(_canvasT).css('margin-left') ),  // left offset (margin)
     xOffR: int( $(_canvasT).css('margin-right') ), // right offset (margin)
@@ -105,7 +105,9 @@ function drawMetrics() {
       cap_height= ctx.measureText('H').ascent,
       safebox_h = Math.round(metrics_fontsize / 2), // safe-box height ??
       xdev = x_height / safebox_h - 1,  // x-height deviation from safe-box height
-      line_length = canvas.width - metricsContext.xOffR; //metrics.width+b*2-xoff;
+      line_length = canvas.width - metricsContext.xOffR, //metrics.width+b*2-xoff;
+      labelRectW = 58, // static label width
+      labelRectH = 15; // // static label height
 
   // console.log('Baseline Y: %sx', baseline_y);
   // console.log('Safe-box height: %s', safebox_h);
@@ -142,8 +144,32 @@ function drawMetrics() {
   // SAFEBOX rectangle
   ctx.beginPath();
   ctx.fillStyle = 'rgba(0, 107, 255, .3)';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 0;
   ctx.fillRect(xOffL, baseline_y-safebox_h, line_length-xOffL, safebox_h);
+
+  // LABELS RECTANGLE FOR ASCEND
+  ctx.beginPath();
+  ctx.fillStyle = '#C5C5C5';
+  ctx.lineWidth = 2;
+  ctx.fillRect(0, baseline_y-ascent, labelRectW, baseline_y-ascent-labelRectH);
+
+  // LABELS RECTANGLE FOR DESCEND
+  ctx.beginPath();
+  ctx.fillStyle = '#C5C5C5';
+  ctx.lineWidth = 2;
+  ctx.fillRect(0, baseline_y+descent, labelRectW, baseline_y-ascent-labelRectH);
+
+  // LABELS RECTANGLE FOR CAP HEIGHT
+  ctx.beginPath();
+  ctx.fillStyle = '#D0021B';
+  ctx.lineWidth = 0;
+  ctx.fillRect(canvas.width - labelRectW, baseline_y-cap_height, line_length+xOffL, baseline_y-cap_height-labelRectH);
+
+  // LABELS RECTANGLE FOR BASELINE
+  ctx.beginPath();
+  ctx.fillStyle = '#D0021B';
+  ctx.lineWidth = 0;
+  ctx.fillRect(canvas.width - labelRectW, baseline_y, line_length+xOffL, baseline_y-ascent-labelRectH);
 
   // SAFEBOX label
   // ctx.fillStyle = 'rgba(0, 107, 255, .8)';
@@ -153,17 +179,17 @@ function drawMetrics() {
 
   // BASELINE line
   ctx.beginPath();
-  ctx.strokeStyle = 'lightseagreen';
-  ctx.fillStyle = ctx.strokeStyle;
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#D0021B';
+  ctx.fillStyle = 'white';
+  ctx.lineWidth = 1;
   ctx.moveTo(xOffL, baseline_y + Math.floor(ctx.lineWidth/2));
   ctx.lineTo(line_length, baseline_y + Math.floor(ctx.lineWidth/2));
   ctx.stroke();
 
   // BASELINE label
-  ctx.textBaseline = 'hanging';
+  ctx.textBaseline = 'top';
   ctx.textAlign = 'right';
-  ctx.fillText('baseline', line_length, baseline_y+2);
+  ctx.fillText('baseline', line_length, baseline_y);
 
 
   if (error_font){
@@ -175,26 +201,21 @@ function drawMetrics() {
 
   // X-HEIGHT line
   ctx.beginPath();
-  ctx.strokeStyle = 'red';
+  ctx.strokeStyle = '#D0021B';
   ctx.fillStyle = ctx.strokeStyle;
   ctx.lineWidth = 1;
   ctx.moveTo(xOffL, baseline_y - x_height);
   ctx.lineTo(line_length, baseline_y - x_height);
   ctx.stroke();
 
-  // X-HEIGHT label
-  ctx.textBaseline = 'hanging';
-  ctx.textAlign = 'right';
-  ctx.fillText('x-height', line_length, baseline_y-x_height+1);
-
   // TODO color heat interpolation (for UPM label and for safebox or partial safebox)
   // http://stackoverflow.com/questions/340209/generate-colors-between-red-and-green-for-a-power-meter/340214#340214
   
   // X-HEIGHT deviation from "safe zone" (500UPMs)
   ctx.textBaseline = 'bottom';
-  ctx.textAlign = 'left';
+  ctx.textAlign = 'right';
   ctx.font = metricsContext.label_font_upm;
-  ctx.fillStyle = 'rgba(0, 107, 255, .9)';
+  ctx.fillStyle = 'black';
   if (/*xdev != 0*/1) { // omit zero UPM or not
     if (false){
       // vertical label, in UPMs
@@ -207,45 +228,47 @@ function drawMetrics() {
       // horizontal label in % or UPMs
       // ctx.fillText((xdev>=0?'+':'-') + Math.round(xdev*1000)/10 + '%', line_length, baseline_y-x_height+1);
       ctx.fillText( (xdev>0?'+':'') + Math.round(xdev*500) + ' UPM',
-           line_length+3, baseline_y-x_height+5); 
+           line_length, baseline_y-x_height+3); 
     }
   }
   ctx.font = metricsContext.label_font;
 
   // ASCENT & DESCENT lines
   ctx.beginPath();
-  ctx.strokeStyle = 'lightgray';
-  ctx.fillStyle = 'gray';
-  ctx.lineWidth = 2;
-  ctx.moveTo(xOffL, baseline_y-ascent);
+  ctx.strokeStyle = '#C5C5C5';
+  ctx.fillStyle = 'white';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5,2]);
+  ctx.moveTo(0, baseline_y-ascent);
   ctx.lineTo(line_length, baseline_y-ascent);
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.moveTo(xOffL, baseline_y+descent);
+  ctx.moveTo(0, baseline_y+descent);
   ctx.lineTo(line_length, baseline_y+descent);
   ctx.stroke();
 
   // ASCENT & DESCENT labels
-  ctx.textBaseline = 'bottom';
+  ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('ascent', xOffL, baseline_y-ascent-2);
+  ctx.fillText('ascend', 7, baseline_y-ascent+1);
 
-  ctx.textBaseline = 'hanging';
+  ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('descent', xOffL, baseline_y+descent);
+  ctx.fillText('descend', 5, baseline_y+descent);
 
   // CAP HEIGHT line
   ctx.beginPath();
-  ctx.strokeStyle = 'chocolate';
-  ctx.fillStyle = ctx.strokeStyle;
+  ctx.strokeStyle = '#D0021B';
+  ctx.fillStyle = 'white';
+  ctx.setLineDash([0, 0]);
   ctx.lineWidth = 1;
   ctx.moveTo(xOffL, baseline_y - cap_height);
   ctx.lineTo(line_length, baseline_y - cap_height);
   ctx.stroke();
 
-  // CAP HEIGHT line
-  ctx.textBaseline = 'bottom';
+  // CAP HEIGHT text
+  ctx.textBaseline = 'top';
   ctx.textAlign = 'right';
   ctx.fillText('cap height', line_length, baseline_y-cap_height+1);
 

@@ -23,6 +23,12 @@
 .half {
 	margin-left: 8.33%;
 	margin-right: 8.33%;
+	&:first-child {
+		margin-left: 0;
+	}
+	&:last-child {
+		margin-right: 0;
+	}
 }
 @media (max-width: @container-width-lg + (@gutter-width * 2)) {
 	.container {
