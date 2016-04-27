@@ -1,17 +1,18 @@
-(define (rhythmic-guides maxWidth ratio baseline columns gutterX)
+(define (rhythmic-guides maxWidth ratio baseline columns gutterX blocks psdPath psdBasename)
 ; Generates vertical guides along micro-block sides and horizontal lines along each baseline
-; blocks psdPath psdBasename)
 ; maxWidth - width of a canvas/layer
 ; ratio    - list of ratio values '(width height)
 ; baseline - (unused) show first few baseline guides
 ; columns  - number of micro-blocks fitting horizontally into maxWidth
-; gutter   - gutter width ratio
+; gutterX  - gutter width ratio
 
     
     ; INITIALIZE VARS, IMAGE AND LAYER
+    ; uBlockW - micro-block width
+    ; uBlockH - micro-block height
     (let* (
-        (maxHeight 600)
-        (inc (makelist (- columns 1)) )
+        (incV (reverse (makelist (- columns 1))))
+        (incH (reverse (makelist (length blocks))))
 
         (r (/ (car ratio) (cadr ratio) ) )
         (gutter (* baseline gutterX))
@@ -22,17 +23,30 @@
         (uBlockW (* (truncate (/ (- (/ (+ maxWidth gutter) columns) gutter) uBlockW_min )) uBlockW_min) )
         (uBlockH (/ uBlockW r) )
 
+        ; read from 'blocks' input, if not nil
         ; (uBlockW (caar blocks))
         ; (uBlockH (cadar blocks))
 
         (margin (/ (- maxWidth (- (* columns (+ uBlockW gutter)) gutter)) 2) )
 
-        (guidesVertL (mapcar (lambda (x) (+ (* x (+ uBlockW gutter)) margin)) inc) )
-        (guidesVertR (mapcar (lambda (x) (+ (+ (* x (+ uBlockW gutter)) margin) uBlockW))  inc) )
-        
+        ; left & right guides for each vertical gutter
+        (guidesVertL (map (lambda (x) (+ (* x (+ uBlockW gutter)) margin)) incV) )
+        (guidesVertR (map (lambda (x) (+ (+ (* x (+ uBlockW gutter)) margin) uBlockW))  incV) )
+
+        ; top & bottom guides for each vertical gutter
+        (guidesHorizT 
+            (if (null? blocks)
+                nil
+                (map (lambda (x) (+ (car x) (* (cadr x) gutter)) )
+                    (zip (cons 0 (cumsum (map (lambda (x) (cadr x)) blocks))) incH) )
+            )
+        )
+        (guidesHorizB (map (lambda (h) (+ h gutter) ) guidesHorizT) )
+
+        (maxHeight (if (null? blocks) 900 (car (reverse guidesHorizB)) ))
         (rhImage (car (gimp-image-new maxWidth maxHeight RGB)) )
         (rhLayer (car (gimp-layer-new rhImage 
-                                      maxWidth 
+                                      maxWidth   
                                       maxHeight 
                                       RGB-IMAGE 
                                       "Background" 
@@ -42,6 +56,7 @@
     (gimp-image-insert-layer rhImage rhLayer 0 0)
     (gimp-drawable-fill rhLayer WHITE-FILL)
 
+
     ; INSERT RHYTHMIC GUIDES
     (while (not (null? guidesVertL))
         (gimp-image-add-vguide rhImage (car guidesVertL))
@@ -49,22 +64,26 @@
         (set! guidesVertL (cdr guidesVertL))
         (set! guidesVertR (cdr guidesVertR))
     )
-    ; (gimp-image-add-hguide rhImage uBlockH)
-    ; (gimp-image-add-hguide rhImage (+ uBlockH gutter))
+    
+    (while (not (null? guidesHorizT))
+        (gimp-image-add-hguide rhImage (car guidesHorizT))
+        (gimp-image-add-hguide rhImage (car guidesHorizB))
+        (set! guidesHorizT (cdr guidesHorizT))
+        (set! guidesHorizB (cdr guidesHorizB))
+    )
 
-    ; (if (not (null? blocks)) (gimp-message "TODO draw blocks") )
-
-    ; DEBUG IN GIMP GUI
-    (gimp-display-new rhImage)   
-    (gimp-image-clean-all rhImage)
+    ; DEBUG IN GIMP GUI CONSOLE
+    ; (gimp-display-new rhImage)   
+    ; (gimp-image-clean-all rhImage)
     ; (gimp-message psdPath)
     ; (gimp-message (string-append "Generated rhythmic guides with micro-block " (number->string uBlockW) "X" (number->string uBlockH) ))
 
-    (file-psd-save RUN-NONINTERACTIVE rhImage rhLayer "D:\\testi.psd" "testi.psd" 0 0)
-    ; (file-psd-save RUN-NONINTERACTIVE rhImage rhLayer (string-append psdPath psdBasename ".psd") (string-append psdBasename ".psd") 0 0)
+    (file-psd-save RUN-NONINTERACTIVE rhImage rhLayer (string-append psdPath psdBasename ".psd") (string-append psdBasename ".psd") 0 0)
+    ; (file-psd-save RUN-NONINTERACTIVE rhImage rhLayer "D:\\testi.psd" "testi.psd" 0 0)
     
     ; RETURN LIST
     (list rhImage rhLayer)
+    
     )   
 )
 
@@ -96,8 +115,31 @@
     (/ (* a b) (gcd a b) ) 
 )
 
+; zip (pairwise concat) two lists. Source: https://github.com/magnars/dash.el/issues/14
+(define (zip list1 list2)
+    (let ((r nil))
+        (while (not (or (null? list1) (null? list2)))
+            (set! r (cons (list (car list1) (car list2)) r))
+            (set! list1 (cdr list1))
+            (set! list2 (cdr list2)))
+        (reverse r)
+    )
+)
+
+; cumulative sum of list elements
+(define (cumsum lst)
+    (let ((r (list (car lst))))
+        (set! lst (cdr lst))
+        (while (not (null? lst))
+            (set! r (cons (+(car r) (car lst)) r))
+            (set! lst (cdr lst)) )
+        (reverse r)
+    )
+
+)
+
 ; Register current Script-Fu script
-(script-fu-register "rhythmic-guides makelist mod gcd lcm"  ; function names
+(script-fu-register "rhythmic-guides makelist mod gcd lcm zip cumsum"  ; function names
                     "Rhythmic Guides"  ; menu label
                     "Creates new image along with guides for rhythmic grid.\
                     Returns ID of the created image and ID of its drawable (layer)."  ; description
@@ -107,6 +149,6 @@
                     ""                   ; image mode (not needed for scripts creating new images)
 )
 
-
+; command example for Script-Fu console:
 ; (rhythmic-guides 960 '(3 2) 5 6 3 '((135 90) (285 190) (435 290) (885 590)) "D:\\" "psd_name")
 ; (rhythmic-guides 960 '(3 2) 5 6 3 nil "D:\\" "psd_name")
