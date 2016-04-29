@@ -207,4 +207,15 @@ $('#sound-toggle').on('click', function (e) {
     
 
 });
+
+
+// photoshop button
+$('#photoshopButton').on('click', function(){
+    $(this).addClass('link-disabled');
+    window.setTimeout(function(){
+        $('#photoshopButton').removeClass('link-disabled');
+    }, 3500);
+});
+
+
 // }); // <-- $(document).ready()
