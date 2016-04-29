@@ -385,7 +385,7 @@ function createRadioInputs(inputName, valueRange){
 		// default radio selection
         var name = allConfigs.inputNames;
         switch (inputName) {
-            /* gridUpTo     */ case name[0]:  if(i==1) input.prop('checked', true); break;  
+            /* canvasWdith  */ case name[0]:  if(i==1) input.prop('checked', true); break;  
             /* gridRatio    */ case name[1]:  if(i==0) input.prop('checked', true); break;  
             /* gridBaseline */ case name[2]:  if(i==1) input.prop('checked', true); break;  
             /* gridColumns  */ case name[3]:  if(i==2) input.prop('checked', true); break;  
@@ -456,11 +456,21 @@ function onGridChange(e){
     // re-draw the grid
     var gridConfig = RhythmicGridGenerator.selectGrid(
                 allConfigs.allValidGrids, allGridSelections );
-
-    if (gridConfig)
+     
+    if (gridConfig) {
+        $('#photoshopButton').removeClass('link-disabled').attr('href', 
+            'http://162.247.154.128/psd?'+
+            'w='+gridConfig.maxCanvasWidth+'&'+
+            'r='+gridConfig.ratio.str+'&'+
+            'b='+gridConfig.baseline+'&'+
+            'c='+gridConfig.columnsNum+'&'+
+            'g='+(gridConfig.gutter.W/gridConfig.baseline));
         drawRhythmicGrid(gridConfig);
-    else
+    }
+    else {
+        $('#photoshopButton').addClass('link-disabled');
         allConfigs.gridContainer.empty();
+    }
 }   
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -571,7 +581,6 @@ function drawRhythmicGrid(gridConfig){
     ////////////////////////////////////////////
     var g = gridConfig.gutter.W;
     var margin = gridConfig.rhythmicGrid.margin;
-
     $('body').css({
         'min-width': gridConfig.maxCanvasWidth+'px'
     });
@@ -1027,8 +1036,8 @@ window.onmouseup = function(){
 // TODO horizontal scroll-panning (currently only in FF)
 // TODO kinectic scrolling: http://ariya.ofilabs.com/2013/11/javascript-kinetic-scrolling-part-2.html
 
-metricsContext.canvasT.addEventListener('DOMMouseScroll', mouseWheelEvent);
-metricsContext.canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
+// metricsContext.canvasT.addEventListener('DOMMouseScroll', mouseWheelEvent);
+// metricsContext.canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
 
 function mouseWheelEvent(e){
     var mCtx = metricsContext;
@@ -1128,8 +1137,7 @@ var allConfigs = Object.freeze((function(){
         columnsArr  = [5, 6, 9, 12],
         gutter2baselineFactorArr = [0, 1, 2, 3, 4];
 
-
-    // you can specify a predicate validator which difines a valid grid and filters
+    // you can specify a predicate validator which defines a valid grid and filters
     // invalid ones during generation. The default validator:
     // console.log('Current grid validator:\n' + 
     //               rgg.isValidGrid.toString().replace(/$\s*\/\/.*/gm, '') + '\n');
@@ -1161,7 +1169,7 @@ var allConfigs = Object.freeze((function(){
         lineHeightLimit: {min: 1.0, max: 1.5}, // percent of font size
         
         rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
-        inputNames   : ['gridUpTo', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
+        inputNames   : ['canvasWidth', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
 
         gridContainer: $('.grid-container'),   
         radioForms   : $('.grid-section > .container > .flex-row >'+
@@ -1271,7 +1279,7 @@ $('.ratio-selector .flex-row').on('change', function(){
 // create radio items based on the grid config above
 setupRadioItems(allConfigs);
 
-// initialize 'hide grid' button
+// 'hide grid' button
 $('#grid-toggle').on('click', function(e){
     e.preventDefault();
     gridToggleBtn = $(e.target);
@@ -1310,4 +1318,15 @@ $('#sound-toggle').on('click', function (e) {
     
 
 });
+
+
+// photoshop button
+$('#photoshopButton').on('click', function(){
+    $(this).addClass('link-disabled');
+    window.setTimeout(function(){
+        $('#photoshopButton').removeClass('link-disabled');
+    }, 3500);
+});
+
+
 // }); // <-- $(document).ready()
