@@ -47,7 +47,7 @@ function createRadioInputs(inputName, valueRange){
 		// default radio selection
         var name = allConfigs.inputNames;
         switch (inputName) {
-            /* gridUpTo     */ case name[0]:  if(i==1) input.prop('checked', true); break;  
+            /* canvasWdith  */ case name[0]:  if(i==1) input.prop('checked', true); break;  
             /* gridRatio    */ case name[1]:  if(i==0) input.prop('checked', true); break;  
             /* gridBaseline */ case name[2]:  if(i==1) input.prop('checked', true); break;  
             /* gridColumns  */ case name[3]:  if(i==2) input.prop('checked', true); break;  

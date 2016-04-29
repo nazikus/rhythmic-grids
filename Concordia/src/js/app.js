@@ -26,8 +26,7 @@ var allConfigs = Object.freeze((function(){
         columnsArr  = [5, 6, 9, 12],
         gutter2baselineFactorArr = [0, 1, 2, 3, 4];
 
-
-    // you can specify a predicate validator which difines a valid grid and filters
+    // you can specify a predicate validator which defines a valid grid and filters
     // invalid ones during generation. The default validator:
     // console.log('Current grid validator:\n' + 
     //               rgg.isValidGrid.toString().replace(/$\s*\/\/.*/gm, '') + '\n');
@@ -59,7 +58,7 @@ var allConfigs = Object.freeze((function(){
         lineHeightLimit: {min: 1.0, max: 1.5}, // percent of font size
         
         rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
-        inputNames   : ['gridUpTo', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
+        inputNames   : ['canvasWidth', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
 
         gridContainer: $('.grid-container'),   
         radioForms   : $('.grid-section > .container > .flex-row >'+
@@ -169,7 +168,7 @@ $('.ratio-selector .flex-row').on('change', function(){
 // create radio items based on the grid config above
 setupRadioItems(allConfigs);
 
-// initialize 'hide grid' button
+// 'hide grid' button
 $('#grid-toggle').on('click', function(e){
     e.preventDefault();
     gridToggleBtn = $(e.target);
