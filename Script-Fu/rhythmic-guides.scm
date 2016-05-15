@@ -44,6 +44,14 @@
         (guidesHorizB (map (lambda (h) (+ h gutter) ) guidesHorizT) )
 
         (maxHeight (if (null? blocks) 900 (car (reverse guidesHorizB)) ))
+
+        (baselinesV (makelist (/ maxHeight baseline)))
+        (guidesHoriz (map (lambda (x) (* x baseline) ) baselinesV))
+
+        ; joke, guide per each pixel height
+        ; (baselinesV (makelist (- maxHeight 10)))
+        ; (guidesHoriz  baselinesV) 
+
         (rhImage (car (gimp-image-new maxWidth maxHeight RGB)) )
         (rhLayer (car (gimp-layer-new rhImage 
                                       maxWidth   
@@ -58,6 +66,7 @@
 
 
     ; INSERT RHYTHMIC GUIDES
+    ; columns guides (vertical gutters)
     (while (not (null? guidesVertL))
         (gimp-image-add-vguide rhImage (car guidesVertL))
         (gimp-image-add-vguide rhImage (car guidesVertR))
@@ -65,6 +74,7 @@
         (set! guidesVertR (cdr guidesVertR))
     )
     
+    ; block height guides (horizontal gutters)
     (while (not (null? guidesHorizT))
         (gimp-image-add-hguide rhImage (car guidesHorizT))
         (gimp-image-add-hguide rhImage (car guidesHorizB))
@@ -72,7 +82,13 @@
         (set! guidesHorizB (cdr guidesHorizB))
     )
 
-    ; DEBUG IN GIMP GUI CONSOLE
+    ; baseline guides
+    (while (not (null? guidesHoriz))
+        (gimp-image-add-hguide rhImage (car guidesHoriz))
+        (set! guidesHoriz (cdr guidesHoriz))
+    )
+
+    ; DEBUG, OUTPUT TO ERROR CONSOLE (Menu > Windows > Dockable Dialogs > Error Console)
     ; (gimp-display-new rhImage)   
     ; (gimp-image-clean-all rhImage)
     ; (gimp-message psdPath)
@@ -149,6 +165,6 @@
                     ""                   ; image mode (not needed for scripts creating new images)
 )
 
-; command example for Script-Fu console:
+; command examples for Script-Fu console (Menu > Filters > Script-Fu > Console):
 ; (rhythmic-guides 960 '(3 2) 5 6 3 '((135 90) (285 190) (435 290) (885 590)) "D:\\" "psd_name")
 ; (rhythmic-guides 960 '(3 2) 5 6 3 nil "D:\\" "psd_name")

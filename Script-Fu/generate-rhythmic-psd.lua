@@ -26,7 +26,7 @@ local psd_path = '/home/user/www/psd/'
 local psd_name = 'W'..ngx.var.arg_w..'_R'..ngx.var.arg_r..'_B'..ngx.var.arg_b..
                 '_C'..ngx.var.arg_c..'_G'..ngx.var.arg_g
 
--- wtf? why k,v get such values
+-- wtf? why k,v get such values (but it works this way anyway)
 local rW = 0
 local rH = 0
 for k,v in ngx.var.arg_r:gmatch("(%d+)x(%d+)") do
@@ -54,5 +54,5 @@ end
 --ngx.say("Rewriting to: psd_name..'.psd')
 return ngx.redirect(psd_name..'.psd')
 
--- NB! if ngx.say or ngx.print is used for debugging,
--- it terminates current request, hence ngx.redirect will fail.
+-- NB! if ngx.say or ngx.print is uncommented (for debugging),
+-- it will terminate current request, hence ngx.redirect will fail.

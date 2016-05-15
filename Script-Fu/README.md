@@ -1,5 +1,5 @@
 Scripts to generate [PSD](https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/) documents in different environments:
- - `.scm` - Script-Fu script, the main script used by all other scripts
+ - `.scm` - Script-Fu script, .psd generator, the main script used by all the other scripts
  - `.lua` - Lua script for [Lua nginx module](https://github.com/openresty/lua-nginx-module)
  - `.bat` - Windows batch
  - `.sh`  - *nix bash 
@@ -18,19 +18,23 @@ Place Scipt-Fu file (`rhythmic-guides.scm`) into GIMP scripts directory (where a
     usr/share/.gimp-2.x/scripts/
     C:\Program Files\GIMP\share\gimp\2.x\scripts\
 
-Shell command example to run Script-Fu:
+Several command-line examples how to run Script-Fu in different environments:
     
     . generate-rhythmic-psd.sh 960 3x2 5 6 3 nil /home/user/psd/
+    
     generate-rhythmic-psd.bat 960 3x2 5 6 3 nil # generates .psd into script's dir
+    
     gimp-console --no-interface --no-data --no-fonts --batch="(rhythmic-guides 960 1x1 10 9 1 nil \"/path/to/psddir/\")" --batch="(gimp-quit 0)" # for vertical guides only
+
+    
     gimp-console --no-interface --no-data --no-fonts --batch="(rhythmic-guides 960 1x1 10 9 1 '((45 30) (40 60) (80 90)) \"/path/to/psddir/\")" --batch="(gimp-quit 0)" # for vertical AND horizontal guides
 
 ---
 
-In order to run Script-Fu in __nginx__ request response, you need to have nginx bundled with [Lua module](https://github.com/openresty/lua-nginx-module) (e.g., nginx-extras). Refer to [nginx.conf](https://github.com/nazikus/rhythmic-grids/blob/master/Script-Fu/nginx.conf) for configuration details. Currently Lua script handles URLs with following parameters:
+In order to run Script-Fu in __nginx__ request response, you need to have nginx bundled with [Lua module](https://github.com/openresty/lua-nginx-module) (e.g., nginx-extras). Refer to [nginx.conf](https://github.com/nazikus/rhythmic-grids/blob/master/Script-Fu/nginx.conf) for configuration details. Currently [Lua script](https://github.com/nazikus/rhythmic-grids/blob/master/Script-Fu/generate-rhythmic-psd.lua) handles URLs with following parameters:
 
     http://server.com/psd?w=960&r=3x2&b=12&c=9&g=2
-    # width, ratio, baseline, columns, gutter - correspondingly
+    # will generated .psd file with corresponding width, ratio, baseline, columns, gutter
 
 --- 
 
