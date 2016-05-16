@@ -105,9 +105,9 @@ function drawMetrics() {
       x_height  = ctx.measureText('x').ascent,
       cap_height= ctx.measureText('H').ascent,
       safebox_h = Math.round(metrics_fontsize / 2), // safe-box height ??
-      xh_offset = x_height / safebox_h - 1,  // x-height offset (deviation) from safe-box height
-      xh_offset_label = (xh_offset>=0?'+ ':'– ') + Math.abs(Math.round(xh_offset*500)) + ' UPM',
-      isValid_xh_offset = Math.abs(Math.round(xh_offset*500)) <= 50;
+      xh_offset = Math.round((x_height / safebox_h - 1)*500),  // x-height offset (deviation) from safe-box height
+      xh_offset_label = (xh_offset>=0?'+ ':'– ') + Math.abs(xh_offset) + ' UPM',
+      isValid_xh_offset = Math.abs(xh_offset) <= 50;
       line_length = canvas.width - metricsContext.xOffR, //metrics.width+b*2-xoff;
       labelRectW = 58*2, // static label width
       labelRectH = 15*2; // // static label height
@@ -120,7 +120,7 @@ function drawMetrics() {
   // console.log('Baseline Y: %sx', baseline_y);
   // console.log('Safe-box height: %s', safebox_h);
   // console.log(metrics);
-  // console.log('x-height deviation: %.1f%%', xh_offset*100)
+  // console.log('x-height deviation: %.1f%%', xh_offset)
 
   // font init for metrics labels
   ctx.font = metricsContext.label_font;
@@ -268,7 +268,7 @@ function drawMetrics() {
       ctx.restore();
     } else {
       // horizontal label in % or UPMs
-      // ctx.fillText((xh_offset>=0?'+':'-') + Math.round(xh_offset*1000)/10 + '%', line_length, baseline_y-x_height+1);
+      // ctx.fillText((xh_offset>=0?'+':'-') + Math.round((x_height/safebox_h-1)*1000)/10 + '%', line_length, baseline_y-x_height+1);
       ctx.fillText(xh_offset_label, line_length, baseline_y-x_height);
     }
   }

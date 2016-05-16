@@ -104,6 +104,7 @@ function onGridChange(e){
         var newLH = selected.val()*_LHBL_F;
         $('#input-lineheight').val( newLH );
         $('.example-text').css('line-height', newLH+'px');
+        $('#baseline-info-text').text(selected.val() + ' px');
 
         // update percent label
         _LHFS_R = newLH / parseInt( $('#input-fontsize').val() );

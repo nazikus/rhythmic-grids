@@ -60,7 +60,10 @@ function onFontChange(e) {
   
   ////////////////// CHECK LINE HEIGHT DIVISIBILITY ///////////////
   
-  var lh = _int(lhEl.val());
+  var lh   = _int(lhEl.val()),
+      blit  = $("#baseline-info-text"),
+      blint = $("#baseline-invalid-text");
+
   // if line height is divisible by 2 or by 3
   if (lh%2==0 || lh%3==0) {
     _LHBL_F = lh%2 ? 3 : 2;
@@ -68,6 +71,11 @@ function onFontChange(e) {
     // ENABLE all radios and restore previous value, if switched from bad line height
     // if (lhEl.css('background-color') {
       lhEl.css('background-color', '');
+      blit.text(lh/_LHBL_F + ' px');
+      blint.text('');
+      blit.removeClass('invalid-baseline');
+
+
       if (allConfigs){
         el = allConfigs.radioForms[2]; // baseline form
         $('input', el).each(function(){  $(this).prop('disabled', false); });
@@ -91,6 +99,9 @@ function onFontChange(e) {
   } else {
     _LHBL_F = lh/lh; //implicit 1
     lhEl.css('background-color', 'lightpink');
+    blit.text('not valid');
+    blint.text('Line height must be divisible by 2 or 3.');
+    blit.addClass('invalid-baseline');
     
     // DISABLE baseline form
     if (allConfigs){
