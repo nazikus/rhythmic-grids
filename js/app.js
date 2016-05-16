@@ -527,8 +527,8 @@ function drawRhythmicGrid(gridConfig){
         arguments.callee.name
     );
 
-    $('#grid-width-text').text(gridConfig.rhythmicGrid.W);
-    $('#column-width-text').text(gridConfig.rhythmicGrid.blocks[0][0]);
+    $('#grid-width-text').text(gridConfig.rhythmicGrid.W + ' px');
+    $('#column-width-text').text(gridConfig.rhythmicGrid.blocks[0][0] + ' px');
     ///////////////////////////////////////
     /////// GENERATE BLOCK DIVS ///////////
     ///////////////////////////////////////
@@ -545,6 +545,23 @@ function drawRhythmicGrid(gridConfig){
             blockHeight = val[1],
             blocksInRow = val[2];
 
+
+        // exceptional case, when gutter == 0, display grid with images only without text blocks
+        if (gridConfig.gutter.W == 0) {
+            for (var i=1; i<=blocksInRow; i++){
+                var inner = $('<div>').addClass('inner').addClass('inner'+i);
+                var imgId = c++ % allConfigs.imageMocks + 1;
+                inner.attr('style', 'background-image: url(img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)');
+                console.log('img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)')
+                var column = $('<div>').addClass('column').append(inner);
+                row.append(column);
+            }
+
+            container.append(row);
+            return ;
+        }
+
+
         if (blocksInRow > 9) // no need to show very small micro-blocks
             return;
 
@@ -554,8 +571,8 @@ function drawRhythmicGrid(gridConfig){
 
             var inner = $('<div>').addClass('inner').addClass('inner'+i);
             
-            c++;
             // pairwise image & text blocks (if c odd - image, if c even - text)
+            c++;
             if (i===1 && !(c%2) ) c++; // first column in row always start with an image, not text
             
             if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
@@ -778,15 +795,22 @@ function drawMetrics() {
       x_height  = ctx.measureText('x').ascent,
       cap_height= ctx.measureText('H').ascent,
       safebox_h = Math.round(metrics_fontsize / 2), // safe-box height ??
-      xdev = x_height / safebox_h - 1,  // x-height deviation from safe-box height
+      xh_offset = x_height / safebox_h - 1,  // x-height offset (deviation) from safe-box height
+      xh_offset_label = (xh_offset>=0?'+ ':'– ') + Math.abs(Math.round(xh_offset*500)) + ' UPM',
+      isValid_xh_offset = Math.abs(Math.round(xh_offset*500)) <= 50;
       line_length = canvas.width - metricsContext.xOffR, //metrics.width+b*2-xoff;
       labelRectW = 58, // static label width
       labelRectH = 15; // // static label height
 
+  // set x-height offset text below this canvas
+  $('#x-height-offset-text').text(xh_offset_label).removeClass('invalid-offset');
+  if (!isValid_xh_offset) 
+      $('#x-height-offset-text').addClass('invalid-offset');
+
   // console.log('Baseline Y: %sx', baseline_y);
   // console.log('Safe-box height: %s', safebox_h);
   // console.log(metrics);
-  // console.log('x-height deviation: %.1f%%', xdev*100)
+  // console.log('x-height deviation: %.1f%%', xh_offset*100)
 
   // font init for metrics labels
   ctx.font = metricsContext.label_font;
@@ -830,7 +854,7 @@ function drawMetrics() {
   ctx.beginPath();
   ctx.strokeStyle = '#C5C5C5';
   ctx.lineWidth = 1;
-  ctx.setLineDash([5,2]);
+  // ctx.setLineDash([5,2]);
   ctx.moveTo(0, baseline_y-safebox_h-1);
   ctx.lineTo(line_length, baseline_y-safebox_h-1);
   ctx.stroke();
@@ -905,41 +929,36 @@ function drawMetrics() {
 
   // X-HEIGHT line
   ctx.beginPath();
-  ctx.strokeStyle = '#14CF74';
+  ctx.strokeStyle = '#D0021B';
   ctx.fillStyle = ctx.strokeStyle;
-  ctx.lineWidth = 1;
-  ctx.moveTo(0, baseline_y - x_height);
+  ctx.lineWidth = 2;
+  ctx.moveTo(xOffL, baseline_y - x_height);
   ctx.lineTo(line_length, baseline_y - x_height);
   ctx.stroke();
-
-  // labels rect for 50%
-  ctx.beginPath();
-  ctx.setLineDash([0, 0]);
-  ctx.fillStyle = '#C5C5C5';
-  ctx.lineWidth = 2;
-  ctx.fillRect(0, baseline_y-safebox_h-2, labelRectW, labelRectH);
 
   // TODO color heat interpolation (for UPM label and for safebox or partial safebox)
   // http://stackoverflow.com/questions/340209/generate-colors-between-red-and-green-for-a-power-meter/340214#340214
   
-  // X-HEIGHT deviation from "safe zone" (500UPMs)
-  ctx.textBaseline = 'bottom';
+  // X-HEIGHT offset (deviation) from "safe zone" (500UPMs)
+  ctx.beginPath();
+  ctx.fillStyle =  isValid_xh_offset ? '#14CF74' : 'orange';
+  ctx.fillRect(xOffL, baseline_y-x_height, line_length, baseline_y-safebox_h - (baseline_y-x_height));
+
+  ctx.textBaseline = xh_offset > 0 ? 'bottom' : 'top';
   ctx.textAlign = 'right';
   ctx.font = metricsContext.label_font_upm;
   ctx.fillStyle = 'black';
-  if (/*xdev != 0*/1) { // omit zero UPM or not
+  if (/*xh_offset != 0*/1) { // omit zero UPM or not
     if (false){
       // vertical label, in UPMs
       ctx.save();
       ctx.rotate(Math.PI/2); // retote coordinates by 90° clockwise
-      ctx.fillText((xdev>=0?'+ ':'– ') + Math.abs(Math.round(xdev*500)) + ' UPM', 
-                   baseline_y-x_height-3, -line_length); // UPM, vertical label
+      ctx.fillText(xh_offset_label, baseline_y-x_height-3, -line_length); // UPM, vertical label
       ctx.restore();
     } else {
       // horizontal label in % or UPMs
-      // ctx.fillText((xdev>=0?'+':'-') + Math.round(xdev*1000)/10 + '%', line_length, baseline_y-x_height+1);
-      ctx.fillText( (xdev>0?'+':'') + Math.round(xdev*500) + ' UPM',
-           line_length, baseline_y-x_height); 
+      // ctx.fillText((xh_offset>=0?'+':'-') + Math.round(xh_offset*1000)/10 + '%', line_length, baseline_y-x_height+1);
+      ctx.fillText(xh_offset_label, line_length, baseline_y-x_height);
     }
   }
   ctx.font = metricsContext.label_font;
@@ -950,13 +969,22 @@ function drawMetrics() {
   ctx.textAlign = 'left';
   ctx.fillText('ascend', 9, baseline_y-ascent-1);
 
+  ctx.fillStyle = 'white';
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
   ctx.fillText('descend', 6, baseline_y+descent-labelRectH+1);
 
+  // labels rect for 50%
+  ctx.beginPath();
+  ctx.setLineDash([0, 0]);
+  ctx.fillStyle = '#C5C5C5';
+  ctx.lineWidth = 2;
+  ctx.fillRect(0, baseline_y-safebox_h-2, labelRectW, labelRectH);
+
+  ctx.fillStyle = 'white';
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('50%', 19, baseline_y-safebox_h-1);
+  ctx.fillText('500UPM', 5, baseline_y-safebox_h-1);
 
   // CAP HEIGHT line
   ctx.beginPath();
