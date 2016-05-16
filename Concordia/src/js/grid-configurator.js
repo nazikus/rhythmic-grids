@@ -207,6 +207,23 @@ function drawRhythmicGrid(gridConfig){
             blockHeight = val[1],
             blocksInRow = val[2];
 
+
+        // exceptional case, when gutter == 0, display grid with images only without text blocks
+        if (gridConfig.gutter.W == 0) {
+            for (var i=1; i<=blocksInRow; i++){
+                var inner = $('<div>').addClass('inner').addClass('inner'+i);
+                var imgId = c++ % allConfigs.imageMocks + 1;
+                inner.attr('style', 'background-image: url(img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)');
+                console.log('img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)')
+                var column = $('<div>').addClass('column').append(inner);
+                row.append(column);
+            }
+
+            container.append(row);
+            return ;
+        }
+
+
         if (blocksInRow > 9) // no need to show very small micro-blocks
             return;
 
@@ -216,8 +233,8 @@ function drawRhythmicGrid(gridConfig){
 
             var inner = $('<div>').addClass('inner').addClass('inner'+i);
             
-            c++;
             // pairwise image & text blocks (if c odd - image, if c even - text)
+            c++;
             if (i===1 && !(c%2) ) c++; // first column in row always start with an image, not text
             
             if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
