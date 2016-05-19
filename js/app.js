@@ -385,7 +385,7 @@ function createRadioInputs(inputName, valueRange){
 		// default radio selection
         var name = allConfigs.inputNames;
         switch (inputName) {
-            /* gridUpTo     */ case name[0]:  if(i==1) input.prop('checked', true); break;  
+            /* canvasWdith  */ case name[0]:  if(i==1) input.prop('checked', true); break;  
             /* gridRatio    */ case name[1]:  if(i==0) input.prop('checked', true); break;  
             /* gridBaseline */ case name[2]:  if(i==1) input.prop('checked', true); break;  
             /* gridColumns  */ case name[3]:  if(i==2) input.prop('checked', true); break;  
@@ -456,11 +456,21 @@ function onGridChange(e){
     // re-draw the grid
     var gridConfig = RhythmicGridGenerator.selectGrid(
                 allConfigs.allValidGrids, allGridSelections );
-
-    if (gridConfig)
+     
+    if (gridConfig) {
+        $('#photoshopButton').removeClass('link-disabled').attr('href', 
+            'http://162.247.154.128/psd?'+
+            'w='+gridConfig.maxCanvasWidth+'&'+
+            'r='+gridConfig.ratio.str+'&'+
+            'b='+gridConfig.baseline+'&'+
+            'c='+gridConfig.columnsNum+'&'+
+            'g='+(gridConfig.gutter.W/gridConfig.baseline));
         drawRhythmicGrid(gridConfig);
-    else
+    }
+    else {
+        $('#photoshopButton').addClass('link-disabled');
         allConfigs.gridContainer.empty();
+    }
 }   
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -517,8 +527,8 @@ function drawRhythmicGrid(gridConfig){
         arguments.callee.name
     );
 
-    $('#grid-width-text').text(gridConfig.rhythmicGrid.W);
-    $('#column-width-text').text(gridConfig.rhythmicGrid.blocks[0][0]);
+    $('#grid-width-text').text(gridConfig.rhythmicGrid.W + ' px');
+    $('#column-width-text').text(gridConfig.rhythmicGrid.blocks[0][0] + ' px');
     ///////////////////////////////////////
     /////// GENERATE BLOCK DIVS ///////////
     ///////////////////////////////////////
@@ -535,6 +545,23 @@ function drawRhythmicGrid(gridConfig){
             blockHeight = val[1],
             blocksInRow = val[2];
 
+
+        // exceptional case, when gutter == 0, display grid with images only without text blocks
+        if (gridConfig.gutter.W == 0) {
+            for (var i=1; i<=blocksInRow; i++){
+                var inner = $('<div>').addClass('inner').addClass('inner'+i);
+                var imgId = c++ % allConfigs.imageMocks + 1;
+                inner.attr('style', 'background-image: url(img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)');
+                console.log('img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)')
+                var column = $('<div>').addClass('column').append(inner);
+                row.append(column);
+            }
+
+            container.append(row);
+            return ;
+        }
+
+
         if (blocksInRow > 9) // no need to show very small micro-blocks
             return;
 
@@ -544,8 +571,8 @@ function drawRhythmicGrid(gridConfig){
 
             var inner = $('<div>').addClass('inner').addClass('inner'+i);
             
-            c++;
             // pairwise image & text blocks (if c odd - image, if c even - text)
+            c++;
             if (i===1 && !(c%2) ) c++; // first column in row always start with an image, not text
             
             if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
@@ -571,7 +598,6 @@ function drawRhythmicGrid(gridConfig){
     ////////////////////////////////////////////
     var g = gridConfig.gutter.W;
     var margin = gridConfig.rhythmicGrid.margin;
-
     $('body').css({
         'min-width': gridConfig.maxCanvasWidth+'px'
     });
@@ -769,15 +795,22 @@ function drawMetrics() {
       x_height  = ctx.measureText('x').ascent,
       cap_height= ctx.measureText('H').ascent,
       safebox_h = Math.round(metrics_fontsize / 2), // safe-box height ??
-      xdev = x_height / safebox_h - 1,  // x-height deviation from safe-box height
+      xh_offset = x_height / safebox_h - 1,  // x-height offset (deviation) from safe-box height
+      xh_offset_label = (xh_offset>=0?'+ ':'– ') + Math.abs(Math.round(xh_offset*500)) + ' UPM',
+      isValid_xh_offset = Math.abs(Math.round(xh_offset*500)) <= 50;
       line_length = canvas.width - metricsContext.xOffR, //metrics.width+b*2-xoff;
       labelRectW = 58, // static label width
       labelRectH = 15; // // static label height
 
+  // set x-height offset text below this canvas
+  $('#x-height-offset-text').text(xh_offset_label).removeClass('invalid-offset');
+  if (!isValid_xh_offset) 
+      $('#x-height-offset-text').addClass('invalid-offset');
+
   // console.log('Baseline Y: %sx', baseline_y);
   // console.log('Safe-box height: %s', safebox_h);
   // console.log(metrics);
-  // console.log('x-height deviation: %.1f%%', xdev*100)
+  // console.log('x-height deviation: %.1f%%', xh_offset*100)
 
   // font init for metrics labels
   ctx.font = metricsContext.label_font;
@@ -808,20 +841,20 @@ function drawMetrics() {
 
   // SAFEBOX rectangle
   ctx.beginPath();
-  ctx.fillStyle = 'rgba(0, 107, 255, .3)';
+  ctx.fillStyle= 'rgba(230, 230, 230, 0.5)';
   ctx.lineWidth = 0;
+  ctx.clearRect(0, baseline_y-safebox_h, line_length, safebox_h);
   var img = document.getElementById('fontmetrics-pattern');
-  var pat=ctx.createPattern(img,"repeat");
+  var pat=ctx.createPattern(img, "repeat");
   ctx.rect(0, baseline_y-safebox_h, line_length, safebox_h);
   ctx.fillStyle=pat;
   ctx.fill();
-  // ctx.fillRect(xOffL, baseline_y-safebox_h, line_length-xOffL, safebox_h);
 
   // SAFEBOX 50% line
   ctx.beginPath();
-  ctx.strokeStyle = '#C5C5C5';
+  ctx.strokeStyle = 'rgba(230, 230, 230, 0.5)';
   ctx.lineWidth = 1;
-  ctx.setLineDash([5,2]);
+  // ctx.setLineDash([5,2]);
   ctx.moveTo(0, baseline_y-safebox_h-1);
   ctx.lineTo(line_length, baseline_y-safebox_h-1);
   ctx.stroke();
@@ -856,6 +889,7 @@ function drawMetrics() {
 
   // labels rect for CAP HEIGHT
   ctx.beginPath();
+  ctx.setLineDash([]);
   ctx.fillStyle = '#D0021B';
   ctx.lineWidth = 0;
   ctx.fillRect(canvas.width - labelRectW, baseline_y-cap_height-labelRectH, labelRectW, labelRectH);
@@ -896,41 +930,36 @@ function drawMetrics() {
 
   // X-HEIGHT line
   ctx.beginPath();
-  ctx.strokeStyle = '#14CF74';
-  ctx.fillStyle = ctx.strokeStyle;
-  ctx.lineWidth = 1;
-  ctx.moveTo(0, baseline_y - x_height);
+  ctx.strokeStyle = '#fff';
+  ctx.fillStyle = '#D0021B';
+  ctx.lineWidth = 0;
+  ctx.moveTo(xOffL, baseline_y - x_height);
   ctx.lineTo(line_length, baseline_y - x_height);
   ctx.stroke();
-
-  // labels rect for 50%
-  ctx.beginPath();
-  ctx.setLineDash([0, 0]);
-  ctx.fillStyle = '#C5C5C5';
-  ctx.lineWidth = 2;
-  ctx.fillRect(0, baseline_y-safebox_h-2, labelRectW, labelRectH);
 
   // TODO color heat interpolation (for UPM label and for safebox or partial safebox)
   // http://stackoverflow.com/questions/340209/generate-colors-between-red-and-green-for-a-power-meter/340214#340214
   
-  // X-HEIGHT deviation from "safe zone" (500UPMs)
-  ctx.textBaseline = 'bottom';
+  // X-HEIGHT offset (deviation) from "safe zone" (500UPMs)
+  ctx.beginPath();
+  ctx.fillStyle =  isValid_xh_offset ? '#14CF74' : 'orange';
+  ctx.fillRect(xOffL, baseline_y-x_height, line_length, x_height-safebox_h);
+
+  ctx.textBaseline = xh_offset > 0 ? 'bottom' : 'top';
   ctx.textAlign = 'right';
   ctx.font = metricsContext.label_font_upm;
   ctx.fillStyle = 'black';
-  if (/*xdev != 0*/1) { // omit zero UPM or not
+  if (/*xh_offset != 0*/1) { // omit zero UPM or not
     if (false){
       // vertical label, in UPMs
       ctx.save();
       ctx.rotate(Math.PI/2); // retote coordinates by 90° clockwise
-      ctx.fillText((xdev>=0?'+ ':'– ') + Math.abs(Math.round(xdev*500)) + ' UPM', 
-                   baseline_y-x_height-3, -line_length); // UPM, vertical label
+      ctx.fillText(xh_offset_label, baseline_y-x_height-3, -line_length); // UPM, vertical label
       ctx.restore();
     } else {
       // horizontal label in % or UPMs
-      // ctx.fillText((xdev>=0?'+':'-') + Math.round(xdev*1000)/10 + '%', line_length, baseline_y-x_height+1);
-      ctx.fillText( (xdev>0?'+':'') + Math.round(xdev*500) + ' UPM',
-           line_length, baseline_y-x_height); 
+      // ctx.fillText((xh_offset>=0?'+':'-') + Math.round(xh_offset*1000)/10 + '%', line_length, baseline_y-x_height+1);
+      ctx.fillText(xh_offset_label, line_length, baseline_y-x_height);
     }
   }
   ctx.font = metricsContext.label_font;
@@ -941,13 +970,22 @@ function drawMetrics() {
   ctx.textAlign = 'left';
   ctx.fillText('ascend', 9, baseline_y-ascent-1);
 
+  ctx.fillStyle = 'white';
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
   ctx.fillText('descend', 6, baseline_y+descent-labelRectH+1);
 
+  // labels rect for 50%
+  ctx.beginPath();
+  ctx.setLineDash([0, 0]);
+  ctx.fillStyle = '#C5C5C5';
+  ctx.lineWidth = 2;
+  ctx.fillRect(0, baseline_y-safebox_h-2, labelRectW, labelRectH);
+
+  ctx.fillStyle = 'white';
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('50%', 19, baseline_y-safebox_h-1);
+  ctx.fillText('500UPM', 5, baseline_y-safebox_h-1);
 
   // CAP HEIGHT line
   ctx.beginPath();
@@ -1027,8 +1065,8 @@ window.onmouseup = function(){
 // TODO horizontal scroll-panning (currently only in FF)
 // TODO kinectic scrolling: http://ariya.ofilabs.com/2013/11/javascript-kinetic-scrolling-part-2.html
 
-metricsContext.canvasT.addEventListener('DOMMouseScroll', mouseWheelEvent);
-metricsContext.canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
+// metricsContext.canvasT.addEventListener('DOMMouseScroll', mouseWheelEvent);
+// metricsContext.canvasT.addEventListener('mousewheel', mouseWheelEvent, false);
 
 function mouseWheelEvent(e){
     var mCtx = metricsContext;
@@ -1128,8 +1166,7 @@ var allConfigs = Object.freeze((function(){
         columnsArr  = [5, 6, 9, 12],
         gutter2baselineFactorArr = [0, 1, 2, 3, 4];
 
-
-    // you can specify a predicate validator which difines a valid grid and filters
+    // you can specify a predicate validator which defines a valid grid and filters
     // invalid ones during generation. The default validator:
     // console.log('Current grid validator:\n' + 
     //               rgg.isValidGrid.toString().replace(/$\s*\/\/.*/gm, '') + '\n');
@@ -1161,7 +1198,7 @@ var allConfigs = Object.freeze((function(){
         lineHeightLimit: {min: 1.0, max: 1.5}, // percent of font size
         
         rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
-        inputNames   : ['gridUpTo', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
+        inputNames   : ['canvasWidth', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
 
         gridContainer: $('.grid-container'),   
         radioForms   : $('.grid-section > .container > .flex-row >'+
@@ -1178,6 +1215,22 @@ var allConfigs = Object.freeze((function(){
                             })
     }
 })());
+
+//////////////////////////////////////////////////////////
+/////////////////// TABS FOR FONTS ///////////////////////
+//////////////////////////////////////////////////////////
+$('.tabs-toggle-wrapper a').click(function (event) {
+    toggleTab.call(this, event, '.tab-content');
+});
+
+function toggleTab(e, content) {
+    e.preventDefault();
+    var tab = $(this).attr('href');
+    $(this).addClass('current');
+    $(this).siblings().removeClass('current');
+    $(content).not(tab).css('display', 'none');
+    $(tab).fadeIn('fast');
+}
 
 
 //////////////////////////////////////////////////////////
@@ -1271,7 +1324,7 @@ $('.ratio-selector .flex-row').on('change', function(){
 // create radio items based on the grid config above
 setupRadioItems(allConfigs);
 
-// initialize 'hide grid' button
+// 'hide grid' button
 $('#grid-toggle').on('click', function(e){
     e.preventDefault();
     gridToggleBtn = $(e.target);
@@ -1310,4 +1363,15 @@ $('#sound-toggle').on('click', function (e) {
     
 
 });
+
+
+// photoshop button
+$('#photoshopButton').on('click', function(){
+    $(this).addClass('link-disabled');
+    window.setTimeout(function(){
+        $('#photoshopButton').removeClass('link-disabled');
+    }, 3500);
+});
+
+
 // }); // <-- $(document).ready()

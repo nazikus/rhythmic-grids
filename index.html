@@ -123,36 +123,49 @@
 			<div class="container">
 				<div class="flex-row">
 					<div class="flex-child half">
-						<div class="font-source">
-							<span>Detected</span>
+						<!-- TABS TOGGLES -->
+						<div class="font-source tabs-toggle-wrapper">
+							<a href="#font-select" class="current">Detected</a>
 							<span class="font-source-separator"> / </span>
-							<a href="#">Add your own</a>
+							<a href="#font-upload">Add your own</a>
 						</div>
-						<div class="font-controls">
-							<div class="font-select-wrapper">
-								<label>
-									<select name="fontSelect" id="select-font">
-										<option value="Helvetica" selected>Helvetica</option>
-										<option value="Arial">Arial</option>
-									</select>
-									<div class="triangle">▾</div>
-								</label>
+						<!-- END TABS TOGGLES -->
+						<!-- TABS CONTENT -->
+						<div class="tab-content" id="font-select">
+							<div class="font-controls">
+								<div class="font-select-wrapper">
+									<label>
+										<select name="fontSelect" id="select-font">
+											<option value="Helvetica" selected>Helvetica</option>
+											<option value="Arial">Arial</option>
+										</select>
+										<div class="triangle">▾</div>
+									</label>
+								</div>
+								<div class="input-fontsize">
+									<input type="text" placeholder="16px" value="16px" id="input-fontsize" />
+								</div>
+								<div class="input-lineheight">
+									<input type="text" placeholder="18px" value="18px" id="input-lineheight" />
+									<label for="input-lineheight" id="lineheight-percent-label">110%</label>
+								</div>
 							</div>
-							<div class="input-fontsize">
-								<input type="text" placeholder="16px" value="16px" id="input-fontsize" />
-							</div>
-							<div class="input-lineheight">
-								<input type="text" placeholder="18px" value="18px" id="input-lineheight" />
-								<label for="input-lineheight" id="lineheight-percent-label">110%</label>
+							<p class="example-text" contenteditable="true">
+								Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media proportion of your taste. Concordia will do the rest and will generate a modular grid just for you. Now, choose any of your system fonts above.
+							</p>
+							<div class="baseline-info">
+								Your baseline value will be 
+								<span>8</span> px
 							</div>
 						</div>
-						<p class="example-text" contenteditable="true">
-							Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media proportion of your taste. Concordia will do the rest and will generate a modular grid just for you. Now, choose any of your system fonts above.
-						</p>
-						<div class="baseline-info">
-							Your baseline value will be 
-							<span>8</span> px
+						<div class="tab-content" id="font-upload" style="display: none;">
+							<form action="">
+								<div id="drop-area">
+									<img src="img/dragndrop.png" class="dragndrop-img" alt="Drag & drop files here" />
+								</div>
+							</form>
 						</div>
+						<!-- END TABS CONTENT -->
 					</div>
 					<div class="flex-child half">
 						<p>Adjust properties to improve legibility</p>
@@ -168,7 +181,7 @@
 							</canvas>
 						</div>
 						<p class="fontmetrics-helper-info">
-							Keep in mind, that x-height value of your body copy should be as close as possible to 500UPM in order to be legible on the web.
+							It is recommended to keep x-height value of your body copy within 500±50 UPM range in order to be legible on the web. Current x-height offset is <span id="x-height-offset-text">0 UPM<span>.
 						</p>
 					</div>
 				</div>
@@ -261,17 +274,17 @@
 						<div class="form-label">
 							Canvas width (up to), px
 						</div>
-						<div class="form-group" id="gridWidth">
-							<input type="radio" id="gridUpTo960" name="gridUpTo" checked />
-							<label for="gridUpTo960">
+						<div class="form-group" id="canvasWidth">
+							<input type="radio" id="canvasWidth960" name="canvasWidth" checked />
+							<label for="canvasWidth960">
 								960
 							</label>
-							<input type="radio" id="gridUpTo1280" name="gridUpTo" />
-							<label for="gridUpTo1280">
+							<input type="radio" id="canvasWidth1280" name="canvasWidth" />
+							<label for="canvasWidth1280">
 								1280
 							</label>
-							<input type="radio" id="gridUpTo1440" name="gridUpTo" />
-							<label for="gridUpTo1440">
+							<input type="radio" id="canvasWidth1440" name="canvasWidth" />
+							<label for="canvasWidth1440">
 								1440
 							</label>
 						</div>
@@ -350,27 +363,18 @@
 					</div>
 					<div class="flex-child">
 						<div class="downloads">
-							<!-- <a href="/rhythmic-grids/img/1x1/1.jpg" 
-							   onclick="ga('send', 'event', 'Exports', 'Web', gaConfig.eventDetails);" 
-							   download>
+							<a href="#" id="webButton" class="link-disabled">
 								Web
 							</a>
-							<a href="/rhythmic-grids/img/1x1/2.jpg" 
-							   onclick="ga('send', 'event', 'Exports', 'Sketch', gaConfig.eventDetails);"
-							   download>
+							<a id="sketchButton" class="link-disabled" download>
 								Sketch
-							</a> -->
+							</a> 
 							<a href="/rhythmic-grids/img/1x1/1.jpg" 
+							   id="photoshopButton"
 							   onclick="ga('send', 'event', 'Exports', 'Photoshop', gaConfig.eventDetails);" 
 							   download>
 								Photoshop
 							</a>
-							<span class="link-disabled">
-								Web
-							</span>
-							<span class="link-disabled">
-								Sketch
-							</span>
 						</div>
 					</div>
 				</div>
@@ -390,7 +394,7 @@
 							
 						</div>
 						<div class="flex-child">
-							Grid width: <span id="grid-width-text"></span> px, column width: <span id="column-width-text"></span>px
+							Grid width: <span id="grid-width-text"></span>, column width: <span id="column-width-text"></span>
 						</div>
 						<div class="flex-child">
 							Share this grid settings http://crdia.io/248
