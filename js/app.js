@@ -944,7 +944,6 @@ function drawMetrics() {
   ctx.beginPath();
   ctx.fillStyle =  isValid_xh_offset ? '#14CF74' : 'orange';
   ctx.fillRect(xOffL, baseline_y-x_height, line_length, x_height-safebox_h);
-
   ctx.textBaseline = xh_offset > 0 ? 'bottom' : 'top';
   ctx.textAlign = 'right';
   ctx.font = metricsContext.label_font_upm;
