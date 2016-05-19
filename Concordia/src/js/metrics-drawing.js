@@ -150,18 +150,18 @@ function drawMetrics() {
 
   // SAFEBOX rectangle
   ctx.beginPath();
-  ctx.fillStyle = 'rgba(0, 107, 255, .3)';
+  ctx.fillStyle= 'rgba(230, 230, 230, 0.5)';
   ctx.lineWidth = 0;
+  ctx.clearRect(0, baseline_y-safebox_h, line_length, safebox_h);
   var img = document.getElementById('fontmetrics-pattern');
-  var pat=ctx.createPattern(img,"repeat");
+  var pat=ctx.createPattern(img, "repeat");
   ctx.rect(0, baseline_y-safebox_h, line_length, safebox_h);
   ctx.fillStyle=pat;
   ctx.fill();
-  // ctx.fillRect(xOffL, baseline_y-safebox_h, line_length-xOffL, safebox_h);
 
   // SAFEBOX 50% line
   ctx.beginPath();
-  ctx.strokeStyle = '#C5C5C5';
+  ctx.strokeStyle = 'rgba(230, 230, 230, 0.5)';
   ctx.lineWidth = 1;
   // ctx.setLineDash([5,2]);
   ctx.moveTo(0, baseline_y-safebox_h-1);
@@ -198,6 +198,7 @@ function drawMetrics() {
 
   // labels rect for CAP HEIGHT
   ctx.beginPath();
+  ctx.setLineDash([]);
   ctx.fillStyle = '#D0021B';
   ctx.lineWidth = 0;
   ctx.fillRect(canvas.width - labelRectW, baseline_y-cap_height-labelRectH, labelRectW, labelRectH);
@@ -238,9 +239,9 @@ function drawMetrics() {
 
   // X-HEIGHT line
   ctx.beginPath();
-  ctx.strokeStyle = '#D0021B';
-  ctx.fillStyle = ctx.strokeStyle;
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#fff';
+  ctx.fillStyle = '#D0021B';
+  ctx.lineWidth = 0;
   ctx.moveTo(xOffL, baseline_y - x_height);
   ctx.lineTo(line_length, baseline_y - x_height);
   ctx.stroke();

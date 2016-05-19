@@ -76,6 +76,22 @@ var allConfigs = Object.freeze((function(){
     }
 })());
 
+//////////////////////////////////////////////////////////
+/////////////////// TABS FOR FONTS ///////////////////////
+//////////////////////////////////////////////////////////
+$('.tabs-toggle-wrapper a').click(function (event) {
+    toggleTab.call(this, event, '.tab-content');
+});
+
+function toggleTab(e, content) {
+    e.preventDefault();
+    var tab = $(this).attr('href');
+    $(this).addClass('current');
+    $(this).siblings().removeClass('current');
+    $(content).not(tab).css('display', 'none');
+    $(tab).fadeIn('fast');
+}
+
 
 //////////////////////////////////////////////////////////
 ///////////////// FONT CONFIGURATION /////////////////////

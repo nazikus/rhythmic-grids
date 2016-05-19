@@ -105,6 +105,16 @@ section {
 	// END Banner styles
 }
 
+// tabs
+.tabs-toggle-wrapper a {
+	&.current {
+		color: #000;
+		cursor: default;
+	}
+}
+
+// END tabs
+
 // styles for font forms section
 .font-source {
 	margin-bottom: 30px;
@@ -115,6 +125,7 @@ section {
 .font-source-separator {
 	display: inline-block;
 	margin: 0 5px;
+	cursor: default;
 }
 .font-controls {
     margin-bottom: 25px;
@@ -187,6 +198,15 @@ section {
 	color: #424242;
 }
 // END styles for font forms section
+
+// Styles for drag & drop
+.dragndrop-img {
+	width: 100%;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+// END Srtyles for drag & drop
 
 // ratio section
 .heading-arrow {
@@ -352,4 +372,3 @@ section {
 	}
 	
 }
-
