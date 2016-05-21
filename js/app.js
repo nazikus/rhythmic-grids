@@ -697,10 +697,11 @@ var metricsContext = (function(){
       _canvasT = $('#text-canvas')[0];
 
   // set canvas width attribute same as css width style
-  _canvas.width   = int( $(_canvas).css('width') );
-  _canvas.height  = int( $(_canvas).css('height') );
-  _canvasT.width  = int( $(_canvasT).css('width') );
-  _canvasT.height = int( $(_canvasT).css('height') );
+  // 2x for retina
+  _canvas.width   = int( $(_canvas).css('width') ) * 2;
+  _canvas.height  = int( $(_canvasT).css('height') ) * 2;
+  _canvasT.width  = int( $(_canvasT).css('width') ) * 2;
+  _canvasT.height = int( $(_canvasT).css('height') ) * 2;
 
   // console.log('Metrics canvas %sx%s\nText canvasT %sx%s',
   //  canvas.width,  canvas.height, canvasT.width, canvasT.height);
@@ -713,8 +714,8 @@ var metricsContext = (function(){
     
     // reference alphabet is used for determining metrics for current font
     reference_alphabet: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-    metrics_fontsize: 140,
-    metrics_fallback: '30px sans', // in case font detector give false positive
+    metrics_fontsize: 140*2,
+    metrics_fallback: '60px sans', // in case font detector give false positive
     
     // global vars (accessed by event handlers)
     curr_typeface: null,
@@ -722,10 +723,10 @@ var metricsContext = (function(){
     curr_mtext_width: 0,
     
     // drawing layout & styles
-    label_font: '12px Helvetica',
-    'label_font_upm': '10px Helvetica',
+    label_font: '24px Helvetica',
+    'label_font_upm': '20px Helvetica',
     baseline_y: Math.round( _canvas.height*.70 ),
-    xOffL: int( $(_canvasT).css('margin-left') ),  // left offset (margin)
+    xOffL: int( $(_canvasT).css('margin-left') ) * 2,  // left offset (margin)
     xOffR: int( $(_canvasT).css('margin-right') ), // right offset (margin)
     
     // vars used for mouse panning
@@ -799,8 +800,8 @@ function drawMetrics() {
       xh_offset_label = (xh_offset>=0?'+ ':'– ') + Math.abs(Math.round(xh_offset*500)) + ' UPM',
       isValid_xh_offset = Math.abs(Math.round(xh_offset*500)) <= 50;
       line_length = canvas.width - metricsContext.xOffR, //metrics.width+b*2-xoff;
-      labelRectW = 58, // static label width
-      labelRectH = 15; // // static label height
+      labelRectW = 58*2, // static label width
+      labelRectH = 15*2; // // static label height
 
   // set x-height offset text below this canvas
   $('#x-height-offset-text').text(xh_offset_label).removeClass('invalid-offset');
@@ -863,7 +864,7 @@ function drawMetrics() {
   ctx.beginPath();
   ctx.strokeStyle = '#C5C5C5';
   ctx.fillStyle = 'white';
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 2;
   ctx.setLineDash([5,2]);
   ctx.moveTo(0, baseline_y-ascent);
   ctx.lineTo(line_length, baseline_y-ascent);
@@ -910,7 +911,7 @@ function drawMetrics() {
   ctx.beginPath();
   ctx.strokeStyle = '#D0021B';
   ctx.fillStyle = 'white';
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 2;
   ctx.moveTo(xOffL, baseline_y + Math.floor(ctx.lineWidth/2));
   ctx.lineTo(line_length, baseline_y + Math.floor(ctx.lineWidth/2));
   ctx.stroke();
@@ -918,7 +919,7 @@ function drawMetrics() {
   // BASELINE label
   ctx.textBaseline = 'top';
   ctx.textAlign = 'right';
-  ctx.fillText('baseline', line_length-5, baseline_y);
+  ctx.fillText('baseline', line_length-10, baseline_y);
 
 
   if (error_font){
@@ -968,31 +969,31 @@ function drawMetrics() {
   ctx.fillStyle = 'white';
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('ascend', 9, baseline_y-ascent-1);
+  ctx.fillText('ascend', 18, baseline_y-ascent-1);
 
   ctx.fillStyle = 'white';
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('descend', 6, baseline_y+descent-labelRectH+1);
+  ctx.fillText('descend', 12, baseline_y+descent-labelRectH+1);
 
   // labels rect for 50%
   ctx.beginPath();
   ctx.setLineDash([0, 0]);
-  ctx.fillStyle = '#C5C5C5';
+  ctx.fillStyle = '#fff';
   ctx.lineWidth = 2;
-  ctx.fillRect(0, baseline_y-safebox_h-2, labelRectW, labelRectH);
+  ctx.fillRect(0, baseline_y-labelRectH, labelRectW, labelRectH);
 
-  ctx.fillStyle = 'white';
+  ctx.fillStyle = '#999';
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('500UPM', 5, baseline_y-safebox_h-1);
+  ctx.fillText('500UPM', 10, baseline_y-labelRectH+3);
 
   // CAP HEIGHT line
   ctx.beginPath();
   ctx.strokeStyle = '#D0021B';
   ctx.fillStyle = 'white';
   ctx.setLineDash([0, 0]);
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 2;
   ctx.moveTo(xOffL, baseline_y - cap_height);
   ctx.lineTo(line_length, baseline_y - cap_height);
   ctx.stroke();
@@ -1373,5 +1374,6 @@ $('#photoshopButton').on('click', function(){
     }, 3500);
 });
 
+$(window).on('load', drawMetrics);
 
 // }); // <-- $(document).ready()
