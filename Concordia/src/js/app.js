@@ -233,5 +233,6 @@ $('#photoshopButton').on('click', function(){
     }, 3500);
 });
 
+$(window).on('load', drawMetrics);
 
 // }); // <-- $(document).ready()
