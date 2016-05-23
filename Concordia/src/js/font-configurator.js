@@ -19,8 +19,6 @@ function getAvailableSystemFonts() {
     availableFonts.length, fontList.length, "main", arguments.callee.name);
   return availableFonts;
 };
-
-
 /////////////////////////////////////////////////////////////////////////////
 
 // font selection event handler

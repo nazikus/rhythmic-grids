@@ -69,6 +69,7 @@ gulp.task('js', function() {
             jsSrc + '/audiocontext.js',
             jsSrc + '/credits-toggle.js',
             jsSrc + '/font-configurator.js',
+            jsSrc + '/font-dragr.js',
             jsSrc + '/grid-configurator.js',
             jsSrc + '/metrics-drawing.js',
             jsSrc + '/metrics-panning.js',
