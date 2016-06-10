@@ -6,6 +6,8 @@
 	bottom: 0;
 	display: flex;
 	z-index: 1;
+	height: 100%;
+	transition: height 1.4s ease;
 	.ruler-vertical-outer {
 		flex: 1 1 100%;
 		height: 100%;
@@ -30,10 +32,9 @@
 		}
 	}
 	&.hidden {
-		visibility: hidden;
+		transition: none;
+		height: 0;
 	}
-
-	
 }
 .rulers-wrapper-horizontal {
 	position: absolute;
@@ -42,13 +43,16 @@
 	right: 0;
 	bottom: -1px; // extra pixel for the last baseline
 	overflow: hidden;
+	width: 100%;
+	transition: width 0.7s ease;
 	.ruler-horizontal {
 		position: relative;
 		width: 100%;
 		border-top: 1px solid rgba(255, 24, 24, 0.5);
 	}
 	&.hidden {
-		visibility: hidden;
+		transition: none;
+		width: 0;
 	}
 
 }
