@@ -220,10 +220,7 @@ $('#sound-toggle').on('click', function (e) {
         // gridSound().stopSound();
         soundToggleBtn.data('sound-toggle', 'on');
     }
-    
-
 });
-
 
 // photoshop button
 $('#photoshopButton').on('click', function(){
@@ -232,6 +229,29 @@ $('#photoshopButton').on('click', function(){
         $('#photoshopButton').removeClass('link-disabled');
     }, 3500);
 });
+
+// up/down arrows to selct font-size/line-height
+$('.controls .up').each(function () {
+    $(this).on('click', function (e) {
+        e.preventDefault();
+        setFontControls(38, this);
+    });
+});
+
+$('.controls .down').each(function () {
+    $(this).on('click', function (e) {
+        e.preventDefault();
+        setFontControls(40, this);
+    });
+});
+
+function setFontControls (key, self) {
+    var input = $(self).closest('.font-control-wrapper').find('input');
+    var press = jQuery.Event("keydown");
+    press.which = key;
+    $(input).trigger(press);
+}
+
 
 $(window).on('load', drawMetrics);
 

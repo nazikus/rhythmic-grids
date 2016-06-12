@@ -142,6 +142,34 @@ section {
 .input-lineheight {
 	margin-left: 10px;
 }
+.font-control-wrapper:hover .controls {
+	opacity: 1;
+}
+.controls {
+	position: absolute;
+	right: 10px;
+	top: 1px;
+	transition: opacity 0.15s ease;
+	opacity: 0;
+	.up, .down {
+		position: absolute;
+		font-size: 8px;
+		color: #C5C5C5;
+	}
+	.up {
+		top: 3px;
+	}
+	.down {
+		top: 12px;
+	}
+}
+input[style] {
+	+ .controls {
+		.up, .down {
+			color: #fff;
+		}
+	}
+}
 
 #lineheight-percent-label{
 	color: darken(@color-gray-light, 15%);
@@ -171,7 +199,7 @@ section {
 	width: 25%;
 	position: relative;
 	input {
-		max-width: 67px;
+		max-width: 72px;
 		padding-left: 25px;
 	}
 	&:before {
