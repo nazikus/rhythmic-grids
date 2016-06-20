@@ -114,12 +114,6 @@ var TCNDDF = TCNDDF || {};
 		fontFaceStyle = "@font-face{font-family: "+name+"; src:url("+data+");}";
 		styleSheet.insertRule(fontFaceStyle, 0);
 
-		// append font as an option to select and select it
-		$('#select-font').append(option);
-		$('#select-font').val(name).trigger('change');
-		// needed to re-draw metrics
-		// drawMetrics();
-
 		fontList.push(name);
 		
 		domElements[2].appendChild(document.createTextNode(size));
@@ -136,6 +130,16 @@ var TCNDDF = TCNDDF || {};
 		$(dropListing).fadeIn();
 		TCNDDF.updateActiveFont(domElements[0]);
 		displayContainer.style.fontFamily = name;
+
+		// append font as an option to select and select it
+		// needed to re-draw metrics
+		$('#select-font').append(option);
+		$('#select-font').val(name).trigger('change');
+		setTimeout( function() {
+			drawMetrics();
+			drawText();
+		} ,1000)
+
 	};
 	
 	/* Control changing of fonts in drop list  */
