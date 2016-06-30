@@ -1,3 +1,4 @@
+// MODIFIED FROM IT'S ORIGINAL VERSION
 /*
  * font dragr v1.5
  * http://www.thecssninja.com/javascript/font-dragr
@@ -82,8 +83,11 @@ var TCNDDF = TCNDDF || {};
 		   http://code.google.com/p/chromium/issues/detail?id=48367
 		   reader.addEventListener("loadend", TCNDDF.buildFontListItem, false);
 		*/
-		reader.onloadend = function (event) { TCNDDF.buildFontListItem(event); }
-		reader.readAsDataURL(file); 
+		reader.readAsDataURL(file);
+		reader.addEventListener('load', function () {
+			TCNDDF.buildFontListItem(event);
+		});
+		// reader.onloadend = function (event) { TCNDDF.buildFontListItem(event); }
 	};
 	
 	TCNDDF.buildFontListItem = function (event) {
@@ -132,14 +136,10 @@ var TCNDDF = TCNDDF || {};
 		displayContainer.style.fontFamily = name;
 
 		// append font as an option to select and select it
-		// needed to re-draw metrics
-		$('#select-font').append(option);
-		$('#select-font').val(name).trigger('change');
-		setTimeout( function() {
-			drawMetrics();
-			drawText();
-		} ,1000)
-
+		window.setTimeout(function () {
+			$('#select-font').append(option);
+			$('#select-font').val(name).trigger('change');
+		}, 0);
 	};
 	
 	/* Control changing of fonts in drop list  */
