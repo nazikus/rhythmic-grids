@@ -87,7 +87,6 @@ var TCNDDF = TCNDDF || {};
 		reader.addEventListener('load', function () {
 			TCNDDF.buildFontListItem(event);
 		});
-		// reader.onloadend = function (event) { TCNDDF.buildFontListItem(event); }
 	};
 	
 	TCNDDF.buildFontListItem = function (event) {
@@ -134,6 +133,8 @@ var TCNDDF = TCNDDF || {};
 		$(dropListing).fadeIn();
 		TCNDDF.updateActiveFont(domElements[0]);
 		displayContainer.style.fontFamily = name;
+
+		// add fonts to localstorage
 
 		// append font as an option to select and select it
 		window.setTimeout(function () {
