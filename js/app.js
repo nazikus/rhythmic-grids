@@ -176,7 +176,10 @@ function onFontChange(e) {
   
   ////////////////// CHECK LINE HEIGHT DIVISIBILITY ///////////////
   
-  var lh = _int(lhEl.val());
+  var lh   = _int(lhEl.val()),
+      blit  = $("#baseline-info-text"),
+      blint = $("#baseline-invalid-text");
+
   // if line height is divisible by 2 or by 3
   if (lh%2==0 || lh%3==0) {
     _LHBL_F = lh%2 ? 3 : 2;
@@ -184,6 +187,11 @@ function onFontChange(e) {
     // ENABLE all radios and restore previous value, if switched from bad line height
     // if (lhEl.css('background-color') {
       lhEl.css('background-color', '');
+      blit.text(lh/_LHBL_F + ' px');
+      blint.text('');
+      blit.removeClass('invalid-baseline');
+
+
       if (allConfigs){
         el = allConfigs.radioForms[2]; // baseline form
         $('input', el).each(function(){  $(this).prop('disabled', false); });
@@ -207,6 +215,9 @@ function onFontChange(e) {
   } else {
     _LHBL_F = lh/lh; //implicit 1
     lhEl.css('background-color', 'lightpink');
+    blit.text('not valid');
+    blint.text('Line height must be divisible by 2 or 3.');
+    blit.addClass('invalid-baseline');
     
     // DISABLE baseline form
     if (allConfigs){
@@ -645,6 +656,7 @@ function onGridChange(e){
         var newLH = selected.val()*_LHBL_F;
         $('#input-lineheight').val( newLH );
         $('.example-text').css('line-height', newLH+'px');
+        $('#baseline-info-text').text(selected.val() + ' px');
 
         // update percent label
         _LHFS_R = newLH / parseInt( $('#input-fontsize').val() );
@@ -842,7 +854,7 @@ function drawRhythmicGrid(gridConfig){
         // 'vertical-align': 'text-top',
         // 'white-space': 'nowrap',
         // 'text-overflow': 'ellipsis' // not working
-    }).dotdotdot({ellipsis: '...', tolerance : 15});
+    }).dotdotdot({ellipsis: '.'});//, tolerance : 15});
 
 
     /////////////////////////////////////////
@@ -999,9 +1011,9 @@ function drawMetrics() {
       x_height  = ctx.measureText('x').ascent,
       cap_height= ctx.measureText('H').ascent,
       safebox_h = Math.round(metrics_fontsize / 2), // safe-box height ??
-      xh_offset = x_height / safebox_h - 1,  // x-height offset (deviation) from safe-box height
-      xh_offset_label = (xh_offset>=0?'+ ':'– ') + Math.abs(Math.round(xh_offset*500)) + ' UPM',
-      isValid_xh_offset = Math.abs(Math.round(xh_offset*500)) <= 50;
+      xh_offset = Math.round((x_height / safebox_h - 1)*500),  // x-height offset (deviation) from safe-box height
+      xh_offset_label = (xh_offset>=0?'+ ':'– ') + Math.abs(xh_offset) + ' UPM',
+      isValid_xh_offset = Math.abs(xh_offset) <= 50;
       line_length = canvas.width - metricsContext.xOffR, //metrics.width+b*2-xoff;
       labelRectW = 58*2, // static label width
       labelRectH = 15*2; // // static label height
@@ -1014,7 +1026,7 @@ function drawMetrics() {
   // console.log('Baseline Y: %sx', baseline_y);
   // console.log('Safe-box height: %s', safebox_h);
   // console.log(metrics);
-  // console.log('x-height deviation: %.1f%%', xh_offset*100)
+  // console.log('x-height deviation: %.1f%%', xh_offset)
 
   // font init for metrics labels
   ctx.font = metricsContext.label_font;
@@ -1162,7 +1174,7 @@ function drawMetrics() {
       ctx.restore();
     } else {
       // horizontal label in % or UPMs
-      // ctx.fillText((xh_offset>=0?'+':'-') + Math.round(xh_offset*1000)/10 + '%', line_length, baseline_y-x_height+1);
+      // ctx.fillText((xh_offset>=0?'+':'-') + Math.round((x_height/safebox_h-1)*1000)/10 + '%', line_length, baseline_y-x_height+1);
       ctx.fillText(xh_offset_label, line_length, baseline_y-x_height);
     }
   }
@@ -1549,6 +1561,7 @@ $('#grid-toggle').on('click', function(e){
 
 });
 
+// initiale state of 'Hide grid' button 
 $('#grid-toggle')
     .data('grid-toggle', localStorage.getItem('gridToggle')==='off' ? 'on' : 'off')
     .trigger('click');
