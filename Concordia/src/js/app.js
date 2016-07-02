@@ -205,6 +205,7 @@ $('#grid-toggle').on('click', function(e){
 
 });
 
+// initiale state of 'Hide grid' button 
 $('#grid-toggle')
     .data('grid-toggle', localStorage.getItem('gridToggle')==='off' ? 'on' : 'off')
     .trigger('click');

@@ -302,7 +302,7 @@ function drawRhythmicGrid(gridConfig){
         // 'vertical-align': 'text-top',
         // 'white-space': 'nowrap',
         // 'text-overflow': 'ellipsis' // not working
-    }).dotdotdot({ellipsis: '...', tolerance : 15});
+    }).dotdotdot({ellipsis: '.'});//, tolerance : 15});
 
 
     /////////////////////////////////////////
