@@ -1,6 +1,6 @@
 var metricsContext = (function(){
 
-  var int = function(str){ return parseInt(str,10); }
+  var int = function(str){ return parseInt(str,10); };
 
   var _canvas  = $('#metrics-canvas')[0],
       _canvasT = $('#text-canvas')[0];
@@ -13,7 +13,7 @@ var metricsContext = (function(){
   _canvasT.height = int( $(_canvasT).css('height') ) * 2;
 
   // console.log('Metrics canvas %sx%s\nText canvasT %sx%s',
-  //  canvas.width,  canvas.height, canvasT.width, canvasT.height);
+  //              canvas.width,  canvas.height, canvasT.width, canvasT.height);
 
   return {
     canvas  : _canvas,
@@ -44,6 +44,8 @@ var metricsContext = (function(){
     translated: 0
   };
 })();
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 function drawText()
@@ -69,7 +71,7 @@ function drawText()
 
   var timing = performance.now() - startTime;
   // console.log('------------- text rendering finished (%.1fms).', timing);
-}
+};
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -125,29 +127,6 @@ function drawMetrics() {
   // font init for metrics labels
   ctx.font = metricsContext.label_font;
   canvas.style.font = ctx.font;
-
-  // // EM BOX lines
-  // var em_gap = Math.round((metrics_fontsize - (ascent+descent)) / 2);
-  // ctx.beginPath();
-  // ctx.strokeStyle = 'rgba(255, 0, 0, .7)';
-  // ctx.lineWidth = 1;
-  // ctx.strokeRect(1, baseline_y-ascent-em_gap, 
-  //                line_length+xOffR-1, metrics_fontsize);
-  // // console.log('Baseline = %s; Ascent = %s; Descent = %s; Em gap = %s', baseline_y, ascent, descent, em_gap);
-  
-  // // EM BOX label
-  // ctx.fillStyle = 'rgba(255, 0, 0, .8)';
-  // ctx.textBaseline = 'bottom';
-  // if (true) {  // rotate flag
-  //   ctx.save();
-  //   ctx.textAlign = 'right';
-  //   ctx.rotate(Math.PI/2); // rotate coordinates by 90° clockwise
-  //   ctx.fillText('em box', baseline_y+descent+em_gap-5, -2); // for vertical label
-  //   ctx.restore();
-  // } else {
-  //   ctx.textAlign = 'left';
-  //   ctx.fillText('em box', 2, baseline_y-ascent-em_gap); // for horizontal label 
-  // }
 
   // SAFEBOX rectangle
   ctx.beginPath();
@@ -252,14 +231,14 @@ function drawMetrics() {
   
   // X-HEIGHT offset (deviation) from "safe zone" (500UPMs)
   ctx.beginPath();
-  ctx.fillStyle =  isValid_xh_offset ? '#14CF74' : 'orange';
+  ctx.fillStyle = hex2rgba( isValid_xh_offset ? '#8014CF74'/*gree*/ : '#80FFA500'/*orange*/ );
   ctx.fillRect(xOffL, baseline_y-x_height, line_length, x_height-safebox_h);
 
   ctx.textBaseline = xh_offset > 0 ? 'bottom' : 'top';
   ctx.textAlign = 'right';
   ctx.font = metricsContext.label_font_upm;
   ctx.fillStyle = 'black';
-  if (/*xh_offset != 0*/1) { // omit zero UPM or not
+  if (true/*xh_offset != 0*/) { // omit zero UPM or not
     if (false){
       // vertical label, in UPMs
       ctx.save();
@@ -316,3 +295,11 @@ function drawMetrics() {
   console.log('... metrics rendering finished (%.1dms).  [%s>%s]', timing, arguments.callee.caller.name, arguments.callee.name);
 };
 
+
+///////////////////////////////////////////////////////////////////////////////
+
+var hex2rgba = function(str) {
+  var num = parseInt(str.slice(1), 16); // Convert to a number
+  var rgba = [num >> 16 & 255, num >> 8 & 255, num & 255, (num >> 24 & 255)/255];
+  return 'rgba(' + rgba.join(', ') + ')';
+};

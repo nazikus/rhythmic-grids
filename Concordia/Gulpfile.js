@@ -8,6 +8,7 @@ var gulp      = require('gulp'),
     connect   = require('gulp-connect'),
     watch     = require('gulp-watch'),
     prefix    = require('gulp-autoprefixer'),
+    strip     = require('gulp-strip-comments'),
     inject    = require('gulp-inject'),
     merge     = require('merge-stream'), // for multiple src in a single task
     spawn     = require('child_process').spawn; // auto-reload gulp process on Gulpfile.js change
@@ -77,6 +78,7 @@ gulp.task('js', function() {
             jsSrc + '/app.js'
         ])
         .pipe(concat('app.js'))
+        .pipe(strip())
         .pipe(gulp.dest(jsDist));
 
     var scriptsStream = 
@@ -96,16 +98,19 @@ gulp.task('js', function() {
             './../JavaScript/RhythmicGridGenerator.js'
         ])
         .pipe(gulp.dest(jsDist))
+        .pipe(strip())
         .pipe(connect.reload());
 
 
     return merge(appStream, scriptsStream);
 });
 
-// inject <script>'s into .html
+// inject <script> tags into .html
 gulp.task('injecthtml', function () {
-    var generateScriptTag = function(path) {
-        return '<script src=".'  + path.split(dist)[1] + '"></script>';
+    var generateScriptTag = function(script_attr){
+        return function(path) {
+            return '<script src="' + path.split(dist)[1].slice(1) + '" ' + script_attr + '></script>';
+        }
     }
 
     return gulp.src('./src/index.html')
@@ -113,25 +118,29 @@ gulp.task('injecthtml', function () {
             gulp.src([
                 jsDist + '/jquery.min.js',
                 jsDist + '/jquery.dotdotdot.js',
+                jsDist + '/canvas-fontmetrics.js',
+                jsDist + '/lorem.js',
                 jsDist + '/pre3d.js',
                 jsDist + '/shapeutils.js',
-                jsDist + '/canvas-fontmetrics.js',
                 jsDist + '/font-detector.js',
                 jsDist + '/font-detector-temp.js',
-                jsDist + '/lorem.js',
                 jsDist + '/RhythmicGridGenerator.js',
             ] , {read: false}),
             { 
-                transform: generateScriptTag, 
-                starttag: '<!-- inject:head:{{ext}} -->' 
+                transform: generateScriptTag('defer'), // should be async
+                starttag: '<!-- inject:head1:{{ext}} -->' 
             }
         ))
         .pipe(inject(
             gulp.src([
                 jsDist + '/app.js', 
             ], {read: false}),
-            { transform: generateScriptTag }
+            { 
+                transform: generateScriptTag('defer'),
+                starttag: '<!-- inject:head2:{{ext}} -->'
+            }
         ))
+        .pipe(strip())
         .pipe(gulp.dest(dist))
         .pipe(connect.reload());;
 });
@@ -148,7 +157,7 @@ gulp.task('styles', function() {
 
 // build static site for local testing
 gulp.task('build-static', ['clean'], function(cb) {
-    runSequence('js', 'injecthtml', ['styles', 'images', 'favicon', 'fonts'], cb);
+    runSequence('js', 'injecthtml', ['styles', 'images', 'fonts', 'favicon'], cb);
 });
 
 // run server via gulp-connect
@@ -170,7 +179,8 @@ gulp.task('watch', ['server'], function() {
     connect.reload();
 });
 
+// TOFIX: cannot re-launch gulp from terminated process (despite spawn)
 gulp.task('gulp-reload', function() {
-  spawn('gulp', ['watch'], {stdio: 'inherit'}); // TOFIX
+  spawn('gulp', ['watch'], {stdio: 'inherit'});
   process.exit();
 });

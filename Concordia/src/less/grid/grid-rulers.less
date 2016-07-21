@@ -32,7 +32,7 @@
 		}
 	}
 	&.hidden {
-		transition: none;
+		transition: height 0.7s ease 0.3s;
 		height: 0;
 	}
 }
@@ -44,14 +44,14 @@
 	bottom: -1px; // extra pixel for the last baseline
 	overflow: hidden;
 	width: 100%;
-	transition: width 0.7s ease;
+	transition: width 0.7s ease 0.3s;
 	.ruler-horizontal {
 		position: relative;
 		width: 100%;
 		border-top: 1px solid rgba(255, 24, 24, 0.5);
 	}
 	&.hidden {
-		transition: none;
+		transition: width 0.7s ease;
 		width: 0;
 	}
 

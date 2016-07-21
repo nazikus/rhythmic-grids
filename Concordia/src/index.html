@@ -16,7 +16,9 @@
     <meta property="og:description" content="Generate your grid in seconds" />
 	<link rel="stylesheet" href="css/main.css" />
 	<link rel="stylesheet" href="css/grid.css" />
-	<!-- inject:head:js -->
+	<!-- inject:head1:js -->
+	<!-- endinject -->
+	<!-- inject:head2:js -->
 	<!-- endinject -->
 </head>
 <body>
@@ -154,8 +156,8 @@
 									<div class="p-rel d-ib">
 										<input type="text" placeholder="16px" value="16px" id="input-fontsize" />
 										<div class="controls">
-											<a href="#" class="up">▲</a>
-											<a href="#" class="down">▼</a>
+											<a href="#" class="up" tabindex="-1">▲</a>
+											<a href="#" class="down" tabindex="-1">▼</a>
 										</div>
 									</div>
 								</div>
@@ -163,8 +165,8 @@
 									<div class="p-rel d-ib">
 										<input type="text" placeholder="18px" value="18px" id="input-lineheight" />
 										<div class="controls">
-											<a href="#" class="up">▲</a>
-											<a href="#" class="down">▼</a>
+											<a href="#" class="up" tabindex="-1">▲</a>
+											<a href="#" class="down" tabindex="-1">▼</a>
 										</div>
 									</div>
 									<label for="input-lineheight" id="lineheight-percent-label">110%</label>
@@ -541,7 +543,7 @@
 		</footer>
 	</div>
 	<!-- Scripts -->
-    <!-- inject:js -->
+    <!-- inject:bodyend:js -->
     <!-- endinject -->
 </body>
 </html>

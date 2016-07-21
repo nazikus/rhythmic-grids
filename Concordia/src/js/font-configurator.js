@@ -226,6 +226,8 @@ function onMetricsTextChange(e) {
 
 function getFontList() {
   return [
-    "Helvetica", "Georgia", "Baskerville", "Charter", "Avenir", "PT Serif", "PT Sans"
+    'Georgia', 'Baskerville', 'Baskerville Old Face', 'Century', 'Lucida Bright',
+    'Times', 'Helvetica', 'Helvetica Neue', 'Arial', 'Verdana', 'Century Gothic', 
+    'Calibri', 'Charter', 'Avenir', 'PT Serif', 'PT Sans'
   ];
 }

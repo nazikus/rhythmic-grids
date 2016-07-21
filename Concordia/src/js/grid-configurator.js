@@ -192,9 +192,11 @@ function drawRhythmicGrid(gridConfig){
 
     $('#grid-width-text').text(gridConfig.rhythmicGrid.W + ' px');
     $('#column-width-text').text(gridConfig.rhythmicGrid.blocks[0][0] + ' px');
-    ///////////////////////////////////////
-    /////// GENERATE BLOCK DIVS ///////////
-    ///////////////////////////////////////
+
+
+    /////////////////////////////////////////
+    //////// GENERATE GRID BLOCKS ///////////
+    /////////////////////////////////////////
     var container = allConfigs.gridContainer,
         c = 0;
 
@@ -209,7 +211,7 @@ function drawRhythmicGrid(gridConfig){
             blocksInRow = val[2];
 
 
-        // exceptional case, when gutter == 0, display grid with images only without text blocks
+        // exceptional case, when gutter == 0, display grid with images only and without text blocks
         if (gridConfig.gutter.W == 0) {
             for (var i=1; i<=blocksInRow; i++){
                 var inner = $('<div>').addClass('inner').addClass('inner'+i);
@@ -240,12 +242,22 @@ function drawRhythmicGrid(gridConfig){
             
             if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
                 var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
-                inner.attr('style', 'background-image: url(img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)');
+                inner.attr('style', 'background-image: url(img/' + 
+                                     gridConfig.ratio.str+'/' + imgId +'.jpg)');
                 // console.log(inner.attr('style'));
             } else {
-                var txtmck = 'Hdxp ' + allConfigs.textMocks[idx] + '.';
-                inner.append( $('<div>').addClass('text').text(txtmck)
-                    .width(blockWidth).height(blockHeight) );
+                var txtMock = 'Hdxp ' + allConfigs.textMocks[idx] + '.';
+
+                // Option 1: text as  block box
+                inner.append( $('<div>').addClass('text')
+                                    .text(txtMock).height(blockHeight) );
+
+                // Option 2: text as inline box with a strut,
+                //           dotdotdot plugin stops working
+                // inner.height(blockHeight);
+                // inner.append( $('<span>').addClass('strut')
+                //     .height(parseInt($('#input-lineheight').val())) );
+                // inner.append( $('<span>').addClass('text').text(txtMock) );
             }
 
             var column = $('<div>').addClass('column').append(inner);
@@ -292,16 +304,12 @@ function drawRhythmicGrid(gridConfig){
     // text formatting AND aligning with horizontal ruler
     var lh = parseInt($('#input-lineheight').val()),
         fs = parseInt($('#input-fontsize').val());
+    
     $('.column .inner .text').css({
-        'font-family': $('#select-font').val()+",monospace",
+        'font-family': $('#select-font').val()+", monospace",
         'font-size': parseInt($('#input-fontsize').val())+'px',
         'line-height': parseInt($('#input-lineheight').val())+'px',
-        'padding': + Math.ceil((lh-fs)/2+3)+'px 0',
-        'overflow': 'unset',
-        // 'text-decoration': 'underline',
-        // 'vertical-align': 'text-top',
-        // 'white-space': 'nowrap',
-        // 'text-overflow': 'ellipsis' // not working
+        'padding': + Math.ceil((lh-fs)/2+3)+'px 0'
     }).dotdotdot({ellipsis: '.'});//, tolerance : 15});
 
 
