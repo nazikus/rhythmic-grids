@@ -55,7 +55,7 @@ var allConfigs = Object.freeze((function(){
         allValidGrids: allValidGrids,
         
         fontSizeLimit  : {min: 14, max: 21},    // px
-        lineHeightLimit: {min: 1.0, max: 1.5},  // em (of font size)
+        lineHeightLimit: {min: 1, max: 1.5},  // em (of font size)
         
         rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
         inputNames   : ['canvasWidth', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],

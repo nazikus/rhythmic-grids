@@ -249,15 +249,15 @@ function drawRhythmicGrid(gridConfig){
                 var txtMock = 'Hdxp ' + allConfigs.textMocks[idx] + '.';
 
                 // Option 1: text as  block box
-                inner.append( $('<div>').addClass('text')
-                                    .text(txtMock).height(blockHeight) );
+                // inner.append( $('<div>').addClass('text')
+                //                     .text(txtMock).height(blockHeight) );
 
                 // Option 2: text as inline box with a strut,
                 //           dotdotdot plugin stops working
-                // inner.height(blockHeight);
-                // inner.append( $('<span>').addClass('strut')
-                //     .height(parseInt($('#input-lineheight').val())) );
-                // inner.append( $('<span>').addClass('text').text(txtMock) );
+                inner.height(blockHeight);
+                inner.append( $('<span>').addClass('strut')
+                    .height(parseInt($('#input-lineheight').val())) );
+                inner.append( $('<span>').addClass('text').text(txtMock) );
             }
 
             var column = $('<div>').addClass('column').append(inner);
@@ -308,9 +308,9 @@ function drawRhythmicGrid(gridConfig){
     $('.column .inner .text').css({
         'font-family': $('#select-font').val()+", monospace",
         'font-size': parseInt($('#input-fontsize').val())+'px',
-        'line-height': parseInt($('#input-lineheight').val())+'px',
-        'padding': + Math.ceil((lh-fs)/2+3)+'px 0'
-    }).dotdotdot({ellipsis: '.'});//, tolerance : 15});
+        'line-height': parseInt($('#input-lineheight').val())+'px'
+        // 'padding': + Math.ceil((lh-fs)/2+3)+'px 0'
+    }); //.dotdotdot({ellipsis: '.'});//, tolerance : 15});
 
 
     /////////////////////////////////////////
