@@ -27,11 +27,11 @@
 		background-size: cover;
 		padding-bottom: @grid-ratio;
 		position: relative;
-		
 		// overflow: hidden;
+		
 		.strut {
 			display: inline-block;
-			width: 7px;
+			width: 0px; // 7px;
 			background-color: fadeout(black, 60%);
 		}
 		.text {
@@ -39,9 +39,11 @@
 			// position: absolute;
 			// top: 0;
 			// text-decoration: underline;
-	        // overflow: unset,
+
 	        // white-space: nowrap,
-    	    // text-overflow: ellipsis // not working
+			// overflow: hidden;
+    	    // text-overflow: ellipsis
+
 			&.hidden {
 				visibility: hidden;
 			}

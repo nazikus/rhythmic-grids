@@ -246,18 +246,18 @@ function drawRhythmicGrid(gridConfig){
                                      gridConfig.ratio.str+'/' + imgId +'.jpg)');
                 // console.log(inner.attr('style'));
             } else {
-                var txtMock = 'Hdxp ' + allConfigs.textMocks[idx] + '.';
+                var txtMock = /*'Hdxp ' + */allConfigs.textMocks[idx] + '.';
 
-                // Option 1: text as  block box
+                // Option 1: text as  block box, dotdotdot plugin for ellipsis
                 // inner.append( $('<div>').addClass('text')
                 //                     .text(txtMock).height(blockHeight) );
 
                 // Option 2: text as inline box with a strut,
-                //           dotdotdot plugin stops working
+                //           dotdotdot plugin stops working, ellipsis coded by hand
                 inner.height(blockHeight);
                 inner.append( $('<span>').addClass('strut')
                     .height(parseInt($('#input-lineheight').val())) );
-                inner.append( $('<span>').addClass('text').text(txtMock) );
+                inner.append( $('<span>').addClass('text').text(txtMock).height(blockHeight) );
             }
 
             var column = $('<div>').addClass('column').append(inner);
@@ -299,18 +299,44 @@ function drawRhythmicGrid(gridConfig){
     });
 
     // TOFIX a problem with relative flex values and floats, eg 66.666667%
-    $('.column .inner').css('padding-bottom', 100/gridConfig.ratio.R+'%')
+    $('.column .inner').css('padding-bottom', 100/gridConfig.ratio.R+'%');
 
     // text formatting AND aligning with horizontal ruler
-    var lh = parseInt($('#input-lineheight').val()),
-        fs = parseInt($('#input-fontsize').val());
+    var fs = parseInt($('#input-fontsize').val()),
+        lh = parseInt($('#input-lineheight').val());
     
-    $('.column .inner .text').css({
-        'font-family': $('#select-font').val()+", monospace",
-        'font-size': parseInt($('#input-fontsize').val())+'px',
-        'line-height': parseInt($('#input-lineheight').val())+'px'
-        // 'padding': + Math.ceil((lh-fs)/2+3)+'px 0'
-    }); //.dotdotdot({ellipsis: '.'});//, tolerance : 15});
+    $('.column .inner .text')
+        .css({
+            'font-family': $('#select-font').val()+", monospace",
+            'font-size'  : fs+'px',
+            'line-height': lh+'px'
+            // 'padding': + Math.ceil((lh-fs)/2+3)+'px 0'  // manual baseline offset
+        });// .dotdotdot({ellipsis: '.'});//, tolerance : 15}); // ignored if inline
+
+
+    ////////////////////////////////////////////    
+    ////////   ITERATIVE JS ELLIPSIS   /////////
+    ////////////////////////////////////////////    
+    var ellipsisStartTime = performance.now();
+    $('.grid-section .inner')
+        .has('.text')
+        .each( function() { 
+            var postfix = '.', //' \u2026',
+                textEl = $('.text', this),
+                textArr = textEl.text().split(' '),
+                curr = '',
+                inner = this;
+            for (var i=0; i<textArr.length; i++) {
+                curr = textArr.slice(0,i).join(' ')
+                textEl.text( curr + ' ' + textArr[i] + postfix ); 
+                if (inner.scrollHeight > inner.clientHeight + gridConfig.baseline) { 
+                    textEl.text( curr + postfix ); 
+                    break; 
+                }  
+            } 
+        });
+    var ellipsisTiming = performance.now() - ellipsisStartTime;
+    console.log('... ellipsis clamp (%.1dms).', ellipsisTiming);
 
 
     /////////////////////////////////////////
