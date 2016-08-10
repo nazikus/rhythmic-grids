@@ -102,7 +102,7 @@ function onGridChange(e){
     // if baseline form: change line height in font selector, and in text samples
     if (el.attr('id') === 'gridBaseline'){
         var newLH = selected.val()*_LHBL_F;
-        $('#input-lineheight').val( newLH );
+        $('#input-lineheight').val( newLH+'px' );
         $('.example-text').css('line-height', newLH+'px');
         $('#baseline-info-text').text(selected.val() + ' px');
 
@@ -247,6 +247,7 @@ function drawRhythmicGrid(gridConfig){
                 // console.log(inner.attr('style'));
             } else {
                 var txtMock = /*'Hdxp ' + */allConfigs.textMocks[idx] + '.';
+                // console.log('Lorem words: %s', txtMock.split(' '));
 
                 // Option 1: text as  block box, dotdotdot plugin for ellipsis
                 // inner.append( $('<div>').addClass('text')

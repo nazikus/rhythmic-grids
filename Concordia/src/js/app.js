@@ -69,9 +69,11 @@ var allConfigs = Object.freeze((function(){
                             .map(function(_,i) {
                                 return Lorem.prototype.createText(
                                     // 10*(i+1),
-                                    27*Math.exp(i*1.3), 
                                     // Math.pow(20, (i+1)*0.9), 
+                                    30*Math.exp(i*1.5), 
                                     Lorem.TYPE.WORD)
+                                // Uppercase the first letter
+                                .replace(/^(\w)/, function(v) { return v.toUpperCase(); }); 
                             })
     }
 })());
