@@ -16,20 +16,10 @@
     <meta property="og:description" content="Generate your grid in seconds" />
 	<link rel="stylesheet" href="css/main.css" />
 	<link rel="stylesheet" href="css/grid.css" />
-	<!-- inject:head:js -->
-	<script src="./js/jquery.min.js"></script>
-	<script src="./js/jquery.dotdotdot.js"></script>
-	<script src="./js/pre3d.js"></script>
-	<script src="./js/shapeutils.js"></script>
-	<script src="./js/canvas-fontmetrics.js"></script>
-	<script src="./js/font-detector.js"></script>
-	<script src="./js/font-detector-temp.js"></script>
-	<script src="./js/lorem.js"></script>
-	<script src="./js/RhythmicGridGenerator.js"></script>
-	<!-- endinject -->
+	<script src="js/vendors-min.js" defer></script>
+	<script src="js/app-min.js" defer></script>
 </head>
 <body>
-	<!-- Main wrapper -->
 	<div class="outer-wrapper">
 		<section class="banner">
 			<canvas id="tesseract" class="tesseract" width="5240"  height="3500"></canvas>
@@ -37,19 +27,16 @@
 				<header>
 					<div class="flex-row header">
 						<div class="flex-child">
-							<!-- logo -->
 							<div class="logo">
 								Concordia
 							</div>
 						</div>
 						<div class="flex-child">
-							<!-- app name -->
 							<div class="text-center app-name">
 								Rhytmic grid calculator
 							</div>
 						</div>
 						<div class="flex-child">
-							<!-- Credits -->
 							<div class="credits text-right">
 								<a href="#" class="credits-toggle" id="credits-toggle" data-credits-visible="false">
 									<span class="credits-label-on">Credits</span>
@@ -69,7 +56,6 @@
 						</div>
 					</h1>
 				</div>
-				<!-- Credits content (initially hidden) -->
 				<div class="credits-section text-vertical-center hidden" id="credits-section">
 					<h2>
 						Created with mind turned <br>into the future
@@ -130,7 +116,6 @@
 						</div>
 					</div>
 				</div>
-				<!-- END Credits content -->
 			</div>
 		</section>
 		<section>
@@ -140,14 +125,11 @@
 			<div class="container">
 				<div class="flex-row">
 					<div class="flex-child half">
-						<!-- TABS TOGGLES -->
 						<div class="font-source tabs-toggle-wrapper">
 							<a href="#font-select" class="current">Your fonts</a>
 							<span class="font-source-separator"> / </span>
 							<a href="#font-upload">Add font</a>
 						</div>
-						<!-- END TABS TOGGLES -->
-						<!-- TABS CONTENT -->
 						<div class="tab-content" id="font-select">
 							<div class="font-controls">
 								<div class="font-select-wrapper">
@@ -163,8 +145,8 @@
 									<div class="p-rel d-ib">
 										<input type="text" placeholder="16px" value="16px" id="input-fontsize" />
 										<div class="controls">
-											<a href="#" class="up">▲</a>
-											<a href="#" class="down">▼</a>
+											<a href="#" class="up" tabindex="-1">▲</a>
+											<a href="#" class="down" tabindex="-1">▼</a>
 										</div>
 									</div>
 								</div>
@@ -172,8 +154,8 @@
 									<div class="p-rel d-ib">
 										<input type="text" placeholder="18px" value="18px" id="input-lineheight" />
 										<div class="controls">
-											<a href="#" class="up">▲</a>
-											<a href="#" class="down">▼</a>
+											<a href="#" class="up" tabindex="-1">▲</a>
+											<a href="#" class="down" tabindex="-1">▼</a>
 										</div>
 									</div>
 									<label for="input-lineheight" id="lineheight-percent-label">110%</label>
@@ -197,7 +179,6 @@
 								<div id="displayContainer" style="display: none;"></div>
 							</form>
 						</div>
-						<!-- END TABS CONTENT -->
 					</div>
 					<div class="flex-child half">
 						<p class="no-margintop">Adjust properties to improve legibility</p>
@@ -417,19 +398,13 @@
 								<div class="flex-child">
 									<a href="#" class="grid-toggle" id="grid-toggle" data-grid-toggle="on">Hide Rulers</a>
 								</div>
-								<!-- <div class="flex-child">
-									<a href="#" class="sound-toggle" id="sound-toggle" data-sound-toggle="on">
-										Make it sound
-									</a>
-								</div> -->
 							</div>
-							
+
+													</div>
+						<div class="flex-child">
+							Grid width <span id="grid-width-text"></span>, column width <span id="column-width-text"></span>
 						</div>
 						<div class="flex-child">
-							Grid width: <span id="grid-width-text"></span>, column width: <span id="column-width-text"></span>
-						</div>
-						<div class="flex-child">
-							<!-- Share this grid settings http://crdia.io/248 -->
 						</div>
 					</div>
 				</div>
@@ -526,32 +501,25 @@
 			<div class="container">
 				<div class="flex-row">
 					<div class="flex-child">
-						<!-- logo -->
 						<div class="logo">
 							Concordia
 						</div>
 					</div>
 					<div class="flex-child">
-						<!-- app name -->
 						<div class="text-center app-name">
 							Rhytmic grid calculator
 						</div>
 					</div>
 					<div class="flex-child">
-						<!-- Credits -->
 						<div class="credits text-right">
 							<a href="https://github.com/nazikus/rhythmic-grids" target="_blank" class="github-link"></a>
 						</div>
-						
-					</div>
+
+											</div>
 				</div>
 			</div>
 			<img src="img/fontmetrics-pattern@2x.jpg" id="fontmetrics-pattern" style="display: none;">
 		</footer>
 	</div>
-	<!-- Scripts -->
-    <!-- inject:js -->
-    <script src="./js/app.js"></script>
-    <!-- endinject -->
 </body>
 </html>
