@@ -16,10 +16,30 @@
     <meta property="og:description" content="Generate your grid in seconds" />
 	<link rel="stylesheet" href="css/main.css" />
 	<link rel="stylesheet" href="css/grid.css" />
-	<script src="js/vendors-min.js" defer></script>
-	<script src="js/app-min.js" defer></script>
+	<!-- inject:head1:js -->
+	<script src="js/jquery.min.js" defer></script>
+	<script src="js/canvas-fontmetrics.js" defer></script>
+	<script src="js/lorem.js" defer></script>
+	<script src="js/pre3d.js" defer></script>
+	<script src="js/shapeutils.js" defer></script>
+	<script src="js/font-detector.js" defer></script>
+	<script src="js/RhythmicGridGenerator.js" defer></script>
+	<!-- endinject -->
+	<!-- inject:head2:js -->
+	<script src="js/tesseract-drawing.js" defer></script>
+	<script src="js/audiocontext.js" defer></script>
+	<script src="js/credits-toggle.js" defer></script>
+	<script src="js/font-configurator.js" defer></script>
+	<script src="js/font-dragr.js" defer></script>
+	<script src="js/grid-configurator.js" defer></script>
+	<script src="js/metrics-drawing.js" defer></script>
+	<script src="js/metrics-panning.js" defer></script>
+	<script src="js/google-analytics.js" defer></script>
+	<script src="js/app.js" defer></script>
+	<!-- endinject -->
 </head>
 <body>
+	<!-- Main wrapper -->
 	<div class="outer-wrapper">
 		<section class="banner">
 			<canvas id="tesseract" class="tesseract" width="5240"  height="3500"></canvas>
@@ -27,16 +47,19 @@
 				<header>
 					<div class="flex-row header">
 						<div class="flex-child">
+							<!-- logo -->
 							<div class="logo">
 								Concordia
 							</div>
 						</div>
 						<div class="flex-child">
+							<!-- app name -->
 							<div class="text-center app-name">
 								Rhytmic grid calculator
 							</div>
 						</div>
 						<div class="flex-child">
+							<!-- Credits -->
 							<div class="credits text-right">
 								<a href="#" class="credits-toggle" id="credits-toggle" data-credits-visible="false">
 									<span class="credits-label-on">Credits</span>
@@ -56,6 +79,7 @@
 						</div>
 					</h1>
 				</div>
+				<!-- Credits content (initially hidden) -->
 				<div class="credits-section text-vertical-center hidden" id="credits-section">
 					<h2>
 						Created with mind turned <br>into the future
@@ -116,6 +140,7 @@
 						</div>
 					</div>
 				</div>
+				<!-- END Credits content -->
 			</div>
 		</section>
 		<section>
@@ -125,11 +150,14 @@
 			<div class="container">
 				<div class="flex-row">
 					<div class="flex-child half">
+						<!-- TABS TOGGLES -->
 						<div class="font-source tabs-toggle-wrapper">
 							<a href="#font-select" class="current">Your fonts</a>
 							<span class="font-source-separator"> / </span>
 							<a href="#font-upload">Add font</a>
 						</div>
+						<!-- END TABS TOGGLES -->
+						<!-- TABS CONTENT -->
 						<div class="tab-content" id="font-select">
 							<div class="font-controls">
 								<div class="font-select-wrapper">
@@ -179,6 +207,7 @@
 								<div id="displayContainer" style="display: none;"></div>
 							</form>
 						</div>
+						<!-- END TABS CONTENT -->
 					</div>
 					<div class="flex-child half">
 						<p class="no-margintop">Adjust properties to improve legibility</p>
@@ -398,13 +427,19 @@
 								<div class="flex-child">
 									<a href="#" class="grid-toggle" id="grid-toggle" data-grid-toggle="on">Hide Rulers</a>
 								</div>
+								<!-- <div class="flex-child">
+									<a href="#" class="sound-toggle" id="sound-toggle" data-sound-toggle="on">
+										Make it sound
+									</a>
+								</div> -->
 							</div>
-
-													</div>
+							
+						</div>
 						<div class="flex-child">
 							Grid width <span id="grid-width-text"></span>, column width <span id="column-width-text"></span>
 						</div>
 						<div class="flex-child">
+							<!-- Share this grid settings http://crdia.io/248 -->
 						</div>
 					</div>
 				</div>
@@ -501,25 +536,31 @@
 			<div class="container">
 				<div class="flex-row">
 					<div class="flex-child">
+						<!-- logo -->
 						<div class="logo">
 							Concordia
 						</div>
 					</div>
 					<div class="flex-child">
+						<!-- app name -->
 						<div class="text-center app-name">
 							Rhytmic grid calculator
 						</div>
 					</div>
 					<div class="flex-child">
+						<!-- Credits -->
 						<div class="credits text-right">
 							<a href="https://github.com/nazikus/rhythmic-grids" target="_blank" class="github-link"></a>
 						</div>
-
-											</div>
+						
+					</div>
 				</div>
 			</div>
 			<img src="img/fontmetrics-pattern@2x.jpg" id="fontmetrics-pattern" style="display: none;">
 		</footer>
 	</div>
+	<!-- Scripts -->
+    <!-- inject:bodyend:js -->
+    <!-- endinject -->
 </body>
 </html>
