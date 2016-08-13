@@ -2,6 +2,7 @@
 temp/
 grids_output/
 
+.publish/
 node_modules/
 dist/
 
@@ -13,4 +14,4 @@ dist/
 *.asv
 *.log
 *.*sublime-*
-
+*.backup

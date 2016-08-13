@@ -1,17 +1,24 @@
 // plugins
 var gulp      = require('gulp'),
+    gulpif    = require('gulp-if'),
     clean     = require('gulp-clean'),
-    minifyCss = require('gulp-minify-css'),
-    less      = require('gulp-less'),
-    concat    = require('gulp-concat'),
-    runSequence = require('gulp-run-sequence'),
-    connect   = require('gulp-connect'),
     watch     = require('gulp-watch'),
+    connect   = require('gulp-connect'),
+  runSequence = require('gulp-run-sequence'),
+    less      = require('gulp-less'),
+    minifyCss = require('gulp-minify-css'),
+    cssImport = require('gulp-cssimport'),
     prefix    = require('gulp-autoprefixer'),
+    concat    = require('gulp-concat'),
     strip     = require('gulp-strip-comments'),
+    stripDebug= require('gulp-strip-debug'),
+    uglify    = require('gulp-uglify'),
+    rename    = require('gulp-rename'),
     inject    = require('gulp-inject'),
-    merge     = require('merge-stream'), // for multiple src in a single task
-    spawn     = require('child_process').spawn; // auto-reload gulp process on Gulpfile.js change
+    ghPages   = require('gulp-gh-pages'), // deploy to gh-pages
+    series    = require('stream-series'); // combine multiple src in a single task with preserved order
+
+
 
 // paths
 var dist = 'dist',
@@ -27,7 +34,27 @@ var dist = 'dist',
     jsDist = dist + '/js';
 
 // default task
-gulp.task('default', ['watch'], function() {});
+gulp.task('default', ['watch'], function(){});
+
+
+// deploy tasks
+var deploy = false;  // deploy flag
+
+gulp.task('build-deploy', ['clean'], function(cb) {
+    deploy = true;  
+    runSequence('js', 'injecthtml', ['styles', 'images', 'fonts', 'favicon'], cb);
+});
+
+gulp.task('deploy', ['build-deploy'], function(cb) {
+    return gulp.src(['CNAME', './dist/**/*'])
+        .pipe(ghPages(/*{push: false}*/));
+});
+
+gulp.task('deploy-local', function(cb) {
+    deploy = true;
+    runSequence('default', cb);
+});
+
 
 // clean task
 gulp.task('clean', function() {
@@ -65,47 +92,50 @@ gulp.task('images', function() {
 
 // js task
 gulp.task('js', function() {
-    var appStream = gulp.src([
+
+    var vendorStream = 
+        gulp.src([
+            // skip wierd implementation of font detector (used for tests only)
+            '!'+jsSrc + '/vendor/font-detector-temp.js',
+
+            './../JavaScript/RhythmicGridGenerator.js',
+            './node_modules/jquery/dist/jquery.min.js',
+            // './node_modules/octavian/octavian.js',
+            jsSrc + '/vendor/*.js'
+        ])
+        .pipe(gulpif(!deploy, gulp.dest(jsDist+'/vendor')));
+
+    var appStream = 
+        gulp.src([
+            // app modules, must preserve order for concat (app.js always the last)
             jsSrc + '/tesseract-drawing.js',
             jsSrc + '/audiocontext.js',
             jsSrc + '/credits-toggle.js',
             jsSrc + '/font-configurator.js',
             jsSrc + '/font-dragr.js',
-            jsSrc + '/grid-configurator.js',
             jsSrc + '/metrics-drawing.js',
             jsSrc + '/metrics-panning.js',
-            jsSrc + '/google-analytics.js',
-            jsSrc + '/app.js'
+            jsSrc + '/grid-configurator.js',
+            jsSrc + '/app.js',
         ])
-        .pipe(concat('app.js'))
-        .pipe(strip())
-        .pipe(gulp.dest(jsDist));
+        .pipe(gulpif(!deploy, gulp.dest(jsDist)));
 
-    var scriptsStream = 
-        gulp.src([
-            // font metrics & detect
-            jsSrc + '/vendor/canvas-fontmetrics.js', // redifines Canvas2D.prototype.measureText()
-            jsSrc + '/vendor/lorem.js',
-            jsSrc + '/vendor/font-detector.js',
-            // wierd implementation of font detector using ComicSans, but keep it for comparison
-            jsSrc + '/vendor/font-detector-temp.js',
-            
-            // app code
-            jsSrc + '/vendor/pre3d.js',
-            jsSrc + '/vendor/shapeutils.js',
-            './node_modules/jquery/dist/jquery.min.js',
-            './node_modules/dotdotdot/src/js/jquery.dotdotdot.js',
-            './../JavaScript/RhythmicGridGenerator.js'
-        ])
-        .pipe(gulp.dest(jsDist))
-        .pipe(strip())
-        .pipe(connect.reload());
-
-
-    return merge(appStream, scriptsStream);
+    if (deploy) {
+        return series(vendorStream, appStream)   // combine streams in order (vendors first)
+            .pipe(concat('concordia-app.js'))
+            .pipe(strip())
+            .pipe(stripDebug())
+            .pipe(uglify())  // NB! UglifyJS re-arranges declarations! (safely?)
+            .pipe(rename({ suffix: '.min'}))
+            .pipe(gulp.dest(jsDist))
+            .pipe(connect.reload());
+    } else { // static (dev)
+        return series(vendorStream, appStream)
+            .pipe(connect.reload());
+    }
 });
 
-// inject <script> tags into .html
+// inject <script> tags into index.html
 gulp.task('injecthtml', function () {
     var generateScriptTag = function(script_attr){
         return function(path) {
@@ -116,40 +146,35 @@ gulp.task('injecthtml', function () {
     return gulp.src('./src/index.html')
         .pipe(inject(
             gulp.src([
-                jsDist + '/jquery.min.js',
-                jsDist + '/jquery.dotdotdot.js',
-                jsDist + '/canvas-fontmetrics.js',
-                jsDist + '/lorem.js',
-                jsDist + '/pre3d.js',
-                jsDist + '/shapeutils.js',
-                jsDist + '/font-detector.js',
-                jsDist + '/font-detector-temp.js',
-                jsDist + '/RhythmicGridGenerator.js',
+                // if dev (default), preserve <script src='..'> order
+                jsDist + '/vendor/*.js',
+                jsDist + '/tesseract-drawing.js',
+                jsDist + '/audiocontext.js',
+                jsDist + '/credits-toggle.js',
+                jsDist + '/font-configurator.js',
+                jsDist + '/font-dragr.js',
+                jsDist + '/grid-configurator.js',
+                jsDist + '/metrics-drawing.js',
+                jsDist + '/metrics-panning.js',
+                jsDist + '/app.js', 
+                // if deploy 
+                jsDist + '/concordia-app{,.min}.js' //  single-file app (deploy)
             ] , {read: false}),
             { 
-                transform: generateScriptTag('defer'), // should be async
-                starttag: '<!-- inject:head1:{{ext}} -->' 
-            }
-        ))
-        .pipe(inject(
-            gulp.src([
-                jsDist + '/app.js', 
-            ], {read: false}),
-            { 
                 transform: generateScriptTag('defer'),
-                starttag: '<!-- inject:head2:{{ext}} -->'
+                starttag: '<!-- inject:head:{{ext}} -->' 
             }
         ))
-        .pipe(strip())
+        .pipe(gulpif(deploy, strip())) // strip html comments/tags
         .pipe(gulp.dest(dist))
-        .pipe(connect.reload());;
+        .pipe(connect.reload());
 });
 
 // task for compiling styles
 gulp.task('styles', function() {
     return gulp.src(lessSrc + '/*.**')
         .pipe(less())
-        .pipe(minifyCss())
+        .pipe(gulpif(deploy, minifyCss(), cssImport()))
         .pipe(prefix('last 4 versions'))
         .pipe(gulp.dest(cssDist))
         .pipe(connect.reload());
@@ -175,12 +200,22 @@ gulp.task('watch', ['server'], function() {
     gulp.watch([lessSrc + '/common/fontmetrics.less'], ['js']);
     gulp.watch([src + '/*.html'], ['injecthtml']);
     gulp.watch([jsSrc + '/**/*.js'], ['js']);
-    // gulp.watch('Gulpfile.js', ['gulp-reload']);
+    gulp.watch('./Gulpfile.js').once('change', gulpReload);  // will self-kill and re-spawn gulp process
     connect.reload();
 });
 
-// TOFIX: cannot re-launch gulp from terminated process (despite spawn)
-gulp.task('gulp-reload', function() {
-  spawn('gulp', ['watch'], {stdio: 'inherit'});
-  process.exit();
-});
+// TOFIX: spawned processes are not killed
+var gulpReload = function(){
+    connect.serverClose();
+    var p = null;
+    var childProcess = require('child_process');
+    if(process.platform === 'win32'){
+        console.log('gulp process: %s', p); 
+        if(p){
+            childProcess.exec('taskkill /PID' + p.id + ' /T /F', function(){});
+            p.kill();
+        }else{
+            p = childProcess.spawn(process.argv[0],[process.argv[1]],{stdio: 'inherit'});
+        }
+    }
+};
