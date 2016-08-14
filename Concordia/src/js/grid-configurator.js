@@ -68,7 +68,7 @@ function createRadioInputs(inputName, valueRange){
 	});
 
 	return elements;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -137,7 +137,7 @@ function onGridChange(e){
         $('#photoshopButton').addClass('link-disabled');
         allConfigs.gridContainer.empty();
     }
-}   
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -175,7 +175,7 @@ function refreshRadioInputs(radioForms, selectedInputs){
 		}
 
 	});  // <--  validInputs.forEach()
-}
+};
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -193,8 +193,15 @@ function drawRhythmicGrid(gridConfig){
         arguments.callee.name
     );
 
-    $('#grid-width-text').text(gridConfig.rhythmicGrid.W + ' px');
-    $('#column-width-text').text(gridConfig.rhythmicGrid.blocks[0][0] + ' px');
+    var fs = parseInt($('#input-fontsize').val()),
+        lh = parseInt($('#input-lineheight').val());
+
+    $('#grid-width-label').text(gridConfig.rhythmicGrid.W + ' px');
+    //column width is defined by the width of the micro-block (the smallest rhythmic block)
+    $('#column-width-label').text(gridConfig.rhythmicGrid.blocks[0][0] + ' px'); 
+    $('#grid-typeface-label').text(metricsContext.curr_typeface);
+    $('#grid-fs-label').text(fs + 'px');
+    $('#grid-lh-label').text(lh + 'px');
 
 
     /////////////////////////////////////////
@@ -220,7 +227,7 @@ function drawRhythmicGrid(gridConfig){
                 var inner = $('<div>').addClass('inner').addClass('inner'+i);
                 var imgId = c++ % allConfigs.imageMocks + 1;
                 inner.attr('style', 'background-image: url(img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)');
-                console.log('img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)')
+                // console.log('img/'+gridConfig.ratio.str+'/' + imgId +'.jpg)')
                 var column = $('<div>').addClass('column').append(inner);
                 row.append(column);
             }
@@ -306,9 +313,6 @@ function drawRhythmicGrid(gridConfig){
     $('.column .inner').css('padding-bottom', 100/gridConfig.ratio.R+'%');
 
     // text formatting AND aligning with horizontal ruler
-    var fs = parseInt($('#input-fontsize').val()),
-        lh = parseInt($('#input-lineheight').val());
-    
     $('.column .inner .text')
         .css({
             'font-family': $('#select-font').val()+", monospace",

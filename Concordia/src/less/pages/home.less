@@ -226,12 +226,16 @@ section {
 .baseline-info {
 	color: #424242;
 	#baseline-info-text {
-		&.invalid-baseline {
-			color: #D0021B;
-		}
 	}
 }
+.invalid-baseline {
+	color: #D0021B;
+}
 
+.grid-labels > span {
+	font-weight: bold;
+	padding-left: 2px;
+}
 
 // END styles for font forms section
 
@@ -330,10 +334,6 @@ section {
 // END Ratio section
 
 // Grid section
-#grid-width-text,#column-width-text {
-	font-weight: bold;
-}
-
 .grid-section {
 	input[type="radio"] {
 		position: absolute;

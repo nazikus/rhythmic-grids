@@ -54,67 +54,63 @@ function onFontChange(e) {
   case 'input-lineheight':
       _LHFS_R = _int(this.value) / _int( fsEl.val() ); // _LineHeight-FontSize ratio
       $('.example-text').css('line-height', _int(this.value)+'px');
+      $('#grid-lh-label').text(lhEl.val());
       break;
   }
 
   
   ////////////////// CHECK LINE HEIGHT DIVISIBILITY ///////////////
   
-  var lh   = _int(lhEl.val()),
-      blit  = $("#baseline-info-text"),
-      blint = $("#baseline-invalid-text");
+  var lh = _int(lhEl.val()),
+      baselineInfo  = $("#baseline-info-text"),
+      baselineInvalid = $("#baseline-invalid-text");
+      gridLineHeightInfo = $('#grid-lh-label');
+  var blEl = allConfigs ? allConfigs.radioForms[2] : null; // baseline radio
 
   // if line height is divisible by 2 or by 3
   if (lh%2==0 || lh%3==0) {
     _LHBL_F = lh%2 ? 3 : 2;
 
     // ENABLE all radios and restore previous value, if switched from bad line height
-    // if (lhEl.css('background-color') {
-      lhEl.css('color', '');
-      blit.text(lh/_LHBL_F + ' px');
-      blint.text('');
-      blit.removeClass('invalid-baseline');
+    if (/*lhEl.hasClass('invalid-baseline') &&*/ allConfigs) {
+      baselineInfo.text(lh/_LHBL_F + ' px');
+      baselineInvalid.text('');
+      [lhEl, baselineInfo, gridLineHeightInfo].forEach(function(el){ el.removeClass('invalid-baseline'); });
 
+      $('input', blEl).prop('disabled', false); // enable baseline radio
+      allConfigs.radioForms.css('pointer-events', 'unset'); // enable all other radios via css
 
-      if (allConfigs){
-        el = allConfigs.radioForms[2]; // baseline form
-        $('input', el).each(function(){  $(this).prop('disabled', false); });
-        var prevSelection = localStorage.getItem($(el).attr('id')),
-            selector = prevSelection ? 'input[value="'+prevSelection+'"]' : 'input:first';
-        $(selector, el).prop('checked', true);
+      // retrieve baseline radio selection from cache
+      var prevSelection = localStorage.getItem($(blEl).attr('id')),
+          selector = prevSelection ? 'input[value="'+prevSelection+'"]' : 'input:first';
+      $(selector, blEl).prop('checked', true);
 
-        // select baseline corresponding to line height (div2/3)
-        $('#gridBaseline > input[value='+lh/_LHBL_F+']').prop('checked', true);
-        $('.rulers-wrapper-horizontal').removeClass('hidden');
-        // $('.rulers-wrapper-vertical').removeClass('hidden');
-        // $('.text').removeClass('hidden');
-        allConfigs.radioForms.eq(0).trigger('change');
-
-      } // <-- if (allConfigs)
-
-
+      // select baseline corresponding to line height (div2/3)
+      $('#gridBaseline > input[value='+lh/_LHBL_F+']').prop('checked', true);
+      $('.rulers-wrapper-horizontal').removeClass('hidden');
+      // $('.text').removeClass('hidden');
+      
+      // allConfigs.radioForms.eq(0).trigger('change'); // hacked below
       resetBaselineSelections();
-
-    // }  // <-- if .css('background-color')
+    }  // <-- if .css('background-color')
 
   } else {
     _LHBL_F = lh/lh; //implicit 1
-    lhEl.css('color', '#D0021B');
-    blit.text('not valid');
-    blint.text('Line height must be divisible by 2 or 3.');
-    blit.addClass('invalid-baseline');
-    
+    baselineInfo.text('not valid');
+    baselineInvalid.text('Line height must be divisible by 2 or 3.');
+    [lhEl, baselineInfo, gridLineHeightInfo].forEach(function(el){ el.addClass('invalid-baseline'); });
+
     // DISABLE baseline form
     if (allConfigs){
-      el = allConfigs.radioForms[2];
-
-      if ($('input:checked', $(el)).val())
-        localStorage.setItem($(el).attr('id'), $('input:checked', $(el)).val());
+      // cache baseline radio
+      if ($('input:checked', $(blEl)).val())
+        localStorage.setItem($(blEl).attr('id'), $('input:checked', $(blEl)).val());
       
-      $('input', el).each(function(){  $(this).prop('disabled', true).val([]); });
+      $('input', blEl).prop('disabled', true).val([]); // disable baseline radio
+      allConfigs.radioForms.css('pointer-events', 'none'); // disable all other radios via css
+
       $('.text').css('line-height', lh+'px');
       $('.rulers-wrapper-horizontal').addClass('hidden');
-      // $('.rulers-wrapper-vertical').addClass('hidden');
       // $('.text').addClass('hidden');
     }
   }
@@ -124,13 +120,19 @@ function onFontChange(e) {
   $('#lineheight-percent-label').text( 
     Math.round( _int(lhEl.val())/_int(fsEl.val() ) *100) + '%'
   );
+  
+  // hack
+  if (id === 'input-lineheight' || id === 'input-fontsize') {
+    onGridChange({target: "#gridBaseline > input:checked"})
+  }  
+  gridTextEllipsis(lh/_LHBL_F);
 
 };
 
 /////////////////////////////////////////////////////////////////////////////
 
 // set baseline selection valid only for meaningful lineheight values
-// callen by onLineHeightChange
+// called by onLineHeightChange
 function resetBaselineSelections(){
     var blEl = $('#gridBaseline'), // baseline form
         fsVal = _int($('#input-fontsize').val()), // font size
@@ -171,7 +173,7 @@ function resetBaselineSelections(){
 ////////////////////////////////////////////////////////////////////////////////
 
 
-
+// up/down keyboard events
 function onKeyDown(e) {
     var input = $(e.target),
         val = _int(input.val()),

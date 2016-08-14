@@ -54,8 +54,8 @@ var allConfigs = Object.freeze((function(){
         gutter2baselineFactorArr: gutter2baselineFactorArr,
         allValidGrids: allValidGrids,
         
-        fontSizeLimit  : {min: 14, max: 21},    // px
-        lineHeightLimit: {min: 1, max: 1.5},  // em (of font size)
+        fontSizeLimit  : {min: 15, max: 21},    // px
+        lineHeightLimit: {min: 1.13, max: 1.8},  // em (of font size)
         
         rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
         inputNames   : ['canvasWidth', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
@@ -192,13 +192,15 @@ $('#grid-toggle').on('click', function(e){
     gridToggleBtn = $(e.target);
     
     if (gridToggleBtn.data('grid-toggle') === 'on') {
+        if (_LHBL_F !== 1) {
+        $('.rulers-wrapper-horizontal').addClass('hidden'); }
         $('.rulers-wrapper-vertical').addClass('hidden');
-        $('.rulers-wrapper-horizontal').addClass('hidden');
         gridToggleBtn.text('Show rulers');
         gridToggleBtn.data('grid-toggle', 'off');
     } else {
+        if (_LHBL_F !== 1) {
+        $('.rulers-wrapper-horizontal').removeClass('hidden'); }
         $('.rulers-wrapper-vertical').removeClass('hidden');
-        $('.rulers-wrapper-horizontal').removeClass('hidden');
         gridToggleBtn.text('Hide rulers');
         gridToggleBtn.data('grid-toggle', 'on');
     }
