@@ -25,4 +25,3 @@ var gaConfig = {
 		this.eventDetails = arr.join();
 	}
 }
-
