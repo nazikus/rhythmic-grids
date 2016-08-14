@@ -325,26 +325,7 @@ function drawRhythmicGrid(gridConfig){
     ////////////////////////////////////////////    
     ////////   ITERATIVE JS ELLIPSIS   /////////
     ////////////////////////////////////////////    
-    var ellipsisStartTime = performance.now();
-    $('.grid-section .inner')
-        .has('.text')
-        .each( function() { 
-            var postfix = '.', //' \u2026',
-                textEl = $('.text', this),
-                textArr = textEl.text().split(' '),
-                curr = '',
-                inner = this;
-            for (var i=0; i<textArr.length; i++) {
-                curr = textArr.slice(0,i).join(' ')
-                textEl.text( curr + ' ' + textArr[i] + postfix ); 
-                if (inner.scrollHeight > inner.clientHeight + gridConfig.baseline) { 
-                    textEl.text( curr + postfix ); 
-                    break; 
-                }  
-            } 
-        });
-    var ellipsisTiming = performance.now() - ellipsisStartTime;
-    console.log('... ellipsis clamp (%.1dms).', ellipsisTiming);
+    gridTextEllipsis(gridConfig.baseline);
 
 
     /////////////////////////////////////////
@@ -393,4 +374,29 @@ function drawRhythmicGrid(gridConfig){
     var timing = performance.now() - startTime;
     // console.log('... grid rendering finished (%.1dms).', timing);
     return ;
-}
+};
+
+
+/////////// ELLIPSIS ///////////////
+function gridTextEllipsis(_baseline) {
+    var ellipsisStartTime = performance.now();
+    $('.grid-section .inner')
+        .has('.text')
+        .each( function(_,el) { 
+            var postfix = '.', //' \u2026',
+                textEl = $('.text', el),
+                textArr = textEl.text().split(' '),
+                curr = '',
+                inner = el;
+            for (var i=0; i<textArr.length; i++) {
+                curr = textArr.slice(0,i).join(' ')
+                textEl.text( curr + ' ' + textArr[i] + postfix ); 
+                if (inner.scrollHeight > inner.clientHeight + _baseline) { 
+                    textEl.text( curr + postfix ); 
+                    break; 
+                }  
+            } 
+        });
+    var ellipsisTiming = performance.now() - ellipsisStartTime;
+    console.log('... ellipsis clamp (%.1dms).', ellipsisTiming);
+};
