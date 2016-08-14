@@ -2,7 +2,7 @@
 /////////////////////// TESSERACT ////////////////////////
 //////////////////////////////////////////////////////////
 
-window.addEventListener('load', drawTesseract, false);
+// window.addEventListener('load', drawTesseract, false);
 
 
 //////////////////////////////////////////////////////////
@@ -227,9 +227,9 @@ $('#sound-toggle').on('click', function (e) {
 
 // photoshop button
 $('#photoshopButton').on('click', function(){
-    $(this).addClass('link-disabled');
+    $(this).addClass('link-wait');
     window.setTimeout(function(){
-        $('#photoshopButton').removeClass('link-disabled');
+        $('#photoshopButton').removeClass('link-wait');
     }, 3500);
 });
 
