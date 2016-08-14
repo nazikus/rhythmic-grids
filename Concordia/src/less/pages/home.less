@@ -158,20 +158,13 @@ section {
 	.up, .down {
 		position: absolute;
 		font-size: 8px;
-		color: #C5C5C5;
+		color: @color-blue;
 	}
 	.up {
 		top: 3px;
 	}
 	.down {
 		top: 12px;
-	}
-}
-input[style] {
-	+ .controls {
-		.up, .down {
-			color: #fff;
-		}
 	}
 }
 
@@ -233,7 +226,6 @@ input[style] {
 .baseline-info {
 	color: #424242;
 	#baseline-info-text {
-		font-weight: bold;
 		&.invalid-baseline {
 			color: #D0021B;
 		}

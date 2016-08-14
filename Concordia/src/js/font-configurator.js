@@ -70,7 +70,7 @@ function onFontChange(e) {
 
     // ENABLE all radios and restore previous value, if switched from bad line height
     // if (lhEl.css('background-color') {
-      lhEl.css('background-color', '');
+      lhEl.css('color', '');
       blit.text(lh/_LHBL_F + ' px');
       blint.text('');
       blit.removeClass('invalid-baseline');
@@ -89,7 +89,7 @@ function onFontChange(e) {
         // $('.rulers-wrapper-vertical').removeClass('hidden');
         // $('.text').removeClass('hidden');
         allConfigs.radioForms.eq(0).trigger('change');
-        
+
       } // <-- if (allConfigs)
 
 
@@ -99,7 +99,7 @@ function onFontChange(e) {
 
   } else {
     _LHBL_F = lh/lh; //implicit 1
-    lhEl.css('background-color', 'lightpink');
+    lhEl.css('color', '#D0021B');
     blit.text('not valid');
     blint.text('Line height must be divisible by 2 or 3.');
     blit.addClass('invalid-baseline');
