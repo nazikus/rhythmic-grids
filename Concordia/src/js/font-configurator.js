@@ -89,6 +89,7 @@ function onFontChange(e) {
         // $('.rulers-wrapper-vertical').removeClass('hidden');
         // $('.text').removeClass('hidden');
         allConfigs.radioForms.eq(0).trigger('change');
+        
       } // <-- if (allConfigs)
 
 

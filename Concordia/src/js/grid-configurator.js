@@ -129,6 +129,9 @@ function onGridChange(e){
             'c='+gridConfig.columnsNum+'&'+
             'g='+(gridConfig.gutter.W/gridConfig.baseline));
         drawRhythmicGrid(gridConfig);
+        
+        // set Google Analytics info
+        gaConfig.setValues(gridConfig);
     }
     else {
         $('#photoshopButton').addClass('link-disabled');

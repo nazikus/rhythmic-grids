@@ -109,7 +109,7 @@ gulp.task('js', function() {
         gulp.src([
             // app modules, must preserve order for concat (app.js always the last)
             jsSrc + '/tesseract-drawing.js',
-            jsSrc + '/audiocontext.js',
+            jsSrc + '/google-analytics.js',
             jsSrc + '/credits-toggle.js',
             jsSrc + '/font-configurator.js',
             jsSrc + '/font-dragr.js',
@@ -149,7 +149,7 @@ gulp.task('injecthtml', function () {
                 // if dev (default), preserve <script src='..'> order
                 jsDist + '/vendor/*.js',
                 jsDist + '/tesseract-drawing.js',
-                jsDist + '/audiocontext.js',
+                jsDist + '/google-analytics.js',
                 jsDist + '/credits-toggle.js',
                 jsDist + '/font-configurator.js',
                 jsDist + '/font-dragr.js',
