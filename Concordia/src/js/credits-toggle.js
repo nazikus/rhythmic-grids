@@ -1,4 +1,4 @@
-(function($) {
+(function() {
 	$(document).ready(function(){
 		var creditsToggleBtn = $('#credits-toggle'),
 		creditsSection = $('#credits-section'),
@@ -27,4 +27,4 @@
 
 		}
 	});
-})(jQuery);
+})();
