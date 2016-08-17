@@ -9,6 +9,7 @@
 	height: 100%;
 	transform: translateY(0%);
 	transition: transform 1s ease;
+	transition-delay: .3s;
 	.ruler-vertical-outer {
 		flex: 1 1 100%;
 		height: 100%;
@@ -25,7 +26,7 @@
 				border-left: 1px solid rgba(30, 28, 245, 0.5);
 			}
 			&:before {
-				left: -1px;
+				left: 0px;
 			}
 			&:after {
 				right: -1px;
@@ -34,6 +35,7 @@
 	}
 	&.hidden {
 		transform: translateY(-100%);
+		transition-delay: 0s;
 	}
 }
 .rulers-wrapper-horizontal {
