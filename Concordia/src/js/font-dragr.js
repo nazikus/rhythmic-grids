@@ -86,6 +86,8 @@ var TCNDDF = TCNDDF || {};
 		reader.readAsDataURL(file);
 		reader.addEventListener('load', function () {
 			TCNDDF.buildFontListItem(event);
+			// send google analytics event on drop
+			ga('send', 'event', 'File Uploads', 'Fonts', reader.name);
 		});
 	};
 	
