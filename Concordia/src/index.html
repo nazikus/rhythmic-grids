@@ -128,94 +128,96 @@
 				<!-- END Credits content -->
 			</div>
 		</section>
-		<section>
-			<h2 class="text-center">
-				Set your body copy
-			</h2>
-			<div class="container">
-				<div class="flex-row">
-					<div class="flex-child half">
-						<!-- TABS TOGGLES -->
-						<div class="font-source tabs-toggle-wrapper">
-							<a href="#font-select" class="current">Your fonts</a>
-							<span class="font-source-separator"> / </span>
-							<a href="#font-upload">Add font</a>
-						</div>
-						<!-- END TABS TOGGLES -->
-						<!-- TABS CONTENT -->
-						<div class="tab-content" id="font-select">
-							<div class="font-controls">
-								<div class="font-select-wrapper">
-									<label>
-										<select name="fontSelect" id="select-font">
-											<option value="Helvetica" selected>Helvetica</option>
-											<option value="Arial">Arial</option>
-										</select>
-										<div class="triangle">▾</div>
-									</label>
-								</div>
-								<div class="font-control-wrapper input-fontsize">
-									<div class="p-rel d-ib">
-										<input type="text" placeholder="16px" value="16px" id="input-fontsize" />
-										<div class="controls">
-											<a href="#" class="up" tabindex="-1">▲</a>
-											<a href="#" class="down" tabindex="-1">▼</a>
+		<section class="fullheight d-flex">
+			<div class="flex-vertically-centered">
+				<h2 class="text-center">
+					Set your body copy
+				</h2>
+				<div class="container">
+					<div class="flex-row">
+						<div class="flex-child half">
+							<!-- TABS TOGGLES -->
+							<div class="font-source tabs-toggle-wrapper">
+								<a href="#font-select" class="current">Your fonts</a>
+								<span class="font-source-separator"> / </span>
+								<a href="#font-upload">Add font</a>
+							</div>
+							<!-- END TABS TOGGLES -->
+							<!-- TABS CONTENT -->
+							<div class="tab-content" id="font-select">
+								<div class="font-controls">
+									<div class="font-select-wrapper">
+										<label>
+											<select name="fontSelect" id="select-font">
+												<option value="Helvetica" selected>Helvetica</option>
+												<option value="Arial">Arial</option>
+											</select>
+											<div class="triangle">▾</div>
+										</label>
+									</div>
+									<div class="font-control-wrapper input-fontsize">
+										<div class="p-rel d-ib">
+											<input type="text" placeholder="16px" value="16px" id="input-fontsize" />
+											<div class="controls">
+												<a href="#" class="up" tabindex="-1">▲</a>
+												<a href="#" class="down" tabindex="-1">▼</a>
+											</div>
 										</div>
 									</div>
-								</div>
-								<div class="font-control-wrapper input-lineheight">
-									<div class="p-rel d-ib">
-										<input type="text" placeholder="18px" value="18px" id="input-lineheight" />
-										<div class="controls">
-											<a href="#" class="up" tabindex="-1">▲</a>
-											<a href="#" class="down" tabindex="-1">▼</a>
+									<div class="font-control-wrapper input-lineheight">
+										<div class="p-rel d-ib">
+											<input type="text" placeholder="18px" value="18px" id="input-lineheight" />
+											<div class="controls">
+												<a href="#" class="up" tabindex="-1">▲</a>
+												<a href="#" class="down" tabindex="-1">▼</a>
+											</div>
 										</div>
+										<label for="input-lineheight" id="lineheight-percent-label">110%</label>
 									</div>
-									<label for="input-lineheight" id="lineheight-percent-label">110%</label>
+								</div>
+								<p class="example-text" contenteditable="true">
+									Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media proportion of your taste. Concordia will do the rest and will generate a modular grid just for you. Now, choose any of your system fonts above.
+								</p>
+	                            <div class="baseline-info">
+	                                Your baseline is <span id="baseline-info-text">8 px</span>. <span id="baseline-invalid-text"></span>
 								</div>
 							</div>
-							<p class="example-text" contenteditable="true">
-								Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media proportion of your taste. Concordia will do the rest and will generate a modular grid just for you. Now, choose any of your system fonts above.
+							<div class="tab-content" id="font-upload" style="display: none;">
+								<form action="">
+									<div id="drop-area">
+										<img src="https://nazikus.github.io/rhythmic-grids/img/dragndrop.png" class="dragndrop-img" alt="Drag & drop files here" />
+									</div>
+									<div id="fonts-listing" style="display: none;">
+										<h4 class="fonts-listing-heading">Uploaded:</h4>
+									</div>
+									<div id="displayContainer" style="display: none;"></div>
+								</form>
+							</div>
+							<!-- END TABS CONTENT -->
+						</div>
+						<div class="flex-child half">
+							<p class="no-margintop">Adjust properties to improve legibility</p>
+							<div class="fontmetrics-input-wrapper">
+								<input type="text" value="Hdxp" id="fontmetrics-input-wrapper" />
+							</div>
+							<div class="fontmetrics-wrapper">
+								<canvas id="metrics-canvas" class="disable-select">
+									Sorry, your browser doesn't support the &lt;canvas&gt; element.
+								</canvas>
+								<canvas id="text-canvas" class="disable-select">
+									Sorry again, your browser doesn't support the &lt;canvas&gt; element.
+								</canvas>
+							</div>
+							<p class="fontmetrics-helper-info">
+								It is recommended to keep x-height value of your body copy within 500±50 UPM range in order to be legible on the web. Current x-height offset is <span id="x-height-offset-text">0 UPM<span>.
 							</p>
-                            <div class="baseline-info">
-                                Your baseline is <span id="baseline-info-text">8 px</span>. <span id="baseline-invalid-text"></span>
-							</div>
 						</div>
-						<div class="tab-content" id="font-upload" style="display: none;">
-							<form action="">
-								<div id="drop-area">
-									<img src="https://nazikus.github.io/rhythmic-grids/img/dragndrop.png" class="dragndrop-img" alt="Drag & drop files here" />
-								</div>
-								<div id="fonts-listing" style="display: none;">
-									<h4 class="fonts-listing-heading">Uploaded:</h4>
-								</div>
-								<div id="displayContainer" style="display: none;"></div>
-							</form>
-						</div>
-						<!-- END TABS CONTENT -->
-					</div>
-					<div class="flex-child half">
-						<p class="no-margintop">Adjust properties to improve legibility</p>
-						<div class="fontmetrics-input-wrapper">
-							<input type="text" value="Hdxp" id="fontmetrics-input-wrapper" />
-						</div>
-						<div class="fontmetrics-wrapper">
-							<canvas id="metrics-canvas" class="disable-select">
-								Sorry, your browser doesn't support the &lt;canvas&gt; element.
-							</canvas>
-							<canvas id="text-canvas" class="disable-select">
-								Sorry again, your browser doesn't support the &lt;canvas&gt; element.
-							</canvas>
-						</div>
-						<p class="fontmetrics-helper-info">
-							It is recommended to keep x-height value of your body copy within 500±50 UPM range in order to be legible on the web. Current x-height offset is <span id="x-height-offset-text">0 UPM<span>.
-						</p>
 					</div>
 				</div>
 			</div>
 		</section>
-		<section>
-			<div class="container ratio-selector">
+		<section class="fullheight d-flex">
+			<div class="container ratio-selector flex-vertically-centered">
 				<h2 class="text-center">
 					Now choose your ratio
 					<div class="heading-arrow">↓</div>
@@ -422,11 +424,10 @@
 						</div>
 						<div class="flex-child grid-labels">
 							Grid width <span id="grid-width-label"></span>, column width <span id="column-width-label"></span>
-							<br>Typeface <span id="grid-typeface-label"></span>, font size <span id="grid-fs-label"></span>, line height <span id="grid-lh-label"></span>
 							<!-- <span id="invalid-label"><br>Baseline 0px is not divisible by 2 or 3</span> -->
 						</div>
-						<div class="flex-child">
-							<!-- Share this grid settings http://crdia.io/248 -->
+						<div class="flex-child grid-labels">
+							Typeface <span id="grid-typeface-label"></span>, font size <span id="grid-fs-label"></span>, line height <span id="grid-lh-label"></span>
 						</div>
 					</div>
 				</div>
