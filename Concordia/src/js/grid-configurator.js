@@ -378,25 +378,31 @@ function drawRhythmicGrid(gridConfig){
 
 
 /////////// ELLIPSIS ///////////////
-function gridTextEllipsis(_baseline) {
+function gridTextEllipsis(baseline) {
     var ellipsisStartTime = performance.now();
-    $('.grid-section .inner')
+
+    // TODO try binary search
+    $('.grid-section .row').each( function(i, rowEl){
+        var textMock = allConfigs.textMocks[i];
+        $('.inner', rowEl)
         .has('.text')
-        .each( function(_,el) { 
+        .each( function(_, innerEl) { 
+            if (innerEl.scrollHeight < innerEl.clientHeight + baseline)
+                return ;
             var postfix = '.', //' \u2026',
-                textEl = $('.text', el),
+                textEl = $('.text', innerEl),
                 textArr = textEl.text().split(' '),
-                curr = '',
-                inner = el;
+                curr = '';
             for (var i=0; i<textArr.length; i++) {
                 curr = textArr.slice(0,i).join(' ')
                 textEl.text( curr + ' ' + textArr[i] + postfix ); 
-                if (inner.scrollHeight > inner.clientHeight + _baseline) { 
+                if (innerEl.scrollHeight > innerEl.clientHeight + baseline) { 
                     textEl.text( curr + postfix ); 
                     break; 
                 }  
             } 
         });
+    });
     var ellipsisTiming = performance.now() - ellipsisStartTime;
     console.log('... ellipsis clamp (%.1dms).', ellipsisTiming);
 };
