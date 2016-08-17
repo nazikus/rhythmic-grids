@@ -7,7 +7,8 @@
 	display: flex;
 	z-index: 1;
 	height: 100%;
-	transition: height 1.4s ease;
+	transform: translateY(0%);
+	transition: transform 1s ease;
 	.ruler-vertical-outer {
 		flex: 1 1 100%;
 		height: 100%;
@@ -32,8 +33,7 @@
 		}
 	}
 	&.hidden {
-		transition: height 0.7s ease 0.3s;
-		height: 0;
+		transform: translateY(-100%);
 	}
 }
 .rulers-wrapper-horizontal {
@@ -44,15 +44,15 @@
 	bottom: -1px; // extra pixel for the last baseline
 	overflow: hidden;
 	width: 100%;
-	transition: width 0.7s ease 0.3s;
+	transform: translateX(0%);
+	transition: transform 0.7s ease 0.3s;
 	.ruler-horizontal {
 		position: relative;
 		width: 100%;
 		border-top: 1px solid rgba(255, 24, 24, 0.5);
 	}
 	&.hidden {
-		transition: width 0.7s ease;
-		width: 0;
+		transform: translateX(-100%);
 	}
 
 }
