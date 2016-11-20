@@ -55,7 +55,7 @@ var allConfigs = Object.freeze((function(){
         allValidGrids: allValidGrids,
         
         fontSizeLimit  : {min: 15, max: 21},    // px
-        lineHeightLimit: {min: 1.13, max: 1.8},  // em (of font size)
+        lineHeightLimit: {min: 1.2, max: 1.8},  // em (of font size)
         
         rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
         inputNames   : ['canvasWidth', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
@@ -163,7 +163,7 @@ var _LHBL_F = (function(){
     return !(lh%3) ? 3 : !(lh%2) ? 2  : 1;
 })();
 
-// trigger for initial text metrics rendering
+// trigger initial text metrics rendering
 $('#fontmetrics-input-wrapper').on('keyup', onMetricsTextChange).trigger('keyup');
 
 //////////////////////////////////////////////////////////
@@ -209,7 +209,7 @@ $('#grid-toggle').on('click', function(e){
 
 });
 
-// initiale state of 'Hide grid' button 
+// initialize state of 'Hide grid' button 
 $('#grid-toggle')
     .data('grid-toggle', localStorage.getItem('gridToggle')==='off' ? 'on' : 'off')
     .trigger('click');

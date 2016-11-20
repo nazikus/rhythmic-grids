@@ -185,8 +185,8 @@ function onKeyDown(e) {
 
     if (input.attr('id') === 'input-lineheight'){
         var fsVal = _int($('#input-fontsize').val());
-        limit = { min: Math.round(fsVal*allConfigs.lineHeightLimit.min),
-                  max: Math.round(fsVal*allConfigs.lineHeightLimit.max) };
+        limit = { min: Math.ceil(fsVal*allConfigs.lineHeightLimit.min),
+                  max: Math.ceil(fsVal*allConfigs.lineHeightLimit.max) };
     }
 
     // [uparrow,downarrow,enter] keys
