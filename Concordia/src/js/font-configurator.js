@@ -2,6 +2,7 @@ var _int = function(pStr) { return parseInt(pStr, 10); }
 
 function getAvailableSystemFonts() {
   detective = new FontDetector();  // (c) Lalit Patel [see /js/font-detector.js]
+
   // alternative (wierd) detection via ComicSans (?) [see /js/font-detector-temp.js]
   // font.setup();
 
@@ -45,37 +46,84 @@ function onFontChange(e) {
     break;
 
   case 'input-fontsize':
-      lhEl.val( Math.round(_LHFS_R*_int(this.value)) + 'px');
-      $('.example-text').css('font-size', _int(this.value)+'px');
-      $('.example-text').css('line-height', _int(lhEl.val())+'px');
-      $('.text').css('font-size', parseInt(this.value)+'px');
-      break;
+    lhEl.val( Math.round(_LHFS_R*_int(this.value)) + 'px');
+    $('.example-text').css('font-size', _int(this.value)+'px');
+    $('.example-text').css('line-height', _int(lhEl.val())+'px');
+    $('.text').css('font-size', parseInt(this.value)+'px');
+    break;
 
   case 'input-lineheight':
-      _LHFS_R = _int(this.value) / _int( fsEl.val() ); // _LineHeight-FontSize ratio
-      $('.example-text').css('line-height', _int(this.value)+'px');
-      $('#grid-lh-label').text(lhEl.val());
-      break;
+    _LHFS_R = _int(this.value) / _int( fsEl.val() ); // _LineHeight-FontSize ratio
+    $('.example-text').css('line-height', _int(this.value)+'px');
+    $('#grid-lh-label').text(lhEl.val());
+    break;
   }
 
   
   ////////////////// CHECK LINE HEIGHT DIVISIBILITY ///////////////
-  
+  // TODO refactor lainokod, do baseline-info-* properly
+
   var lh = _int(lhEl.val()),
-      baselineInfo  = $("#baseline-info-text"),
-      baselineInvalid = $("#baseline-invalid-text");
+      baselineInfo  = $(".baseline-info"),
       gridLineHeightInfo = $('#grid-lh-label');
   var blEl = allConfigs ? allConfigs.radioForms[2] : null; // baseline radio
 
-  // if line height is divisible by 2 or by 3
-  if (lh%2==0 || lh%3==0) {
-    _LHBL_F = lh%2 ? 3 : 2;
+  // if line height is divisible by 2 (X)OR by 3
+  if (lh%2===0 || lh%3===0) {
+
+    // SPECIAL CASE if line height is divisible by 2 AND 3
+    if (lh%2===0 && lh%3===0) {
+      _LHBL_F = 3;
+
+      baselineInfo.html(
+        'Your baseline values are either ' +
+        '<a href="#">' + lh/3 + ' px</a> ' +
+        'or <a href="#">' + lh/2 + ' px</a>. ' +
+        'Please choose the preferable option.'
+      );
+
+      // init active baseline selection
+      $('a', baselineInfo).removeClass('active');
+      var which = _LHBL_F === 3 ? 'first' : 'last';
+      $('a:'+which, baselineInfo).addClass('active');
+
+      // onClick for each baseline selection
+      $('a:first', baselineInfo).on('click', function(e){
+        $(this).addClass('active');
+        $('a:last', baselineInfo).removeClass('active');
+        _LHBL_F = 3;
+        resetBaselineSelections();
+        onGridChange({target: "#gridBaseline > input:checked"})
+        e.preventDefault();
+      });
+
+      $('a:last', baselineInfo).on('click', function(e){
+        $('a:first', baselineInfo).removeClass('active');
+        $(this).addClass('active');
+        _LHBL_F = 2;
+        resetBaselineSelections();
+        onGridChange({target: "#gridBaseline > input:checked"})
+        e.preventDefault();
+      });
+
+
+    } else {
+      _LHBL_F = lh%2 ? 3 : 2;  // preference for div 3
+      // _LHBL_F = lh%3 ? 2 : 3;  // preference for div 2   
+
+      baselineInfo.html(
+        'Your baseline is ' +
+        '<span id="baseline-info-text">' + lh/_LHBL_F + ' px</span>.'
+      );
+    }
+
+    var baselineInfoText = $("#baseline-info-text");
+    [lhEl, baselineInfoText, gridLineHeightInfo].forEach(function(el){ 
+      el.removeClass('invalid-baseline'); 
+    });
 
     // ENABLE all radios and restore previous value, if switched from bad line height
     if (/*lhEl.hasClass('invalid-baseline') &&*/ allConfigs) {
-      baselineInfo.text(lh/_LHBL_F + ' px');
-      baselineInvalid.text('');
-      [lhEl, baselineInfo, gridLineHeightInfo].forEach(function(el){ el.removeClass('invalid-baseline'); });
 
       $('input', blEl).prop('disabled', false); // enable baseline radio
       allConfigs.radioForms.css('pointer-events', 'unset'); // enable all other radios via css
@@ -94,11 +142,18 @@ function onFontChange(e) {
       resetBaselineSelections();
     }  // <-- if .css('background-color')
 
+  // if line height is NOT divisible by 2 nor by 3
   } else {
     _LHBL_F = lh/lh; //implicit 1
-    baselineInfo.text('not valid');
-    baselineInvalid.text('Line height must be divisible by 2 or 3.');
-    [lhEl, baselineInfo, gridLineHeightInfo].forEach(function(el){ el.addClass('invalid-baseline'); });
+    // console.log('test');
+    baselineInfo.html(
+      'Your baseline is ' +
+      '<span id="baseline-info-text">not valid</span>. ' +
+      '<span id="baseline-invalid-text">Line height must be divisible by 2 or 3.</span>'
+    );
+
+    var baselineInfoText = $("#baseline-info-text");
+    [lhEl, baselineInfoText, gridLineHeightInfo].forEach(function(el){ el.addClass('invalid-baseline'); });
 
     // DISABLE baseline form
     if (allConfigs){

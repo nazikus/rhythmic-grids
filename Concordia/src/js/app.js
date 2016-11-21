@@ -153,13 +153,15 @@ function toggleTab(e, content) {
 ////////////////////////////////////////////////////////////
 ////////////////// SHARED GLOBAL VARS //////////////////////
 ////////////////////////////////////////////////////////////
+// TODO refactor this lainokod, remove global vars
+
 // LineHeight/FontSize Ratio, value for line-height percent label
-var _LHFS_R = parseInt($('#input-lineheight').val(),10) / 
-              parseInt($('#input-fontsize').val(),10);
+var _LHFS_R = parseInt($('#input-lineheight').val()) / 
+              parseInt($('#input-fontsize').val());
 
 // LineHeight/BaseLine Factor, value for grid baseline
 var _LHBL_F = (function(){
-    var lh = parseInt($('#input-lineheight').val(),10);
+    var lh = parseInt($('#input-lineheight').val());
     return !(lh%3) ? 3 : !(lh%2) ? 2  : 1;
 })();
 
