@@ -1,8 +1,8 @@
 Scripts to generate [PSD][PSD Spec] documents in different environments. PSD generator is implementnted on [Concorida][Concordia Grid] server-side for "PSD" button of its front-end.
 
 Types of scripts:
- - `.scm` - Script-Fu script, .psd generator, the main script used by all the other scripts
- - `.lua` - Lua script for [Lua nginx module][Lua Nginx]
+ - `.scm` - Script-Fu script, .psd file generator, the main script used by all the other scripts
+ - `.lua` - Lua script for [Lua nginx module][Nginx Lua]
  - `.bat` - Windows batch
  - `.sh`  - *nix bash 
  - `.m`   - Octave/Matlab script generating complete rhythmic grid & PSD with additional horizontal rulers
@@ -11,25 +11,25 @@ Types of scripts:
 
 [GIMP][Gimp Home] is required to generate PSD files. Script-Fu is a scripting language based on [Scheme][Scheme Wiki] (lexically scoped dialect of [Lisp][Lisp Wiki]). Its [TinyScheme][TinyScheme Home] interpreter is embeded into GIMP for automation purposes. It can be utilized for scripting image processing routines with GIMP in non-interactive command-line mode (to generate .psd files on server-side, for example), which is not possible with Photoshop CC 2015 and prior.
 
-Current [`rhythmic-guides.scm`][ScriptFu script] script generates a PSD document with single layer, empty canvas, and with horizontal/vertical [guides][Gimp Guides] of rhythmic grid configured via [Concordia web interface][Concordia Grid].  *Rhythimic Grid generator* ([JavaScript][Grids JS] or [Octave/Matlab][Grids Matlab] implementation) is used to obtain grid parameters.
+Current [`psd-rhythmic-guides.scm`][ScriptFu script] script generates a PSD document with single layer, empty canvas, and with horizontal/vertical [guides][Gimp Guides] of rhythmic grid configured via [Concordia web interface][Concordia Grid]. In command line, you can use *Rhythimic Grid generator* ([JavaScript][Grids JS] or [Octave/Matlab][Grids Matlab] implementation) to obtain block sizes, but block sizes are required only if you need horizontal guides as well. For vertical guides only its enough to provide grid parameters as arguments in `(psd-rhythmic-guides <maxWidth> <ratio> <baseline> <columns> <gutterMultiplier> <blockSizes> <psdPath|nil> <psdBasename> </path/to/output/dir>)`.
 
 ## Installation & usage
 
-Place Scipt-Fu file (`rhythmic-guides.scm`) into GIMP scripts directory (where all `*.scm` plugins are located), e.g.:
+Place Scipt-Fu file (`psd-rhythmic-guides.scm`) into GIMP scripts directory (where all `*.scm` plugins are located), e.g.:
 
     usr/share/.gimp-2.x/scripts/
     C:\Program Files\GIMP\share\gimp\2.x\scripts\
 
 Several command-line examples how to run Script-Fu in different environments:
     
-    . generate-rhythmic-psd.sh 960 3x2 5 6 3 nil /home/user/psd/
+    . generate-rhythmic-psd.sh 960 3x2 5 6 3 nil /path/to/output/dir/ filename.psd
     
     generate-rhythmic-psd.bat 960 3x2 5 6 3 nil # generates .psd into script's dir
     
-    gimp-console --no-interface --no-data --no-fonts --batch="(rhythmic-guides 960 1x1 10 9 1 nil \"/path/to/psddir/\")" --batch="(gimp-quit 0)" # for vertical guides only
+    gimp-console --no-interface --no-data --no-fonts --batch="(psd-rhythmic-guides 960 '(1 1) 10 9 1 nil \"/path/to/output/dir/\" \"psdname.psd\")" --batch="(gimp-quit 0)" # for vertical guides only
 
     
-    gimp-console --no-interface --no-data --no-fonts --batch="(rhythmic-guides 960 1x1 10 9 1 '((45 30) (40 60) (80 90)) \"/path/to/psddir/\")" --batch="(gimp-quit 0)" # for vertical AND horizontal guides
+    gimp-console --no-interface --no-data --no-fonts --batch="(psd-rhythmic-guides 960 '(1 1) 10 9 1 '((45 30) (40 60) (80 90)) \"/path/to/output/dir/\" "\psdname.psd\")" --batch="(gimp-quit 0)" # for vertical AND horizontal guides
 
 ---
 
@@ -54,7 +54,7 @@ If you have any problems with generating .psd, feel free to [post an issue](http
 [Scheme Wiki]: https://en.wikipedia.org/wiki/Scheme_%28programming_language%29 "Wikipedia"
 [Lisp Wiki]: https://www.wikiwand.com/en/Lisp_(programming_language) "Wikipedia"
 [TinyScheme Home]: http://tinyscheme.sourceforge.net/ "TinyScheme SourceForge"
-[ScriptFu Script]: https://github.com/nazikus/rhythmic-grids/blob/master/Script-Fu/rhythmic-guides.scm "rhythmic-guides.scm"
+[ScriptFu Script]: https://github.com/nazikus/rhythmic-grids/blob/master/Script-Fu/psd-rhythmic-guides.scm "psd-rhythmic-guides.scm"
 [Lua Script]: https://github.com/nazikus/rhythmic-grids/blob/master/Script-Fu/generate-rhythmic-psd.lua "generate-rhythmic-psd.lua"
 [Grids JS]: https://github.com/nazikus/rhythmic-grids/blob/master/JavaScript/RhythmicGridGenerator.js "RhythmicGridGenerator.js"
 [Grids Matlab]: https://github.com/nazikus/rhythmic-grids/blob/master/Matlab/GenerateRhythmicGrid.m "GenerateRhythmicGrid.m"

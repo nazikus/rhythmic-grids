@@ -23,8 +23,8 @@ end
 
 local gimp = 'gimp-console-2.8'
 local psd_path = '/home/user/www/psd/'
-local psd_name = 'W'..ngx.var.arg_w..'_R'..ngx.var.arg_r..'_B'..ngx.var.arg_b..
-                '_C'..ngx.var.arg_c..'_G'..ngx.var.arg_g
+local psd_filename = 'W'..ngx.var.arg_w..'_R'..ngx.var.arg_r..'_B'..ngx.var.arg_b..
+                    '_C'..ngx.var.arg_c..'_G'..ngx.var.arg_g..'.psd'
 
 -- wtf? why k,v get such values (but it works this way anyway)
 local rW = 0
@@ -35,7 +35,7 @@ for k,v in ngx.var.arg_r:gmatch("(%d+)x(%d+)") do
 end
 
 -- check if current .psd is already generated (cached)
-local handle = io.popen(string.format('[ -f %s ] && printf "1" || printf "0"', psd_path..psd_name..'.psd'))
+local handle = io.popen(string.format('[ -f %s ] && printf "1" || printf "0"', psd_path..psd_filename))
 local result = handle:read("*a")
 handle:close()
 
@@ -43,16 +43,16 @@ handle:close()
 if result == "0" then
     --ngx.say("generating new .psd...")
     local command = string.format('%s --no-interface --no-data --no-fonts --batch='..
-        '"(rhythmic-guides %d \'(%d %d) %d %d %d nil \\"%s\\" \\"%s\\")" '..
+        '"(psd-rhythmic-guides %d \'(%d %d) %d %d %d nil \\"%s\\" \\"%s\\")" '..
         '--batch="(gimp-quit 0)"', gimp, ngx.var.arg_w, rW, rH,
-        ngx.var.arg_b, ngx.var.arg_c, ngx.var.arg_g, psd_path, psd_name)
+        ngx.var.arg_b, ngx.var.arg_c, ngx.var.arg_g, psd_path, psd_filename)
 
     --ngx.say("command: "..command)
     os.execute(command)
 end
 
---ngx.say("Rewriting to: psd_name..'.psd')
-return ngx.redirect(psd_name..'.psd')
+--ngx.say("Rewriting to: psd_filename)
+return ngx.redirect(psd_filename)
 
 -- NB! if ngx.say or ngx.print is uncommented (for debugging),
 -- it will terminate current request, hence ngx.redirect will fail.

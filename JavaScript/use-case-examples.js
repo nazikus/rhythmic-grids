@@ -1,4 +1,6 @@
-require('./RhythmicGridGenerator.js');
+var exec = require('child_process').exec;
+
+require('../JavaScript/RhythmicGridGenerator.js');
 var rgg = RhythmicGridGenerator;
 
 
@@ -8,9 +10,6 @@ var gc  = rgg.generateRhythmicGrid(1200, '3x2', 8, 12, 3);
 // console.log(JSON.stringify(gc, null, '\t') );
 
 /***** GENERATE MULTIPLE GRIDS *****/
-
-// picks a random element from array
-var randElement = function(arr) { return arr[Math.round( Math.random()*(arr.length-1) )]; }
 
 // Note: you can define your own grid validator here.
 // rgg.isValidGrid = function(grid){ return <boolean condition> }
@@ -35,6 +34,9 @@ console.log(' - valid: %d (%d%%) ', allGConfigs.length, Math.floor(allGConfigs.l
 console.log();
 
 // simulate user's random selection
+
+// picks a random element from array
+var randElement = function(arr) { return arr[Math.round( Math.random()*(arr.length-1) )]; }
 var selected_width    = randElement(width_arr);
 var selected_ratio    = randElement(ratio_arr);
 var selected_baseline = randElement(baseline_arr);

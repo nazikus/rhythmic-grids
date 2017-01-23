@@ -1,4 +1,11 @@
-(define (rhythmic-guides maxWidth ratio baseline columns gutterX blocks psdPath psdBasename)
+(define (psd-rhythmic-guides maxWidth
+                         ratio
+                         baseline
+                         columns
+                         gutterX
+                         blocks
+                         psdDirPath
+                         psdFilename)
 ; Generates vertical guides along micro-block sides and horizontal lines along each baseline
 ; maxWidth - width of a canvas/layer
 ; ratio    - list of ratio values '(width height)
@@ -6,6 +13,7 @@
 ; columns  - number of micro-blocks fitting horizontally into maxWidth
 ; gutterX  - gutter width ratio
 
+    (gimp-message "1")
     
     ; INITIALIZE VARS, IMAGE AND LAYER
     ; uBlockW - micro-block width
@@ -91,10 +99,10 @@
     ; DEBUG, OUTPUT TO ERROR CONSOLE (Menu > Windows > Dockable Dialogs > Error Console)
     ; (gimp-display-new rhImage)   
     ; (gimp-image-clean-all rhImage)
-    ; (gimp-message psdPath)
+    ; (gimp-message psdDirPath)
     ; (gimp-message (string-append "Generated rhythmic guides with micro-block " (number->string uBlockW) "X" (number->string uBlockH) ))
 
-    (file-psd-save RUN-NONINTERACTIVE rhImage rhLayer (string-append psdPath psdBasename ".psd") (string-append psdBasename ".psd") 0 0)
+    (file-psd-save RUN-NONINTERACTIVE rhImage rhLayer (string-append psdDirPath psdFilename) psdFilename 0 0)
     ; (file-psd-save RUN-NONINTERACTIVE rhImage rhLayer "D:\\testi.psd" "testi.psd" 0 0)
     
     ; RETURN LIST
@@ -155,10 +163,9 @@
 )
 
 ; Register current Script-Fu script
-(script-fu-register "rhythmic-guides makelist mod gcd lcm zip cumsum"  ; function names
+(script-fu-register "psd-rhythmic-guides makelist mod gcd lcm zip cumsum"  ; function names
                     "Rhythmic Guides"  ; menu label
-                    "Creates new image along with guides for rhythmic grid.\
-                    Returns ID of the created image and ID of its drawable (layer)."  ; description
+                    "Creates new image along with guides for rhythmic grid. Returns ID of the created image and ID of its drawable (layer)."  ; description
                     "nazariy.hrabovskkyy@gmail.com"    ; author
                     "Nazariy Hrabovskyy" ; copyright
                     "21-12-2015"         ; date created     
@@ -166,5 +173,5 @@
 )
 
 ; command examples for Script-Fu console (Menu > Filters > Script-Fu > Console):
-; (rhythmic-guides 960 '(3 2) 5 6 3 '((135 90) (285 190) (435 290) (885 590)) "D:\\" "psd_name")
-; (rhythmic-guides 960 '(3 2) 5 6 3 nil "D:\\" "psd_name")
+; (psd-rhythmic-guides 960 '(3 2) 5 6 3 '((135 90) (285 190) (435 290) (885 590)) "D:\\" "psd_name.psd")
+; (psd-rhythmic-guides 960 '(3 2) 5 6 3 nil "D:\\" "psd_name.psd")

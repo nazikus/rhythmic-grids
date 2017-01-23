@@ -12,12 +12,12 @@ Gutter = Baseline * GutterToBaselineRatio;
 GridConfig = GenerateRhythmicGrid(Width, sprintf("%dx%d", RatioW, RatioH), Baseline, Columns, Gutter);
 
 BlocksStr = sprintf("%dx%d,", GridConfig.RhythmicGrid.Blocks')(1:end-1);
-gimp = sprintf("%s\\%s", 'd:\Images\PortableApps\GIMPPortable\App\gimp\bin', 'gimp-console-2.8.exe');
+gimp = sprintf("%s\\%s", 'C:\Program Files\GIMP 2\bin', 'gimp-console-2.8.exe');
 psd_path = pwd();
-psd_basename = sprintf("W%d_R%dx%d_B%d_C%d_G%d_BLCK=%s", Width, RatioW, RatioH, Baseline, Columns, Gutter, BlocksStr);
+psd_filename = sprintf("W%d_R%dx%d_B%d_C%d_G%d_BLCK=%s.psd", Width, RatioW, RatioH, Baseline, Columns, Gutter, BlocksStr);
 BlocksStr = sprintf("(%d %d), ", GridConfig.RhythmicGrid.Blocks')(1:end-2);
 
-command = sprintf("\"%s\" -i -d -b \"(rhythmic-guides %d '(%d %d) %d %d %d '(%s) \"%s\\\" \"%s\")\" -b \"(gimp-quit 0)\"", 
-    gimp, Width, RatioW, RatioH, Baseline, Columns, Gutter, BlocksStr, psd_path, psd_basename)
+command = sprintf("\"%s\" -i -d -b \"(psd-rhythmic-guides %d '(%d %d) %d %d %d '(%s) \"%s\\\" \"%s\")\" -b \"(gimp-quit 0)\"", 
+    gimp, Width, RatioW, RatioH, Baseline, Columns, Gutter, BlocksStr, psd_path, psd_filename)
 
 system(command)
