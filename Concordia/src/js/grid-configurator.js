@@ -121,13 +121,14 @@ function onGridChange(e){
                 allConfigs.allValidGrids, allGridSelections );
      
     if (gridConfig) {
-        $('#photoshopButton').removeClass('link-disabled').attr('href', 
-            'http://162.247.154.128/psd?'+
-            'w='+gridConfig.maxCanvasWidth+'&'+
-            'r='+gridConfig.ratio.str+'&'+
-            'b='+gridConfig.baseline+'&'+
-            'c='+gridConfig.columnsNum+'&'+
-            'g='+(gridConfig.gutter.W/gridConfig.baseline));
+        $('#photoshopButton').attr('href', 
+            'http://concordiagrid.com/psd/concordiagrid_'+
+            'W'+gridConfig.maxCanvasWidth + '_' +
+            'R'+gridConfig.ratio.str + '_' +
+            'B'+gridConfig.baseline + '_' +
+            'C'+gridConfig.columnsNum + '_' +
+            'G'+(gridConfig.gutter.W) +
+            '.psd');
         drawRhythmicGrid(gridConfig);
         
         // set Google Analytics info

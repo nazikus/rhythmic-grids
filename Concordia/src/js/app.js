@@ -229,14 +229,6 @@ $('#sound-toggle').on('click', function (e) {
     }
 });
 
-// photoshop button
-$('#photoshopButton').on('click', function(){
-    $(this).addClass('link-wait');
-    window.setTimeout(function(){
-        $('#photoshopButton').removeClass('link-wait');
-    }, 3500);
-});
-
 // up/down arrows to selct font-size/line-height
 $('.controls .up').each(function () {
     $(this).on('click', function (e) {

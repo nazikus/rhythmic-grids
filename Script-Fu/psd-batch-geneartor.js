@@ -7,9 +7,9 @@ var child_process = require('child_process');
 
 // All meaningful ranges of configurations
 var width_arr    = [960, 1280, 1440];
-var ratio_arr    = ['16x9', '3x2', '1x1'];
-var baseline_arr = [7,8,9,10,11,12,13,14,15,16,17,18,19,20];
-var columns_arr  = [6, 9, 12];
+var ratio_arr    = ['1x1', '4x3', '3x2', '16x9'];
+var baseline_arr = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+var columns_arr  = [5, 6, 9, 12];
 var gutter2baselineRatio_arr = [0, 1, 2, 3, 4];
 
 var f = function getCurrentDirectoryName() { var fullPath = __dirname; var path = fullPath.split('/'); var cwd = path[path.length-1]; return cwd; };
@@ -47,7 +47,6 @@ for (var i=0; i<allGConfigs.length; i++) {
         xCoordsR = colOrds.map(function(ord) { return m + ord*cw + g*ord; }),
         xCoordsL = xCoordsR.slice(1).map(function(x) { return x-g; }),
         xCoords  = xCoordsR.slice(0,-1).concat(xCoordsL).sort(function(a,b){return a-b;}).unique();
-    xCoords.unshift(m);
 
     // console.log("max %d, m-%d, W-%d, B-%d, G-%d, N-%d: (%s)", w, m, cw, b, g, c, xCoords);
     var psd_filename = util.format("W%d_R%s_B%d_C%d_G%d.psd", w, r, b, c, g);
