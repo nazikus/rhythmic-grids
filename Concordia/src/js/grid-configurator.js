@@ -122,7 +122,7 @@ function onGridChange(e){
      
     if (gridConfig) {
         $('#photoshopButton').attr('href', 
-            'http://concordiagrid.com/psd/concordiagrid_'+
+            'http://concordiagrid.com/psd/concordia_'+
             'W'+gridConfig.maxCanvasWidth + '_' +
             'R'+gridConfig.ratio.str + '_' +
             'B'+gridConfig.baseline + '_' +

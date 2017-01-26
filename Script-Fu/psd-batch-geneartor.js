@@ -25,8 +25,8 @@ var cmd_template =
     "gimp-console-2.8 " +
     "--no-interface " +
     "--no-data " +
-    "--no-fonts " +
-    "--batch=\"(psd-vguides %d %d '(%s) \\\"%s\\\" \\\"%s\\\")\" " +
+    // "--no-fonts " +
+    "--batch=\"(psd-columns-w-baseline %d %d %d '(%s) \\\"%s\\\" \\\"%s\\\")\" " +
     "--batch=\"(gimp-quit 0)\"";
 
 // console.log(allGConfigs);
@@ -43,15 +43,15 @@ for (var i=0; i<allGConfigs.length; i++) {
         cw = allGConfigs[i].rhythmicGrid.uBlock.W,  // column width
         m  = allGConfigs[i].rhythmicGrid.margin;    // grid left margin
 
-    var colOrds = Array.apply(null, new Array(c+1)).map(Number.call, Number),
-        xCoordsR = colOrds.map(function(ord) { return m + ord*cw + g*ord; }),
+    var colOrdinals = Array.apply(null, new Array(c+1)).map(Number.call, Number),
+        xCoordsR = colOrdinals.map(function(ord) { return m + ord*cw + g*ord; }),
         xCoordsL = xCoordsR.slice(1).map(function(x) { return x-g; }),
         xCoords  = xCoordsR.slice(0,-1).concat(xCoordsL).sort(function(a,b){return a-b;}).unique();
 
     // console.log("max %d, m-%d, W-%d, B-%d, G-%d, N-%d: (%s)", w, m, cw, b, g, c, xCoords);
-    var psd_filename = util.format("W%d_R%s_B%d_C%d_G%d.psd", w, r, b, c, g);
+    var psd_filename = util.format("concordia_W%d_R%s_B%d_C%d_G%d.psd", w, r, b, c, g);
 
-    var cmd = util.format(cmd_template, w, 1000, xCoords.join(' '), psd_dir, psd_filename);
+    var cmd = util.format(cmd_template, w, 1000, b, xCoords.join(' '), psd_dir, psd_filename);
     if (fs.existsSync(psd_dir + psd_filename)) {  
         console.log("Skip #%d: %s", ++total, cmd);
         continue; 

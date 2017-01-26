@@ -17,6 +17,7 @@ var gaConfig = {
 			width: 'w' + config.rhythmicGrid.W,
 			ratio: 'r' + config.ratio.str,
 			baseline: 'b' + config.baseline,
+			columns: 'c' + config.columnsNum,
 			gutter: 'g' + config.gutter.W
 		}
 		for (key in configObj) {
