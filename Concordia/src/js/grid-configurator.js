@@ -129,7 +129,7 @@ function onGridChange(e){
             'B'+gridConfig.baseline + '_' +
             'C'+gridConfig.columnsNum + '_' +
             'G'+(gridConfig.gutter.W) +
-            (!allConfigs.isSafari ? '.psd.zip' : '.psd'));
+            (allConfigs.isSafari ? '.psd.zip' : '.psd'));
         drawRhythmicGrid(gridConfig);
         
         // set Google Analytics info
