@@ -64,6 +64,8 @@ var allConfigs = Object.freeze((function(){
         radioForms   : $('.grid-section > .container > .flex-row >'+
                          ' .flex-child:lt(5) > .form-group'), // all config radio elements
 
+        isSafari     : navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1,
+
         imageMocks   : 9, // from 1.jpg to 9.jpg
         textMocks    : Array.apply(null, {length: 5}) // array of 5 lorem texts of different length
                             .map(function(_,i) {

@@ -121,6 +121,7 @@ function onGridChange(e){
                 allConfigs.allValidGrids, allGridSelections );
      
     if (gridConfig) {
+        console.log(allConfigs.isSafari);
         $('#photoshopButton').attr('href', 
             'http://concordiagrid.com/psd/concordia_'+
             'W'+gridConfig.maxCanvasWidth + '_' +
@@ -128,7 +129,7 @@ function onGridChange(e){
             'B'+gridConfig.baseline + '_' +
             'C'+gridConfig.columnsNum + '_' +
             'G'+(gridConfig.gutter.W) +
-            '.psd');
+            (!allConfigs.isSafari ? '.psd.zip' : '.psd'));
         drawRhythmicGrid(gridConfig);
         
         // set Google Analytics info
