@@ -121,7 +121,6 @@ function onGridChange(e){
                 allConfigs.allValidGrids, allGridSelections );
      
     if (gridConfig) {
-        console.log(allConfigs.isSafari);
         $('#photoshopButton').attr('href', 
             'http://concordiagrid.com/psd/concordia_'+
             'W'+gridConfig.maxCanvasWidth + '_' +
