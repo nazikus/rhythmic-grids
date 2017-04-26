@@ -7,9 +7,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 	<link rel="icon" type="image/png" href="img/favicon.png">
 	<meta property="og:image" content="http://concordiagrid.com/img/ogimage.jpg" />
-    <meta property="og:image:secure_url" content="https://concordiagrid.com/img/ogimage.jpg" /> 
-    <meta property="og:image:type" content="image/jpg" /> 
-    <meta property="og:image:width" content="200" /> 
+    <meta property="og:image:secure_url" content="https://concordiagrid.com/img/ogimage.jpg" />
+    <meta property="og:image:type" content="image/jpg" />
+    <meta property="og:image:width" content="200" />
     <meta property="og:image:height" content="200" />
     <meta property="og:url" content="http://concordiagrid.com/" />
     <meta property="og:title" content="Concordia Grid" />
@@ -33,20 +33,27 @@
 						<div class="flex-child">
 							<div class="text-center app-name">
 
-															</div>
+							</div>
 						</div>
 						<div class="flex-child nav">
 							<div class="credits text-right nav-link">
 
-																<a href="#" class="credits-toggle" id="credits-toggle" data-credits-visible="false">
+								<a href="#" class="credits-toggle" id="credits-toggle" data-credits-visible="false">
 									<span class="credits-label-on">Credits</span>
 									<span class="credits-label-off"></span>
 								</a>
 							</div>
+							<a href="https://github.com/nazikus/rhythmic-grids"
+							   target="_blank"
+							   class="nav-link github-link"
+							   onclick="ga('send', 'event', 'Github Clicks', 'How many clicks on Github header link', null);>
+								Github
+							</a>
 							<a href="https://medium.com/concordia-grid/make-modular-grids-in-seconds-e2eeee95aa4f#.s5z0pnvhw"
 							   target="_blank"
-							   class="nav-link">
-								Readme
+							   class="nav-link"
+							   onclick="ga('send', 'event', 'Medium Clicks', 'How many clicks on Theory link', null);">
+								Theory
 							</a>
 						</div>
 					</div>
@@ -70,7 +77,7 @@
 						<div class="flex-child">
 							<p>Tool for designers & gridlovers, to create modular <br>proportion-based grids with vertical rhythm.</p>
 							<p class="desc">
-								We believe that precise calculations can be the key to change the way we do our daily work as designers and developers. Concordia is a first step into discovering the complex world of calculations in design process. 
+								We believe that precise calculations can be the key to change the way we do our daily work as designers and developers. Concordia is a first step into discovering the complex world of calculations in design process.
 							</p>
 						</div>
 						<div class="flex-child">
@@ -106,8 +113,8 @@
 						<div class="flex-child">
 							<div class="participate">
 								<p>
-									Found a bug? We will appreciate your help if you 
-									<a href="https://github.com/nazikus/rhythmic-grids/issues/new?title=Hip-Hop%20is%20dead" target="_blank">submit</a> 
+									Found a bug? We will appreciate your help if you
+									<a href="https://github.com/nazikus/rhythmic-grids/issues/new?title=Hip-Hop%20is%20dead" target="_blank">submit</a>
 									it.
 								</p>
 							</div>
@@ -115,7 +122,7 @@
 						<div class="flex-child">
 							<div class="participate">
 								<p>
-									You can particitape by sharing your thoughts and comments via 
+									You can particitape by sharing your thoughts and comments via
 									<a href="mailto:contact@concordiagrid.com">contact@concordiagrid.com</a>
 								</p>
 							</div>
@@ -389,10 +396,10 @@
 							</a>
 							<a id="sketchButton" class="link-disabled" download>
 								Sketch
-							</a> 
-							<a href="" 
+							</a>
+							<a href=""
 							   id="photoshopButton"
-							   onclick="ga('send', 'event', 'Exports', 'Photoshop', gaConfig.eventDetails);" 
+							   onclick="ga('send', 'event', 'Exports', 'Photoshop', gaConfig.eventDetails);"
 							   download>
 								Photoshop
 							</a>
@@ -408,7 +415,7 @@
 								</div>
 							</div>
 
-													</div>
+						</div>
 						<div class="flex-child grid-labels">
 							Grid width <span id="grid-width-label"></span>, column width <span id="column-width-label"></span>
 						</div>
@@ -455,7 +462,7 @@
 						<div class="column">
 							<div class="inner">
 								<div class="text">
-									Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media. Nullam id dolor id nibh ultricies 
+									Concordia will help you set up a modular grid for your next project. For that one you just need to set your body copy and choose the media. Nullam id dolor id nibh ultricies
 								</div>
 							</div>
 						</div>
@@ -477,7 +484,7 @@
 						<div class="column">
 							<div class="inner">
 								<div class="text">
-									Maecenas sed diam eget risus varius blandit sit amet non magna. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo. 
+									Maecenas sed diam eget risus varius blandit sit amet non magna. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo.
 									Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
 								</div>
 							</div>
@@ -506,29 +513,7 @@
 				</div>
 			</div>
 		</section>
-		<footer class="footer">
-			<div class="container">
-				<div class="flex-row">
-					<div class="flex-child">
-						<div class="logo">
-							<img src="img/logo-white.svg" alt="Concordia" />
-						</div>
-					</div>
-					<div class="flex-child">
-						<div class="text-center app-name">
-							Rhytmic grid calculator
-						</div>
-					</div>
-					<div class="flex-child">
-						<div class="credits text-right">
-							<a href="https://github.com/nazikus/rhythmic-grids" target="_blank" class="github-link"></a>
-						</div>
-
-											</div>
-				</div>
-			</div>
-			<img src="img/fontmetrics-pattern@2x.jpg" id="fontmetrics-pattern" style="display: none;">
-		</footer>
+		<img src="img/fontmetrics-pattern@2x.jpg" id="fontmetrics-pattern" style="display: none;">
 	</div>
 </body>
 </html>
