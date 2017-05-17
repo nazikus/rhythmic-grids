@@ -28,7 +28,7 @@ var allConfigs = Object.freeze((function(){
 
     // you can specify a predicate validator which defines a valid grid and filters
     // invalid ones during generation. The default validator:
-    // console.log('Current grid validator:\n' + 
+    // console.log('Current grid validator:\n' +
     //               rgg.isValidGrid.toString().replace(/$\s*\/\/.*/gm, '') + '\n');
 
     // generate all possible grids from given configuration range
@@ -53,14 +53,14 @@ var allConfigs = Object.freeze((function(){
         columnsArr   : columnsArr,
         gutter2baselineFactorArr: gutter2baselineFactorArr,
         allValidGrids: allValidGrids,
-        
+
         fontSizeLimit  : {min: 15, max: 21},    // px
         lineHeightLimit: {min: 1.2, max: 1.6},  // em (of font size)
-        
+
         rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
         inputNames   : ['canvasWidth', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
 
-        gridContainer: $('.grid-container'),   
+        gridContainer: $('.grid-container'),
         radioForms   : $('.grid-section > .container > .flex-row >'+
                          ' .flex-child:lt(5) > .form-group'), // all config radio elements
 
@@ -71,11 +71,11 @@ var allConfigs = Object.freeze((function(){
                             .map(function(_,i) {
                                 return Lorem.prototype.createText(
                                     // 10*(i+1),
-                                    // Math.pow(20, (i+1)*0.9), 
-                                    30*Math.exp(i*1.5), 
+                                    // Math.pow(20, (i+1)*0.9),
+                                    30*Math.exp(i*1.5),
                                     Lorem.TYPE.WORD)
                                 // Uppercase the first letter
-                                .replace(/^(\w)/, function(v) { return v.toUpperCase(); }); 
+                                .replace(/^(\w)/, function(v) { return v.toUpperCase(); });
                             })
     }
 })());
@@ -108,7 +108,7 @@ function toggleTab(e, content) {
             var fontList = getAvailableSystemFonts();
             var select = $(selector);
             select.empty();
-  
+
             fontList.forEach(function(val, idx) {
               var option = $('<option>').prop('value', val).text(val);
               if (!idx) option.prop('selected', true);  // make 1st option a default selection
@@ -124,12 +124,12 @@ function toggleTab(e, content) {
             $('.example-text').css('font-family', select.val()+",monospace");
 
             select.on('change', onFontChange).trigger('change');
-            
+
             // in Firefox only (Safari?)
             // if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
                 // select.on('keyup', function(){ $(this).trigger('change'); })
             break;
-        
+
         // font size & line height edit boxes
         case 1:
         case 2:
@@ -137,11 +137,11 @@ function toggleTab(e, content) {
 
             // initialize edit box from previous session (if any)
             var prevSize = localStorage.getItem(input.parent().attr('class'));
-            if (prevSize)  input.val(prevSize);            
-        
+            if (prevSize)  input.val(prevSize);
+
             if (idx==1)
                 $('.example-text').css('font-size', parseInt(input.val())+'px');
-            else 
+            else
                 $('.example-text').css('line-height', parseInt(input.val())+'px');
 
             input.on('change', onFontChange);
@@ -158,7 +158,7 @@ function toggleTab(e, content) {
 // TODO refactor this lainokod, remove global vars
 
 // LineHeight/FontSize Ratio, value for line-height percent label
-var _LHFS_R = parseInt($('#input-lineheight').val()) / 
+var _LHFS_R = parseInt($('#input-lineheight').val()) /
               parseInt($('#input-fontsize').val());
 
 // LineHeight/BaseLine Factor, value for grid baseline
@@ -194,7 +194,7 @@ setupRadioItems(allConfigs);
 $('#grid-toggle').on('click', function(e){
     e.preventDefault();
     gridToggleBtn = $(e.target);
-    
+
     if (gridToggleBtn.data('grid-toggle') === 'on') {
         if (_LHBL_F !== 1) {
         $('.rulers-wrapper-horizontal').addClass('hidden'); }
@@ -213,23 +213,10 @@ $('#grid-toggle').on('click', function(e){
 
 });
 
-// initialize state of 'Hide grid' button 
+// initialize state of 'Hide grid' button
 $('#grid-toggle')
     .data('grid-toggle', localStorage.getItem('gridToggle')==='off' ? 'on' : 'off')
     .trigger('click');
-
-// 'make sound' button
-$('#sound-toggle').on('click', function (e) {
-    e.preventDefault();
-    soundToggleBtn = $(e.target);
-    if (soundToggleBtn.data('sound-toggle') === 'on') {
-        // gridSound().makeSound();
-        soundToggleBtn.data('sound-toggle', 'off');
-    } else {
-        // gridSound().stopSound();
-        soundToggleBtn.data('sound-toggle', 'on');
-    }
-});
 
 // up/down arrows to selct font-size/line-height
 $('.controls .up').each(function () {

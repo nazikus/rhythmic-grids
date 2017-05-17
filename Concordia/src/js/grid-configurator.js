@@ -2,7 +2,7 @@ function setupRadioItems(){
     allConfigs.radioForms.each( function(idx, el){
         $(el).empty(); // clear default (index.html) radio options
         // append <input> and <label> for each config value
-        $(el).append( createRadioInputs(allConfigs.inputNames[idx], 
+        $(el).append( createRadioInputs(allConfigs.inputNames[idx],
                                         allConfigs.rangeArrs[idx]) );
 
         // restore selection from previous session (if any)
@@ -43,27 +43,27 @@ function createRadioInputs(inputName, valueRange){
 				name: inputName,
 				value: value
 			});
-		
+
 		// default radio selection
         var name = allConfigs.inputNames;
         switch (inputName) {
-            /* canvasWdith  */ case name[0]:  if(i==1) input.prop('checked', true); break;  
-            /* gridRatio    */ case name[1]:  if(i==0) input.prop('checked', true); break;  
-            /* gridBaseline */ case name[2]:  if(i==1) input.prop('checked', true); break;  
-            /* gridColumns  */ case name[3]:  if(i==2) input.prop('checked', true); break;  
-            /* gridGutter   */ case name[4]:  if(i==3) input.prop('checked', true); break;  
+            /* canvasWdith  */ case name[0]:  if(i==1) input.prop('checked', true); break;
+            /* gridRatio    */ case name[1]:  if(i==0) input.prop('checked', true); break;
+            /* gridBaseline */ case name[2]:  if(i==1) input.prop('checked', true); break;
+            /* gridColumns  */ case name[3]:  if(i==2) input.prop('checked', true); break;
+            /* gridGutter   */ case name[4]:  if(i==3) input.prop('checked', true); break;
         }
 
 		// special cases for Ratio and Gutter labels
 		switch(allConfigs.inputNames.indexOf(inputName)) {
 			case 1:  labelText = value.replace('x',':'); break;
-			case 4:  labelText = allConfigs.baselineArr[0]*value; break; 
+			case 4:  labelText = allConfigs.baselineArr[0]*value; break;
 			default: labelText = String(value);
 		}
 		var label = $('<label>')
 			.prop('for', inputName+String(value))
 			.text( labelText );
-		
+
 		elements.push(input, label);
 	});
 
@@ -76,7 +76,7 @@ function onGridChange(e){
     var getAllSelections = function(){
         return $('input:checked', allConfigs.radioForms)
                 .map(function() {
-                    var val = $(this).val(); 
+                    var val = $(this).val();
                     return isNaN(val) ? val : ~~val;
                  }).toArray();
     }
@@ -108,7 +108,7 @@ function onGridChange(e){
 
         // update percent label
         _LHFS_R = newLH / parseInt( $('#input-fontsize').val() );
-        $('#lineheight-percent-label').text( 
+        $('#lineheight-percent-label').text(
             Math.round( newLH / parseInt($('#input-fontsize').val()) * 100)+'%'
         );
     }
@@ -119,9 +119,9 @@ function onGridChange(e){
     // re-draw the grid
     var gridConfig = RhythmicGridGenerator.selectGrid(
                 allConfigs.allValidGrids, allGridSelections );
-     
+
     if (gridConfig) {
-        $('#photoshopButton').attr('href', 
+        $('#photoshopButton').attr('href',
             'http://concordiagrid.com/psd/concordia_'+
             'W'+gridConfig.maxCanvasWidth + '_' +
             'R'+gridConfig.ratio.str + '_' +
@@ -129,8 +129,17 @@ function onGridChange(e){
             'C'+gridConfig.columnsNum + '_' +
             'G'+(gridConfig.gutter.W) +
             (allConfigs.isSafari ? '.psd.zip' : '.psd'));
+
+        $('#sketchButton').attr('href',
+            'http://138.197.105.85:8080/api/' +
+            gridConfig.rhythmicGrid.W + '/' +
+            gridConfig.ratio.str + '/' +
+            gridConfig.baseline + '/' +
+            gridConfig.columnsNum + '/' +
+            gridConfig.gutter.W);
+            
         drawRhythmicGrid(gridConfig);
-        
+
         // set Google Analytics info
         gaConfig.setValues(gridConfig);
     }
@@ -144,14 +153,14 @@ function onGridChange(e){
 
 // disables radio buttons for impossible grids, called on each user selection
 function refreshRadioInputs(radioForms, selectedInputs){
-	var validInputs = 
+	var validInputs =
 		RhythmicGridGenerator.getValidConfigValues(
 			allConfigs.allValidGrids, selectedInputs);
 	// console.log(selectedInputs);
 	// console.log(validInputs);
 
 	var ids = allConfigs.inputNames;
-	if (ids.length !== validInputs.length) 
+	if (ids.length !== validInputs.length)
 		throw 'ERROR: wrong length of IDs in '+arguments.callee.name+'()';
 
 	validInputs.forEach( function(v, i) {
@@ -159,7 +168,7 @@ function refreshRadioInputs(radioForms, selectedInputs){
 		// enable/disable each radio input
 		$('input', radioForms[i]).each(function(k, opt){
 			$(this).prop('disabled', !v[k][1] || null );
-			
+
 			// update gutter value according to baseline value
 			if (ids[i] === ids[ids.length-1]){ // if the last id (gutter)
 				$(this).next().text( v[k][0]*selectedInputs[2] );  // gutter*baseline
@@ -184,7 +193,7 @@ function refreshRadioInputs(radioForms, selectedInputs){
 function drawRhythmicGrid(gridConfig){
     var startTime = performance.now();
     // console.log('Rhythmic config: '); console.log(gridConfig);
-    console.log('blocks: %s  [%s>%s^]', 
+    console.log('blocks: %s  [%s>%s^]',
         gridConfig
             .rhythmicGrid
             .blocks
@@ -199,7 +208,7 @@ function drawRhythmicGrid(gridConfig){
 
     $('#grid-width-label').text(gridConfig.rhythmicGrid.W + ' px');
     //column width is defined by the width of the micro-block (the smallest rhythmic block)
-    $('#column-width-label').text(gridConfig.rhythmicGrid.blocks[0][0] + ' px'); 
+    $('#column-width-label').text(gridConfig.rhythmicGrid.blocks[0][0] + ' px');
     $('#grid-typeface-label').text(metricsContext.curr_typeface);
     $('#grid-fs-label').text(fs + 'px');
     $('#grid-lh-label').text(lh + 'px');
@@ -246,14 +255,14 @@ function drawRhythmicGrid(gridConfig){
                 continue; // skip if the last row and block is wider than 1000
 
             var inner = $('<div>').addClass('inner').addClass('inner'+i);
-            
+
             // pairwise image & text blocks (if c odd - image, if c even - text)
             c++;
             if (i===1 && !(c%2) ) c++; // first column in row always start with an image, not text
-            
+
             if (c%2 || idx+1===arr.length){ // the last biggest block bett with an image, then text
                 var imgId = Math.floor(c/2) % allConfigs.imageMocks + 1;
-                inner.attr('style', 'background-image: url(img/' + 
+                inner.attr('style', 'background-image: url(img/' +
                                      gridConfig.ratio.str+'/' + imgId +'.jpg)');
                 // console.log(inner.attr('style'));
             } else {
@@ -323,9 +332,9 @@ function drawRhythmicGrid(gridConfig){
         });// .dotdotdot({ellipsis: '.'});//, tolerance : 15}); // ignored if inline
 
 
-    ////////////////////////////////////////////    
+    ////////////////////////////////////////////
     ////////   ITERATIVE JS ELLIPSIS   /////////
-    ////////////////////////////////////////////    
+    ////////////////////////////////////////////
     gridTextEllipsis(gridConfig.baseline);
 
 
@@ -369,7 +378,7 @@ function drawRhythmicGrid(gridConfig){
         $('.rulers-wrapper-vertical').addClass('hidden');
         $('.rulers-wrapper-horizontal').addClass('hidden');
     }
-    
+
 
     ////////////////////////////////////////////////////////////////////
     var timing = performance.now() - startTime;
@@ -387,7 +396,7 @@ function gridTextEllipsis(baseline) {
         var textMock = allConfigs.textMocks[i];
         $('.inner', rowEl)
         .has('.text')
-        .each( function(_, innerEl) { 
+        .each( function(_, innerEl) {
             if (innerEl.scrollHeight < innerEl.clientHeight + baseline)
                 return ;
             var postfix = '.', //' \u2026',
@@ -396,12 +405,12 @@ function gridTextEllipsis(baseline) {
                 curr = '';
             for (var i=0; i<textArr.length; i++) {
                 curr = textArr.slice(0,i).join(' ')
-                textEl.text( curr + ' ' + textArr[i] + postfix ); 
-                if (innerEl.scrollHeight > innerEl.clientHeight + baseline) { 
-                    textEl.text( curr + postfix ); 
-                    break; 
-                }  
-            } 
+                textEl.text( curr + ' ' + textArr[i] + postfix );
+                if (innerEl.scrollHeight > innerEl.clientHeight + baseline) {
+                    textEl.text( curr + postfix );
+                    break;
+                }
+            }
         });
     });
     var ellipsisTiming = performance.now() - ellipsisStartTime;
