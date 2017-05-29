@@ -429,3 +429,20 @@ section {
 	font-weight: 400;
 	margin-bottom: 5px;
 }
+
+.visible-mobile {
+	display: none;
+}
+@media (max-width: 1024px) {
+	.hidden-mobile-label {
+		padding: 20px;
+		text-align: center;
+	}
+	.visible-mobile {
+		display: block;
+		position: fixed !important;
+	}
+	.hidden-mobile {
+		display: none;
+	}
+}
