@@ -144,7 +144,6 @@ function onGridChange(e){
         gaConfig.setValues(gridConfig);
     }
     else {
-        $('#photoshopButton').addClass('link-disabled');
         allConfigs.gridContainer.empty();
     }
 };
