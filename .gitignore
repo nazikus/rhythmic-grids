@@ -2,6 +2,7 @@
 *.wiki/
 temp/
 grids_output/
+.idea/
 
 .publish/
 node_modules/

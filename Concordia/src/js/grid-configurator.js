@@ -1,3 +1,13 @@
+function getDefaultValues() {
+    var urlParams = new URLSearchParams(window.location.search);
+
+    return allConfigs.inputNames.map(function(item, i) {
+       return Number(urlParams.get(item) || allConfigs.defaultInputValues[i]);
+    });
+}
+
+// ______
+
 function setupRadioItems(){
     allConfigs.radioForms.each( function(idx, el){
         $(el).empty(); // clear default (index.html) radio options
@@ -46,12 +56,15 @@ function createRadioInputs(inputName, valueRange){
 
 		// default radio selection
         var name = allConfigs.inputNames;
+        var fromQuery = getDefaultValues();
+        console.log(fromQuery);
+
         switch (inputName) {
-            /* canvasWdith  */ case name[0]:  if(i==1) input.prop('checked', true); break;
-            /* gridRatio    */ case name[1]:  if(i==0) input.prop('checked', true); break;
-            /* gridBaseline */ case name[2]:  if(i==1) input.prop('checked', true); break;
-            /* gridColumns  */ case name[3]:  if(i==2) input.prop('checked', true); break;
-            /* gridGutter   */ case name[4]:  if(i==3) input.prop('checked', true); break;
+            /* canvasWdith  */ case name[0]:  if(i === fromQuery[0]) input.prop('checked', true); break;
+            /* gridRatio    */ case name[1]:  if(i === fromQuery[1]) input.prop('checked', true); break;
+            /* gridBaseline */ case name[2]:  if(i === fromQuery[2]) input.prop('checked', true); break;
+            /* gridColumns  */ case name[3]:  if(i === fromQuery[3]) input.prop('checked', true); break;
+            /* gridGutter   */ case name[4]:  if(i === fromQuery[4]) input.prop('checked', true); break;
         }
 
 		// special cases for Ratio and Gutter labels
@@ -137,7 +150,7 @@ function onGridChange(e){
             gridConfig.baseline + '/' +
             gridConfig.columnsNum + '/' +
             gridConfig.gutter.W);
-            
+
         drawRhythmicGrid(gridConfig);
 
         // set Google Analytics info

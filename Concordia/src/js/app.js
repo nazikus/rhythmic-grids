@@ -59,6 +59,7 @@ var allConfigs = Object.freeze((function(){
 
         rangeArrs    : [widthArr, ratioArr, baselineArr, columnsArr, gutter2baselineFactorArr],
         inputNames   : ['canvasWidth', 'gridRatio', 'gridBaseline', 'gridColumns', 'gridGutter'],
+        defaultInputValues : [1, 0, 1, 2, 3],
 
         gridContainer: $('.grid-container'),
         radioForms   : $('.grid-section > .container > .flex-row >'+
