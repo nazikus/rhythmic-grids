@@ -1,6 +1,6 @@
-function getDefaultValues() {
-    var urlParams = new URLSearchParams(window.location.search);
+var urlParams = new URLSearchParams(window.location.search);
 
+function getDefaultValues() {
     return allConfigs.inputNames.map(function(item, i) {
        return Number(urlParams.get(item) || allConfigs.defaultInputValues[i]);
     });
@@ -57,7 +57,6 @@ function createRadioInputs(inputName, valueRange){
 		// default radio selection
         var name = allConfigs.inputNames;
         var fromQuery = getDefaultValues();
-        console.log(fromQuery);
 
         switch (inputName) {
             /* canvasWdith  */ case name[0]:  if(i === fromQuery[0]) input.prop('checked', true); break;
@@ -98,6 +97,11 @@ function onGridChange(e){
     var allGridSelections = getAllSelections();
 
     // console.log("id: %s; grid config: %s  [%s^]", el.attr('id'), allGridSelections.join(', '), arguments.callee.name);
+
+    // set query string params on change
+    console.log();
+    window.history.pushState('', '', '?' + el.attr('id') + '=1');
+    // urlParams.append(el.attr('id'), 1);
 
     // process ALL radio selections on every single change in grid config
     refreshRadioInputs(allConfigs.radioForms, allGridSelections); // NB! this might modify the selection
