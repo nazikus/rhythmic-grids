@@ -148,7 +148,7 @@ function onGridChange(e){
             (allConfigs.isSafari ? '.psd.zip' : '.psd'));
 
         $('#sketchButton').attr('href',
-            'http://138.197.105.85:8080/api/' +
+            'http://198.211.115.203:8080/api/' +
             gridConfig.rhythmicGrid.W + '/' +
             gridConfig.ratio.str + '/' +
             gridConfig.baseline + '/' +
