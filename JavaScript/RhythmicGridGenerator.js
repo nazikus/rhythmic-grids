@@ -3,19 +3,19 @@
  *
  * Algorithm generating all the necessary values, sizes & dimensions for
  * rhythmic grids, intended for drawing corresponding guides and blocks.
- * 
+ *
  * @version 1.2
  * @date 2015-12-15
  * @author Nazariy Hrabovskyy nazariy.hrabovskyy@gmail.com
  *
  * Repository:
  * https://github.com/nazikus/rhythmic-grids/
- * 
+ *
  */
 
 /*******************************************************************************
  * README
- * 
+ *
  * Current JavaScript code is expected to run under different environments
  * with varying ECMAScript compatability:
  *  - Browsers (V8, SpiderMonkey, JavaScriptCore, Trident, mostly ES5.1)
@@ -33,7 +33,7 @@
  *
 *******************************************************************************/
 
-/** 
+/**
  *  @class Grid configuration. Contains all the necessary info for drawing grids.
  *  @typedef GridConf
  *  @type {object}
@@ -45,12 +45,12 @@
  *  @prop {Grid}   rhythmicGrid   - generated rhythmic grid
  */
 
-/** 
+/**
  *  @class Grid object containing more detailed information of grid blocks.
  *         Usually is a part of grid configuration object.
  *  @typedef Grid
  *  @type {object}
- *  @prop {{W: number, H: number}} uBlock -  micro-block size 
+ *  @prop {{W: number, H: number}} uBlock -  micro-block size
  *  @prop {number} W  - grid width needed to fit micro-blocks evenly
  *  @prop {number} H  - grid height needed if all block sizes to be displayed
  *  @prop {number} margin - margin between canvas and grid
@@ -60,18 +60,18 @@
  *                      [0] - block width;
  *                      [1] - block height;
  *                      [2] - number of blocks to fit the grid horizontally.
- *                      [3] - block rhythm (think of it as micro-block multiple 
+ *                      [3] - block rhythm (think of it as micro-block multiple
  *                            considerring gutter width)
  *  @see https://github.com/nazikus/rhythmic-grids/wiki
  */
 
 /**
  * @class
- * Rhythmic grid generator object, consists of several methods for 
+ * Rhythmic grid generator object, consists of several methods for
  * generating grids and processing them. No attributes, except few constants.
  */
 RhythmicGridGenerator = (function () {
-    
+
     /**
      * Generates rhytmic grid(s) based on a provided configuration.
      * @public
@@ -83,7 +83,7 @@ RhythmicGridGenerator = (function () {
      * @param {number} gutterR  - gutter-to-baseline ratio
      * @return {GridConf}       - grid configuration object
      */
-    this.generateRhythmicGrid = 
+    this.generateRhythmicGrid =
     function (canvasW, ratioStr, baseline, columnsNum, gutterR) {
         if (typeof canvasW  !== 'number') throw 'Wrong 1st argument (width), must be a number';
         if (typeof ratioStr !== 'string') throw 'Wrong 2nd argument (ratio), must be a string';
@@ -109,34 +109,34 @@ RhythmicGridGenerator = (function () {
         gc = {};
 
         gc.maxCanvasWidth = canvasW;
-        gc.ratio = ratio; 
+        gc.ratio = ratio;
         gc.baseline = baseline;
         gc.columnsNum = columnsNum;
         gc.gutter = {W: gutterW, H: gutterH};
         gc.gutterBaselineFactor = gutterW / baseline;
-        
+
         gc.rhythmicGrid = null;
         gc.grids = [];
-        
+
         /* Unused: min and max POSSIBLE block sizes (not necessarily rhythmic) */
-        // gc.uBlock = { minW: min_uBlockW, minH: min_uBlockH, 
+        // gc.uBlock = { minW: min_uBlockW, minH: min_uBlockH,
         //               maxW: max_uBlockW, maxH: max_uBlockH };
 
-        // First element of 'blockWs' is the largest uBlock fitting the rhythm. 
-        // The rest uBlocks are generated as fractions of the largest 
-        // micro-block and provide the same ratio for the rest of rhythmic 
+        // First element of 'blockWs' is the largest uBlock fitting the rhythm.
+        // The rest uBlocks are generated as fractions of the largest
+        // micro-block and provide the same ratio for the rest of rhythmic
         // blocks (but smaller), hence are redundant.
-        
+
         // Idiom below simulates range generator, e.g.:
         // [uBlockW, uBlock*2, ..., uBlockW*n] until <= max_uBlockW
         var uRangeLen = Math.floor(max_uBlockW / min_uBlockW);
-        var blockWs = Array.apply(null, Array(uRangeLen)).map( 
+        var blockWs = Array.apply(null, Array(uRangeLen)).map(
             function(e,i){ return (i+1) * min_uBlockW; }
         ).reverse(); // so the largest comes first
 
         if (blockWs.length == 0)
             return gc;
-        
+
         // iterate through all possible uBlocks within given columns number
         // NB! The first one is probabely what you want - the largest uBlock
         // size and the smallest side-margins (between canvas and grid)
@@ -153,15 +153,15 @@ RhythmicGridGenerator = (function () {
 
             // horizontal (left and right) margins between canvas and grid
             var gridMargin = Math.floor( (canvasW-gridW)/2 );
-            
-            // number of all possible uBlock factors generating larger blocks 
+
+            // number of all possible uBlock factors generating larger blocks
             // that fit into grid width (considering gutters in between)
             var uFactorsAllNum = Math.floor( (gridW+gutterW) / (uBlockW+gutterW) );
 
             // uBlock factors (multipliers) for generating largers blocks:
             // [1:uFactorsNum/2, uFactrosNum]   // all, not only rhythmic
             // first half only, no need to traverse blocks wider then gridW/2
-            var uFactorsAll = Array.apply(null, Array(uFactorsAllNum)).map( 
+            var uFactorsAll = Array.apply(null, Array(uFactorsAllNum)).map(
                 function(e,i){ return i+1; }
             ).slice(0, Math.ceil(uFactorsAllNum/2)).concat(uFactorsAllNum);
 
@@ -217,7 +217,7 @@ RhythmicGridGenerator = (function () {
             // grid.allBlocks.H = gridH_All;
             // grid.allBlocks.blocks   = blocksAll;
             // grid.allBlocks.uFactors = uFactorsAll;
-            
+
             // grid.maxColumnsNum = maxColumnsNum; // unusued
 
             gc.grids.push(grid);
@@ -225,14 +225,14 @@ RhythmicGridGenerator = (function () {
 
         gc.rhythmicGrid = gc.grids[0];
 
-        /* no real  need in all the grids in output, so deleting it. Might need 
+        /* no real  need in all the grids in output, so deleting it. Might need
         it in other appliances in future */
         delete gc.grids;
 
         return gc;
     };
 
-    /** 
+    /**
      * Generate all possible rhythmic grids based on provided ranges of configurations.
      * @public
      * @method generateAllRhytmicGrids
@@ -243,7 +243,7 @@ RhythmicGridGenerator = (function () {
      * @param {number[]} gutterR_arr  - array of gutter-to-baseline ratio values
      * @return {GridConf[]}  - array of grid configuration objects.
      */
-    this.generateAllRhytmicGrids = 
+    this.generateAllRhytmicGrids =
     function (canvasW_arr, ratio_arr, baseline_arr, columnsNum_arr, gutterR_arr){
         var gc_arr = [];
         var gc = null;
@@ -254,10 +254,10 @@ RhythmicGridGenerator = (function () {
         for (var c = 0; c < columnsNum_arr.length; c++)
         for (var g = 0; g < gutterR_arr.length   ; g++)
         {
-            gc = this.generateRhythmicGrid(canvasW_arr[w], ratio_arr[r], 
+            gc = this.generateRhythmicGrid(canvasW_arr[w], ratio_arr[r],
                         baseline_arr[b], columnsNum_arr[c], gutterR_arr[g]);
             if (this.isValidGrid(gc.rhythmicGrid)){
-                gc_arr.push(gc);                
+                gc_arr.push(gc);
             }
         }
         return gc_arr;
@@ -274,7 +274,7 @@ RhythmicGridGenerator = (function () {
      *
      * @return {Grid} - grid object
      */
-    this.selectGrid = 
+    this.selectGrid =
     function(gridConfigsArr, gridInputArr){
         if (gridInputArr.length !== 5) throw ('Wrong number of gridInputArr args: ' + gridInputArr.length);
         if (typeof gridInputArr[0] !== 'number') throw ('Wrong value for width: ' + gridInputArr[0]);
@@ -298,7 +298,7 @@ RhythmicGridGenerator = (function () {
      * @method getValidConfigValues
      * @param {GridConf[]} grid - grids to filter for available valid options.
      * @param {[]} filterArr - array of user selected options.  NB! ORDERING OF
-     *                         ARRAY VALUES MATTERS. Keep it the same as in 
+     *                         ARRAY VALUES MATTERS. Keep it the same as in
      *                         selectGrid(): [canvasW, ratioStr, baseline, columnsNum, gutterR]
      *
      * @return {Options[]}  - options object {'PropertyName': [[optionValue, isOptionValid], ...]}
@@ -308,7 +308,7 @@ RhythmicGridGenerator = (function () {
         var filteredGC = gridConfigsArr;
         var props = ['maxCanvasWidth', 'ratio', 'baseline', 'columnsNum', 'gutter'];
 
-        if (props.length !== filterArr.length) 
+        if (props.length !== filterArr.length)
             throw 'Exception: something wrong with filterArr ['+filterArr.join(', ')+']';
 
         var opts = [];
@@ -316,26 +316,26 @@ RhythmicGridGenerator = (function () {
             var key = props[i];
             var val = filterArr[i];
             var validValues = null, allValues;
-            
+
             // matching grid with the option selected
-            filteredGC = filteredGC.filter( 
-                function(g){ return g[key] == val; 
+            filteredGC = filteredGC.filter(
+                function(g){ return g[key] == val;
             });
 
             // lookahead values after filtering
             nextKey = props[i+1];
 
             // available valid values for the next key
-            validValues = filteredGC.map( function(g) { 
-                return nextKey === 'ratio'  ? g.ratio.toString() : 
-                       nextKey === 'gutter' ? g.gutter.W/g.baseline : 
+            validValues = filteredGC.map( function(g) {
+                return nextKey === 'ratio'  ? g.ratio.toString() :
+                       nextKey === 'gutter' ? g.gutter.W/g.baseline :
                        g[nextKey] ;
             }).unique();
 
             // all available values for the next key
-            allValues = gridConfigsArr.map( function(g) { 
-                return nextKey === 'ratio'  ? g.ratio.toString() : 
-                       nextKey === 'gutter' ? g.gutter.W/g.baseline : 
+            allValues = gridConfigsArr.map( function(g) {
+                return nextKey === 'ratio'  ? g.ratio.toString() :
+                       nextKey === 'gutter' ? g.gutter.W/g.baseline :
                        g[nextKey] ;
             }).unique()
               .sort(function(a,b){ return parseInt(a) > parseInt(b) ? 1 : -1; });
@@ -361,7 +361,7 @@ RhythmicGridGenerator = (function () {
 
         return opts;
     }
-    
+
     /**
      * Validates grid according to specified criteria.
      * @public
@@ -371,7 +371,7 @@ RhythmicGridGenerator = (function () {
      */
     this.isValidGrid = function(grid){
         // dummy the always-true-valitdator, so user is required to
-        // epxlicitly define his own validator. True-validator will return all 
+        // epxlicitly define his own validator. True-validator will return all
         // possible rhythmic grids (valid and invalid, whatever that means).
         // return true;
 
@@ -395,7 +395,7 @@ RhythmicGridGenerator = (function () {
     };
 
     /**
-     * Greatest Common Divisor of two integers 
+     * Greatest Common Divisor of two integers
      * @private
      */
     var gcd = function(a,b) {
@@ -423,9 +423,9 @@ RhythmicGridGenerator = (function () {
      */
     var ratioStr2Obj = function(ratioStr) {
         // validate ratio string pattern: numXnum ('3x2', '16x9', etc)
-        if (!/^\d+x\d+$/i.test(ratioStr)) 
+        if (!/^\d+x\d+$/i.test(ratioStr))
             throw 'Exception: invalid ratio string "' + ratioStr + '".';
-        
+
         var split = ratioStr.toLowerCase().split('x');
         return {
             W: Number(split[0]),
@@ -449,7 +449,7 @@ RhythmicGridGenerator = (function () {
  *
  * Encountered ECMA-compatability issues (s.t., cannot use in Photoshop ES3):
  *   Array.prototype.filter()   ECMA-262 5.1
- *   Array.prototype.map()      ECMA-262 5.1 
+ *   Array.prototype.map()      ECMA-262 5.1
  *   Array.prototype.reduce()   ECMA-262 5.1
  *   Array.prototype.indexOf()  ECMA-262 5.1
  *   Array.prototype.forEach()  ECMA-262 5.1

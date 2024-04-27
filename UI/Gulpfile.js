@@ -41,7 +41,7 @@ gulp.task('default', ['watch'], function(){});
 var deploy = false;  // deploy flag
 
 gulp.task('build-deploy', ['clean'], function(cb) {
-    deploy = true;  
+    deploy = true;
     runSequence('js', 'injecthtml', ['styles', 'images', 'fonts', 'favicon'], cb);
 });
 
@@ -93,7 +93,7 @@ gulp.task('images', function() {
 // js task
 gulp.task('js', function() {
 
-    var vendorStream = 
+    var vendorStream =
         gulp.src([
             // skip wierd implementation of font detector (used for tests only)
             '!'+jsSrc + '/vendor/font-detector-temp.js',
@@ -105,7 +105,7 @@ gulp.task('js', function() {
         ])
         .pipe(gulpif(!deploy, gulp.dest(jsDist+'/vendor')));
 
-    var appStream = 
+    var appStream =
         gulp.src([
             // app modules, must preserve order for concat (app.js always the last)
             jsSrc + '/tesseract-drawing.js',
@@ -156,11 +156,11 @@ gulp.task('injecthtml', function () {
                 jsDist + '/grid-configurator.js',
                 jsDist + '/metrics-drawing.js',
                 jsDist + '/metrics-panning.js',
-                jsDist + '/app.js', 
-                // if deploy 
+                jsDist + '/app.js',
+                // if deploy
                 jsDist + '/concordia-app{,.min}.js' //  single-file app (deploy)
             ] , {read: false}),
-            { 
+            {
                 transform: generateScriptTag('defer'),
                 starttag: '<!-- inject:head:{{ext}} -->' 
             }
@@ -210,7 +210,7 @@ var gulpReload = function(){
     var p = null;
     var childProcess = require('child_process');
     if(process.platform === 'win32'){
-        console.log('gulp process: %s', p); 
+        console.log('gulp process: %s', p);
         if(p){
             childProcess.exec('taskkill /PID' + p.id + ' /T /F', function(){});
             p.kill();
