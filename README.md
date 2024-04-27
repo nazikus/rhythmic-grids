@@ -1,10 +1,31 @@
+
+A project exploring font rhythm in design grids. See a demo at [nazikus.github.io/rhythmic-grids][demo]. For details and explanations see [medium article][medium].
+
+[demo]: https://nazikus.github.io/rhythmic-grids
+[medium]: https://medium.com/concordia-grid/make-modular-grids-in-seconds-e2eeee95aa4f
+
+Project structure:
+- `Matlab/` - Matlab exploratory analysis and implementation of rhythmic grid formula
+- `JavaScript/` - ES3 implementation for different JS environments: ES5 browsers (V8, SpiderMonkey, JavaScriptCore), ES3 Photoshop ExtendedScript, ES5 CocoaScript
+- `ScriptFu/` - [GIMP](https://www.gimp.org/) automation scripts to generate PhotoShop `.psd` files on the server side.
+- `UI/` - single-page app, see at [nazikus.github.io/rhythmic-grids][demo].
+
+Credits:
+ - idea and design [@rsokolovski](https://github.com/rsokolovski)
+ - algorithm design and exploration [@nazikus](https://github.com/nazikus)
+ - frontend [@ArsenBatyuchok](https://github.com/ArsenBatyuchok)
+
+---
+
 # Rhythmic grids generator
 
-Rhythmic grid is a type of grid for layout design where size of blocks (grid cells) are aligned strictly and with preserved proportions to baseline and gutter width between blocks.
+A rhythmic grid is a type of grid for layout design where the size of blocks (grid cells) are aligned strictly and with preserved proportions to font baseline and gutter width between the blocks.
 
-Current generator computes optimal rhythmic blocks for given grid configuration (max. width, aspect ratio, baseline, columns, gutter). The generator is based on derived modular arithmetic [formula](https://github.com/nazikus/rhythmic-grids/blob/master/micro-block_formula.pdf). Source code includes Matlab and JavaScript implementations with WebInterface as seperate sub-project - [Concordia](http://www.concordiagrid.com/).
+The current generator computes optimal rhythmic blocks for a given grid configuration (max. width, aspect ratio, font baseline, columns, gutter). The generator is based on the following modular arithmetics:
 
-###Rhythmic grid example###
+![Formula](micro-block_formula.png)
+
+**Rhythmic grid example**:
  * Max. canvas width - 960px
  * Aspect ratio - 3x2
  * Baseline - 8px
@@ -14,12 +35,16 @@ Current generator computes optimal rhythmic blocks for given grid configuration 
 
 For current grid configuration algorithm generates a grid with micro-block of size 48x32px, s.t. the rest blocks are generated and aligned proportionally (including gutter) preserving ratio with baseline.
 
+![Rhythmic grid sample](grid-sample.png)
 
-![Rhythmic grid sample](https://raw.githubusercontent.com/wiki/nazikus/rhythmic-grids/img/Width960_Ratio3x2_Base8_Cols12_Gut24_Block48x32.png)
 
-# Font metrics explorer #
+Matlab code allows to explore a space of possible rhythmic grids within configuration limits:
 
-In addition, font metrics explorer is avialable allowing to test your system fonts for compliance with web 'safebox' convention (500UPM) as a difference from recommended UPM size. See `interface/safe-box.html`.
+![Grid Space](grid-space.gif)
 
+
+# Font metrics explorer
+
+In addition, a font metrics explorer tool is available to test your system fonts for compliance with the web 'safebox' convention (500UPM) as a difference from the recommended UPM size.
 
 ![Rhythmic grid sample](https://raw.githubusercontent.com/wiki/nazikus/rhythmic-grids/img/font-metrics-explorer.png)
